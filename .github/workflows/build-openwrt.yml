@@ -83,11 +83,11 @@ jobs:
         svn co https://github.com/gd0772/diy/trunk/public/Custom openwrt/common
         chmod +x openwrt/common/* ./
     
-    - name: 获取公告
+    - name: 公告内容
       run: |
         cd openwrt
-        echo "GITHUB_RELEASE=$(grep "https://github.com/[a-zA-Z0-9]" ${GITHUB_WORKSPACE}/.git/config | cut -c8-100)" >> $GITHUB_ENV
-        source common/common.sh && Diy_notice
+        echo "GITHUB_REL=$(grep "https://github.com/[a-zA-Z0-9]" ${GITHUB_WORKSPACE}/.git/config | cut -c8-100)" >> $GITHUB_ENV
+        source ${PATH1}/common.sh && Diy_notice
     
     - name: 加载设置
       run: |
