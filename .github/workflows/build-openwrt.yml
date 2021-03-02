@@ -187,8 +187,8 @@ jobs:
       if: env.SERVERCHAN_SCKEY == 'true'
       with:
         SCKEY: ${{ secrets.SCKEY }}
-        text: 主人"${{ env.WXFB_MESSAGE }}"编译开始啦
-        desp: 主人您编译的["${{ env.WXFB_MESSAGE }}"]固件正在努力耕耘中,请耐心等待......${DEVICE}，$DEVICE,${{ env.DEVICE }}
+        text: 主人 ${{ env.WXFB_MESSAGE }} 编译开始啦
+        desp: 主人您编译的[ ${{ env.WXFB_MESSAGE }} ] 固件正在努力耕耘中,请耐心等待......${DEVICE}，$DEVICE,${{ env.DEVICE }}
     
     - name: 编译固件
       id: compile
@@ -217,7 +217,7 @@ jobs:
       with:
         name: OpenWrt_bin_${{ env.NAME2 }}${{ env.NAME1 }}_${{ env.date }}
         path: openwrt/bin
-    - name: 编译N1机型时,打包（N1、微加云、贝壳云、我家云、S9xxx）固件
+    - name: 编译N1机型时,打包（微加云、贝壳云、我家云、S9xxx）固件
       run: |
         cd openwrt
         if [[ ${{matrix.target}} =~ (Lede_phicomm_n1|Project_phicomm_n1) ]]; then
@@ -280,10 +280,7 @@ jobs:
         curl -fsSL git.io/file-transfer | sh
         ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
         echo "::warning file=奶牛快传（${{matrix.target}}）::$(cat cowtransfer.log | grep https)"
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "::warning file=WeTransfer（${{matrix.target}}）::$(cat wetransfer.log | grep https)"
-    
+        
     - name: 提取链接
       if: steps.organizer.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true'
       run: |
@@ -335,7 +332,7 @@ jobs:
       with:
         SCKEY: ${{ secrets.SCKEY }}
         text: 恭喜 ${{ env.WXFB_MESSAGE }} 固件编译成功！
-        desp: 您要编译的 [ ${{ env.NAME2 }}${{ env.NAME1 }} ] 固件顺利编译完成了！
+        desp: 您编译的 [ ${{ env.NAME2 }}${{ env.NAME1 }} ] 固件顺利编译完成了！
               
               
               完成时间：${{ env.date1 }}
