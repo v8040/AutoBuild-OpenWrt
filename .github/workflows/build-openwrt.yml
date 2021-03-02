@@ -86,8 +86,8 @@ jobs:
     - name: 公告内容
       run: |
         cd openwrt
-        echo "GITHUB_REL=$(grep "https://github.com/[a-zA-Z0-9]" ${GITHUB_WORKSPACE}/.git/config | cut -c8-100)" >> $GITHUB_ENV
-        source ${PATH1}/common.sh && Diy_notice
+        echo "GITHUB_RELEASE=$(grep "https://github.com/[a-zA-Z0-9]" ${GITHUB_WORKSPACE}/.git/config | cut -c8-100)" >> $GITHUB_ENV
+        source common/common.sh && Diy_notice
     
     - name: 加载设置
       run: |
@@ -147,6 +147,7 @@ jobs:
             source common/upgrade.sh && Diy_Part1
           fi
         fi
+        
     - name: 预下载dll
       id: package
       run: |
@@ -217,7 +218,23 @@ jobs:
       with:
         name: OpenWrt_bin_${{ env.NAME2 }}${{ env.NAME1 }}_${{ env.date }}
         path: openwrt/bin
-         fi
+    - name: 编译N1机型时,打包（N1、微加云、贝壳云、我家云、S9xxx）固件
+      run: |
+        cd openwrt
+        if [[ ${{matrix.target}} =~ (Lede_phicomm_n1|Project_phicomm_n1) ]]; then
+          source common/common.sh && Diy_n1
+         cd out
+         for x in ${devices[*]}; do
+           cd $x
+           filename=$(ls | awk -F '.img' '{print $1}')
+           gzip *.img
+           cd ../
+           echo "firmware_$x=$filename" >> $GITHUB_ENV
+         done
+           cd ../../
+           mv -f reform/out/*/*.img.gz openwrt/bin/targets/armvirt/*
+        fi
+    
     
     - name: 整理固件
       id: organizer
