@@ -5,7 +5,7 @@
 # Copyright (C) 2019 P3TERX <https://p3terx.com>
 # <https://github.com/P3TERX/Actions-OpenWrt.git>
 #
-name: 编译OpenWrt固件
+name: 编译 OpenWrt 固件 
 on:
   workflow_dispatch:
     inputs:
@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [Lede_phicomm_n1]
+        target: [Lean_openwrt_N1]
 
     steps:
     - name: 准备结束
@@ -78,11 +78,10 @@ jobs:
         df -hT $PWD
         git clone -b $REPO_BRANCH --single-branch $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        git clone https://github.com/gd0772/package.git openwrt/package/diy
         svn co https://github.com/gd0772/diy/trunk/public/Custom openwrt/common
         chmod +x openwrt/common/* ./
     
-    - name: 获取内容
+    - name: 免责声明
       run: |
         cd openwrt
         echo "GITHUB_RELEASE=$(grep "https://github.com/[a-zA-Z0-9]" ${GITHUB_WORKSPACE}/.git/config | cut -c8-100)" >> $GITHUB_ENV
@@ -287,9 +286,6 @@ jobs:
         curl -fsSL git.io/file-transfer | sh
         ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
         echo "COWTRANSFER_URL=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_ENV
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "WETRANSFER_URL=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_ENV
     
     - name: 发布固件
       uses: softprops/action-gh-release@v1
@@ -315,13 +311,13 @@ jobs:
             🌴 链接有效期为7天，无需注册直接下载 🐤
         files: ${{ env.FIRMWARE }}/*
     
-    - name: 发布云端定时更新地址
+    - name: 发布云端定时更新
       uses: softprops/action-gh-release@v1
       if: steps.compile.outputs.status == 'success' && env.REGULAR_UPDATE == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       with:
-        name: 云端定时更新地址
+        name: 云端定时更新
         tag_name: update_Firmware
         body: ${{ env.log1 }}-${{ env.log2 }}-${{ env.log3 }}（完成时间-${{ env.date }}）
         files: openwrt/bin/Firmware/*
