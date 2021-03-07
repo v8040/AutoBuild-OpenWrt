@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [Lean_openwrt_N1]
+        target: [Lede_phicomm_n1]
 
     steps:
     - name: 准备结束
