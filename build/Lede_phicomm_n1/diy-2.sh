@@ -1,6 +1,8 @@
 #!/bin/bash
 #=================================================
 # Description: Build OpenWrt using GitHub Actions
+# The script is maintained by gd772
+
 # echo '删除重复多余主题'
 rm -rf ./feeds/freifunk/themes
 rm -rf ./package/lean/luci-theme-netgear
@@ -17,13 +19,13 @@ rm -rf ./package/lean/luci-app-jd-dailybonus
 rm -rf ./feeds/luci/applications/luci-app-rp-pppoe-server
 
 # echo '修改 默认IP'
-sed -i "s/192.168.1.1/10.10.10.1/g" package/base-files/files/bin/config_generate
+sed -i "s/192.168.1.1/10.10.10.1g" package/base-files/files/bin/config_generate
 # echo '修改 主机名'
 sed -i "s/OpenWrt/N1/g" package/base-files/files/bin/config_generate
 
 # echo '替换系统文件'
 curl -fsSL https://raw.githubusercontent.com/gd0772/diy/main/public/zzz-default-settings > ./package/lean/default-settings/files/zzz-default-settings
-#curl -fsSL https://raw.githubusercontent.com/gd0772/diy/main/N1/index.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+curl -fsSL https://raw.githubusercontent.com/gd0772/diy/main/N1/index.htm > ./feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
 # echo '添加 SSR Plus+'
 git clone https://github.com/Mattraks/helloworld.git ./package/diy/ssrplus
@@ -45,12 +47,26 @@ svn co https://github.com/gd0772/diy/trunk/public/luci-app-netdata ./package/lea
 svn co https://github.com/gd0772/diy/trunk/public/netdata ./feeds/packages/admin/netdata
 # echo '替换USB打印'
 svn co https://github.com/gd0772/diy/trunk/public/luci-app-usb-printer ./package/lean/luci-app-usb-printer
+# echo '添加 KPR去广告'
+git clone https://github.com/project-lede/luci-app-godproxy.git ./package/diy/luci-app-godproxy
+# echo '添加 KPR去广告规则数据'
+svn co https://github.com/gd0772/diy/trunk/public/rules ./package/diy/luci-app-godproxy/root/usr/share/koolproxy/data/rules
 
 # echo '修改插件名称'
-sed -i 's/TTYD 终端/网页终端/g' package/lean/luci-app-ttyd/po/zh-cn/terminal.po
+sed -i 's/"管理权"/"改密码"/g' feeds/luci/modules/luci-base/po/zh-cn/base.po
+sed -i 's/TTYD 终端/命令行/g' package/lean/luci-app-ttyd/po/zh-cn/terminal.po
 sed -i 's/ShadowSocksR Plus+/SSR Plus+/g' package/diy/ssrplus/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
 sed -i 's/PassWall/Pass Wall/g' package/diy/passwall/luci-app-passwall/po/zh-cn/passwall.po
 sed -i 's/广告屏蔽大师 Plus+/广告屏蔽/g' package/lean/luci-app-adbyby-plus/po/zh-cn/adbyby.po
+sed -i 's/GodProxy滤广告/KPR去广告/g' package/diy/luci-app-godproxy/luasrc/controller/koolproxy.lua
+sed -i 's/GodProxy滤广告/KoolProxyR去广告/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/global.lua
+sed -i 's/GodProxy 访问控制/KoolProxyR 访问控制/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/global.lua
+sed -i 's/GodProxy 帮助支持/KoolProxyR帮助支持/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/global.lua
+sed -i 's/GodProxy是/是/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/global.lua
+sed -i 's/GodProxy/KoolProxyR/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/global.lua
+sed -i 's/GodProxy滤广告/KPR去广告/g' package/diy/luci-app-godproxy/luasrc/model/cbi/koolproxy/rss_rule.lua
+sed -i 's/Shaoxia的KoolProxyR详细使用说明/关于 KoolProxyR 的详细使用说明/g' package/diy/luci-app-godproxy/luasrc/view/koolproxy/feedback.htm
+sed -i 's/GodProxy/KoolProxyR/g' package/diy/luci-app-godproxy/luasrc/view/koolproxy/feedback.htm
 sed -i 's/京东签到服务/京东签到/g' package/diy/luci-app-jd-dailybonus/luasrc/controller/jd-dailybonus.lua
 sed -i 's/KMS 服务器/KMS 激活/g' package/lean/luci-app-vlmcsd/po/zh-cn/vlmcsd.zh-cn.po
 sed -i 's/msgstr "UPnP"/msgstr "UPnP设置"/g' feeds/luci/applications/luci-app-upnp/po/zh-cn/upnp.po
@@ -62,6 +78,8 @@ sed -i 's/Docker CE 容器/Docker容器/g' package/lean/luci-app-docker/po/zh-cn
 sed -i 's/UU游戏加速器/UU加速器/g' package/lean/luci-app-uugamebooster/po/zh-cn/uuplugin.po
 sed -i 's/网络存储/存储/g' package/lean/luci-app-vsftpd/po/zh-cn/vsftpd.po
 sed -i 's/挂载 SMB 网络共享/挂载共享/g' package/lean/luci-app-cifs-mount/po/zh-cn/cifs.po
+sed -i 's/"文件浏览器"/"文件浏览"/g' package/diy/luci-app-filebrowser/po/zh-cn/filebrowser.po
+sed -i 's/msgstr "FTP 服务器"/msgstr "FTP 服务"/g' package/lean/luci-app-vsftpd/po/zh-cn/vsftpd.po
 sed -i 's/Rclone/网盘挂载/g' package/lean/luci-app-rclone/luasrc/controller/rclone.lua
 sed -i 's/BaiduPCS Web/百毒网盘/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
 sed -i 's/IPSec VPN 服务器/IPSec 服务/g' package/lean/luci-app-ipsec-vpnd/po/zh-cn/ipsec.po
@@ -110,26 +128,69 @@ sed -i 's/services/vpn/g' package/diy/ssrplus/luci-app-ssr-plus/luasrc/view/shad
 # echo '调整 PassWall 到 GFW 菜单'
 sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/controller/passwall.lua
 sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/api/api.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/acl.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/app_update.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/auto_switch.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/global.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/haproxy.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/log.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/node_config.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/node_list.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/node_subscribe.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/other.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/rule.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/rule_list.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/client/shunt_rules.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/server/index.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/model/cbi/passwall/server/user.lua
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/app_update/brook_version.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/app_update/kcptun_version.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/app_update/trojan_go_version.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/app_update/xray_version.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/global/footer.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/global/status.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/global/status2.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/global/tips.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/haproxy/status.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/log/log.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/node_list/link_add_node.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/node_list/link_share_man.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/node_list/node_list.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/rule/rule_version.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/server/log.htm
+sed -i 's/services/vpn/g' package/diy/passwall/luci-app-passwall/luasrc/view/passwall/server/users_list_status.htm
 # echo '调整 HelloWorld 到 GFW 菜单'
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/controller/vssr.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/advanced.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/client.lua
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/client-config.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/control.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/log.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/router.lua
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/server.lua
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/server-config.lua
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/servers.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/socks5.lua
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/model/cbi/vssr/subscribe-config.lua
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/cell_valuefooter.htm
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/cell_valueheader.htm
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/licence.htm
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/refresh.htm
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/ssrurl.htm
+sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/status_bottom.htm
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/status_top.htm
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/tblsection.htm
 sed -i 's/services/vpn/g' package/diy/luci-app-vssr/luasrc/view/vssr/update_subscribe.htm
 # echo '调整 OpenClash 到 GFW 菜单'
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/controller/openclash.lua
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/openclash.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/client.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/config.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/config-subscribe.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/config-subscribe-edit.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/game-rules-manage.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/groups-config.lua
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/log.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/other-rules-edit.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/proxy-provider-config.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/proxy-provider-file-manage.lua
@@ -140,12 +201,20 @@ sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/servers.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/servers-config.lua
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/model/cbi/openclash/settings.lua
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/cfg_check.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/config_editor.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/developer.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/download_rule.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/dvalue.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/log.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/myip.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/other_button.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/ping.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/server_list.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/status.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/switch_mode.htm
 sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/update.htm
+sed -i 's/services/vpn/g' package/diy/OpenClash/luci-app-openclash/luasrc/view/openclash/upload.htm
 # echo '调整 V2ray服务器 到 GFW 菜单'
 sed -i 's/services/vpn/g' package/lean/luci-app-v2ray-server/luasrc/controller/v2ray_server.lua
 sed -i 's/services/vpn/g' package/lean/luci-app-v2ray-server/luasrc/model/cbi/v2ray_server/index.lua
@@ -158,7 +227,7 @@ sed -i 's/services/vpn/g' package/lean/luci-app-v2ray-server/luasrc/view/v2ray_s
 curl -fsSL https://raw.githubusercontent.com/gd0772/diy/main/public/firewall.user > ./package/network/config/firewall/files/firewall.user
 
 # echo '版本号更新'
-sed -i "s/R21.2.1/R21.2.1 $(TZ=UTC-8 date "+%Y.%m.%d") Compilde by xw/g" package/lean/default-settings/files/zzz-default-settings
+sed -i "s/R21.2.1/R21.2.1 $(TZ=UTC-8 date "+%Y.%m.%d") Compilde by vx/g" package/lean/default-settings/files/zzz-default-settings
 
 # echo '更换内核'
 #sed -i 's/KERNEL_PATCHVER:=5.4/KERNEL_PATCHVER:=4.19/g' ./target/linux/x86/Makefile
