@@ -9,7 +9,7 @@ env:
   CONFIG_FILE: configs/n1.config
   DIY_SCRIPT: scripts/diy/n1-lede.sh
   TOOLCHAIN_TAG: Toolchain
-  OPENWRT_RELEASE_TAG: Amlogic_N1
+  OPENWRT_RELEASE_TAG: ARMv8_N1
   SOURCE: lede
   TZ: Asia/Shanghai
 
@@ -34,7 +34,6 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi $(docker images -q)
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /etc/mysql /usr/local/lib/android
         sudo -E apt-get -qq update
         sudo -E apt-get -qq install $(curl -fsSL is.gd/depends_ubuntu_2204)
@@ -158,6 +157,20 @@ jobs:
         echo "DEVICE_SUBTARGET=$(echo '${{needs.Toolchain.outputs.DEVICE_SUBTARGET}}')" >> $GITHUB_ENV
         echo "TOOLCHAIN_IMAGE=$(echo '${{needs.Toolchain.outputs.TOOLCHAIN_IMAGE}}')" >> $GITHUB_ENV
 
+    - name: 检查服务器配置
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息："
+        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -Th
+
     - name: 初始化环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -172,8 +185,7 @@ jobs:
 
     - name: 组合磁盘
       run: |
-        sudo swapoff -a
-        sudo rm -f /mnt/swapfile
+        sudo swapoff -a && sudo rm -f /mnt/swapfile
         export ROOT_FREE_KB=$(df --block-size=1024 --output=avail / | tail -1)
         export ROOT_LOOP_KB=$(expr $ROOT_FREE_KB - 1048576)
         export ROOT_LOOP_BYTES=$(expr $ROOT_LOOP_KB \* 1024)
@@ -192,11 +204,9 @@ jobs:
         sudo mkfs.btrfs -L combinedisk $LV_DEVNAME
         sudo mount -o compress=zstd $LV_DEVNAME $GITHUB_WORKSPACE
         sudo chown -R runner:runner $GITHUB_WORKSPACE
-        mkdir $GITHUB_WORKSPACE/tmp
-        chmod 777 $GITHUB_WORKSPACE/tmp
+        mkdir $GITHUB_WORKSPACE/tmp && chmod 777 $GITHUB_WORKSPACE/tmp
         sudo cp -rp /tmp/* $GITHUB_WORKSPACE/tmp
-        sudo mount -B $GITHUB_WORKSPACE/tmp /tmp
-        df -hT $GITHUB_WORKSPACE
+        sudo mount -B $GITHUB_WORKSPACE/tmp /tmp && df -hT
 
     - name: Checkout
       run: |
@@ -301,6 +311,7 @@ jobs:
         ls -lh
         echo "::set-output name=status::success"
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        echo "OUTPUTDATE=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
 
     - name: 打包内核
       if: steps.organize.outputs.status == 'success'
@@ -311,6 +322,8 @@ jobs:
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
         KERNEL_VERSION_NAME: 5.19.9
         KERNEL_AUTO_LATEST: true
+        WHOAMI: v8040
+        DISTRIB_REVISION: R${{ env.OUTPUTDATE }} by v8040
 
     - name: 重整理文件
       id: reorganize
@@ -336,7 +349,7 @@ jobs:
       if: steps.reorganize.outputs.status == 'success'
       uses: ncipollo/release-action@main
       with:
-        name: R${{ env.PACKAGED_OUTPUTDATE }}_OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
+        name: v${{ env.PACKAGED_OUTPUTDATE }}
         artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
         allowUpdates: true
         replacesArtifacts: true
