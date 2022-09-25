@@ -158,6 +158,20 @@ jobs:
         echo "DEVICE_SUBTARGET=$(echo '${{needs.Toolchain.outputs.DEVICE_SUBTARGET}}')" >> $GITHUB_ENV
         echo "TOOLCHAIN_IMAGE=$(echo '${{needs.Toolchain.outputs.TOOLCHAIN_IMAGE}}')" >> $GITHUB_ENV
 
+    - name: 检查服务器配置
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息："
+        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -Th
+
     - name: 初始化环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -172,8 +186,7 @@ jobs:
 
     - name: 组合磁盘
       run: |
-        sudo swapoff -a
-        sudo rm -f /mnt/swapfile
+        sudo swapoff -a && sudo rm -f /mnt/swapfile
         export ROOT_FREE_KB=$(df --block-size=1024 --output=avail / | tail -1)
         export ROOT_LOOP_KB=$(expr $ROOT_FREE_KB - 1048576)
         export ROOT_LOOP_BYTES=$(expr $ROOT_LOOP_KB \* 1024)
@@ -192,11 +205,9 @@ jobs:
         sudo mkfs.btrfs -L combinedisk $LV_DEVNAME
         sudo mount -o compress=zstd $LV_DEVNAME $GITHUB_WORKSPACE
         sudo chown -R runner:runner $GITHUB_WORKSPACE
-        mkdir $GITHUB_WORKSPACE/tmp
-        chmod 777 $GITHUB_WORKSPACE/tmp
+        mkdir $GITHUB_WORKSPACE/tmp && chmod 777 $GITHUB_WORKSPACE/tmp
         sudo cp -rp /tmp/* $GITHUB_WORKSPACE/tmp
-        sudo mount -B $GITHUB_WORKSPACE/tmp /tmp
-        df -hT $GITHUB_WORKSPACE
+        sudo mount -B $GITHUB_WORKSPACE/tmp /tmp && df -hT
 
     - name: Checkout
       run: |
@@ -316,7 +327,7 @@ jobs:
       if: steps.organize.outputs.status == 'success'
       uses: ncipollo/release-action@main
       with:
-        name: R${{ env.OUTPUTDATE }}_OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
+        name: v${{ env.OUTPUTDATE }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         allowUpdates: true
         replacesArtifacts: true
