@@ -9,6 +9,9 @@ sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/tt
 # 修改opkg源
 echo "src/gz openwrt_kiddin9 https://op.supes.top/packages/aarch64_cortex-a53" >> package/system/opkg/files/customfeeds.conf
 
+# 修改默认shell为zsh
+# sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
+
 # 移除重复软件包
 rm -rf feeds/luci/applications/luci-app-advanced
 rm -rf feeds/luci/applications/luci-app-aliyundrive-fuse
@@ -77,7 +80,7 @@ svn co https://github.com/v8040/diy/trunk/applications/luci-app-onliner package/
 # 其他调整
 sed -i "s|https.*/OpenWrt|https://github.com/v8040/AutoBuild-OpenWrt|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|opt/kernel|https://github.com/ophub/kernel/tree/main/pub/stable|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|ARMv8|N1|g" package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
 NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
 curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
 echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
@@ -86,6 +89,7 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/b
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
+sed -i 's/21/87/g' package/luci-app-wizard/files/luci/controller/wizard.lua
 
 # 科学上网openclash
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
