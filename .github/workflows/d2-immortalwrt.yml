@@ -6,7 +6,7 @@ on:
 env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-18.06-k5.4
-  CONFIG_FILE: configs/d2-openclash.config
+  CONFIG_FILE: configs/d2.config
   DIY_SCRIPT: scripts/diy/d2-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: Newifi_D2
@@ -336,7 +336,8 @@ jobs:
           * OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           * 编译时间：${{ env.DATE }}
           * 默认 IP：10.10.11.1 默认密码：password
-          * immortalwrt源码：openclash版，务必设置小闪存模式，没有集成任何存储、下载、USB等相关插件
-          * lede源码：full版，集成aria2 ddns samba4 zerotier，没有集成任何科学插件
+          * immortalwrt和lede源码：仅源码不同
+          * 集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件
+          * openclash务必设置小闪存模式
           * 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
