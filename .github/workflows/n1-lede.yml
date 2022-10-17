@@ -320,7 +320,7 @@ jobs:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
-        KERNEL_VERSION_NAME: 5.19.9
+        KERNEL_VERSION_NAME: 6.02
         KERNEL_AUTO_LATEST: true
         WHOAMI: v8040
         DISTRIB_REVISION: R${{ env.OUTPUTDATE }} by v8040
@@ -334,7 +334,7 @@ jobs:
         cd ${{ env.PACKAGED_OUTPUTPATH }}/
         ls -lh
         name1=$(basename *rootfs.tar.gz)
-        name2=$(basename *flippy*.img.gz)
+        name2=$(basename *.img.gz)
         re_name1=$(echo ${{ env.SOURCE }}-armvirt-64-rootfs.tar.gz)
         re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-flippy.img.gz)
         sed -i "s/${name1}/${re_name1}/g" sha256sums
@@ -360,7 +360,7 @@ jobs:
           * 编译时间：${{ env.DATE }}
           * 默认 IP：10.10.10.1 默认密码：password
           * ophub.img.gz：immortalwrt源码，同步ophub稳定5.4内核
-          * flippy.img.gz：lede源码，同步flippy最新5.19内核
+          * flippy.img.gz：lede源码，同步flippy最新6.0内核
           * 升级命令：openwrt-update-amlogic
           * 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
