@@ -6,7 +6,7 @@ on:
 env:
   SOURCE_URL: https://github.com/openwrt/openwrt
   SOURCE_BRANCH: openwrt-22.03
-  CONFIG_FILE: configs/d2.config
+  CONFIG_FILE: configs/d2-f.config
   DIY_SCRIPT: scripts/diy/d2-official.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: Newifi_D2
