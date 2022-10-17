@@ -336,7 +336,7 @@ jobs:
           * OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           * 编译时间：${{ env.DATE }}
           * 默认 IP：10.10.11.1 默认密码：password
-          * immortalwrt和lede源码：仅源码不同
+          * 源码不同,对应文件名
           * 集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件
           * openclash务必设置小闪存模式
           * 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
