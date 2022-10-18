@@ -45,14 +45,14 @@ rm -rf feeds/luci/applications/luci-app-wrtbwmon
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/packages/net/dnsproxy
 rm -rf feeds/packages/net/mosdns
+rm -rf package/emortal/autosamba
 
 # 添加额外软件包
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone https://github.com/jerrykuku/lua-maxminddb.git package/lua-maxminddb
+git clone https://github.com/sirpdboy/autosamba package/autosamba
 git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
 git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
-git clone https://github.com/sirpdboy/luci-app-ddns-go.git package/ddns-go
-git clone https://github.com/sirpdboy/luci-app-lucky.git package/lucky
 git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
 git clone https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
@@ -74,6 +74,8 @@ svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-
 svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/aliyundrive-fuse package/aliyundrive-fuses
 svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/luci-app-aliyundrive-fuse package/luci-app-aliyundrive-fuse
 svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
+svn co https://github.com/sirpdboy/luci-app-ddns-go/trunk/ddnsgo package/ddnsgo
+svn co https://github.com/sirpdboy/luci-app-ddns-go/trunk/luci-app-ddns-go package/luci-app-ddns-go
 svn co https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-netspeedtest package/luci-app-netspeedtest
 svn co https://github.com/v8040/diy/trunk/applications/luci-app-onliner package/luci-app-onliner
