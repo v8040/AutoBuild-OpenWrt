@@ -1,4 +1,4 @@
-name: Build immortalwrt-18.06 for D2
+name: Build immortalwrt for D2
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
   DIY_SCRIPT: scripts/diy/d2-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: Newifi_D2
-  SOURCE: immortalwrt-18.06
+  SOURCE: immortalwrt
   TZ: Asia/Shanghai
 
 jobs:
