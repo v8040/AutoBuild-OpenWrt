@@ -1,4 +1,4 @@
-name: Build immortalwrt-18.06 for N1
+name: Build immortalwrt for N1
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
   DIY_SCRIPT: scripts/diy/n1-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: ARMv8_N1
-  SOURCE: immortalwrt-18.06
+  SOURCE: immortalwrt
   TZ: Asia/Shanghai
 
 jobs:
