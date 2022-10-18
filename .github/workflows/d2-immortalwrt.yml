@@ -1,16 +1,16 @@
-name: Build immortalwrt-21.02 for D2
+name: Build immortalwrt-18.06 for D2
 
 on:
   workflow_dispatch:
 
 env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
-  SOURCE_BRANCH: openwrt-21.02
+  SOURCE_BRANCH: openwrt-18.06-k5.4
   CONFIG_FILE: configs/d2.config
   DIY_SCRIPT: scripts/diy/d2-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: Newifi_D2
-  SOURCE: immortalwrt-21.02
+  SOURCE: immortalwrt-18.06
   TZ: Asia/Shanghai
 
 jobs:
@@ -243,7 +243,6 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_SCRIPT
         cd $OPENWRT_PATH
-        sed -i 's/ -b 18.06 / /g' $GITHUB_WORKSPACE/$DIY_SCRIPT
         $GITHUB_WORKSPACE/$DIY_SCRIPT
         make defconfig
 
@@ -301,10 +300,10 @@ jobs:
       if: steps.generate.outputs.status == 'success'
       run: |
         mkdir -p Packages
-        cp $OPENWRT_PATH/.config ${{ env.SOURCE }}-build.config
+        cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk Packages
         mv -f $OPENWRT_PATH/bin/targets/*/*/packages/*.ipk Packages
-        tar -zcvf ${{ env.SOURCE }}-ipk.tar.gz Packages && rm -rf Packages
+        tar -zcvf ipk-${{ env.SOURCE }}.tar.gz Packages && rm -rf Packages
         mv -f *.config *.tar.gz $OPENWRT_PATH/bin/targets/*/*
         cd $OPENWRT_PATH/bin/targets/*/*
         ls -lh
@@ -334,11 +333,10 @@ jobs:
         tag: ${{ env.OPENWRT_RELEASE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          * OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
-          * 编译时间：${{ env.DATE }}
-          * 默认 IP：10.10.11.1 默认密码：password
-          * 源码不同,对应文件名
-          * 集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件
-          * openclash务必设置小闪存模式
-          * 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
+          >  OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
+          - 编译时间：`${{ env.DATE }}`
+          - 默认 IP：`10.10.11.1` 默认密码：`password`
+          - 集成`ddns` `openclash` `zerotier`，没有集成任何存储、下载、USB等相关插件
+          - `openclash务必设置小闪存模式`
+          - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}

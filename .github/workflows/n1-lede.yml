@@ -301,10 +301,10 @@ jobs:
       if: steps.generate.outputs.status == 'success'
       run: |
         mkdir -p Packages
-        cp $OPENWRT_PATH/.config ${{ env.SOURCE }}-build.config
+        cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk Packages
         mv -f $OPENWRT_PATH/bin/targets/*/*/packages/*.ipk Packages
-        tar -zcvf ${{ env.SOURCE }}-ipk.tar.gz Packages && rm -rf Packages
+        tar -zcvf ipk-${{ env.SOURCE }}.tar.gz Packages && rm -rf Packages
         mv *.config *.tar.gz $OPENWRT_PATH/bin/targets/*/*
         cd $OPENWRT_PATH/bin/targets/*/*
         rm -rf packages *.buildinfo *.manifest *.json
@@ -327,19 +327,19 @@ jobs:
       id: reorganize
       if: env.PACKAGED_STATUS == 'success'
       run: |
-        mv -f $FIRMWARE_PATH/*build.config ${{ env.PACKAGED_OUTPUTPATH }}
-        mv -f $FIRMWARE_PATH/*ipk.tar.gz ${{ env.PACKAGED_OUTPUTPATH }}
+        mv -f $FIRMWARE_PATH/build*.config ${{ env.PACKAGED_OUTPUTPATH }}
+        mv -f $FIRMWARE_PATH/ipk*.tar.gz ${{ env.PACKAGED_OUTPUTPATH }}
         cd ${{ env.PACKAGED_OUTPUTPATH }}/
         ls -lh
         name1=$(basename *rootfs.tar.gz)
         name2=$(basename *.img.gz)
-        re_name1=$(echo ${{ env.SOURCE }}-armvirt-64-rootfs.tar.gz)
+        re_name1=$(echo rootfs-${{ env.SOURCE }}-armvirt-64.tar.gz)
         re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.19.img.gz)
         sed -i "s/${name1}/${re_name1}/g" sha256sums
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
         mv -f ${name2} ${re_name2}
-        mv -f sha256sums ${{ env.SOURCE }}.sha256sums
+        mv -f sha256sums ${{ env.SOURCE }}.sha256sums.
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
 
@@ -354,11 +354,11 @@ jobs:
         tag: ${{ env.OPENWRT_RELEASE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          * OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
-          * 编译时间：${{ env.DATE }}
-          * 默认 IP：10.10.10.1 默认密码：password
-          * lede源码，5.19内核
-          * immortalwrt源码，18.06：5.4内核；21.02：5.15内核
-          * 升级命令：openwrt-update-amlogic
-          * 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
+          >  OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
+          - 编译时间：`${{ env.DATE }}`
+          - 默认 IP：`10.10.10.1` 默认密码：`password`
+          - lede源码：`5.19内核`
+          - immortalwrt源码：`5.4内核`
+          - 升级命令：`openwrt-update-amlogic`
+          - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
