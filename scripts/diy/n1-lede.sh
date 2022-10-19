@@ -64,10 +64,12 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewo
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-mosdns package/luci-app-mosdns
+# svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-wizard package/luci-app-wizard
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
 svn co https://github.com/kiddin9/openwrt-packages/trunk/mosdns package/mosdns
+svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/wrtbwmon package/wrtbwmon
 svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
