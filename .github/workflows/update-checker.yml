@@ -44,7 +44,7 @@ jobs:
       uses: GitRML/delete-workflow-runs@main
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        retain_days: 3
+        retain_days: 1
         keep_minimum_runs: 0
 
     - name: 清理releases
