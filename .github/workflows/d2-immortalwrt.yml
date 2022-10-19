@@ -315,7 +315,7 @@ jobs:
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
         mv -f ${name2} ${re_name2}
-        mv -f sha256sums ${{ env.SOURCE }}.sha256sums
+        mv -f sha256sums openwrt-${{ env.SOURCE }}.sha256sums
         rm -rf packages *.buildinfo *.manifest *.json
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
