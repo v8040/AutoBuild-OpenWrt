@@ -357,8 +357,8 @@ jobs:
           >  OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - lede源码：`6.0内核`
-          - immortalwrt源码：`5.4内核`
+          - lede源码：`6.0+内核`
+          - immortalwrt源码：`5.4+内核`
           - 升级命令：`openwrt-update-amlogic`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
