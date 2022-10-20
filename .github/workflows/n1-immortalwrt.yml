@@ -334,7 +334,7 @@ jobs:
         name1=$(basename *rootfs.tar.gz)
         name2=$(basename *.img.gz)
         re_name1=$(echo rootfs-${{ env.SOURCE }}-armvirt-64.tar.gz)
-        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.4.img.gz)
+        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.img.gz)
         sed -i "s/${name1}/${re_name1}/g" sha256sums
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
@@ -357,7 +357,7 @@ jobs:
           >  OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - lede源码：`5.19内核`
+          - lede源码：`6.0内核`
           - immortalwrt源码：`5.4内核`
           - 升级命令：`openwrt-update-amlogic`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
