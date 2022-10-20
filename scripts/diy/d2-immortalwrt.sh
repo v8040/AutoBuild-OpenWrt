@@ -43,7 +43,6 @@ rm -rf feeds/luci/applications/luci-app-wrtbwmon
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/packages/net/dnsproxy
 rm -rf feeds/packages/net/mosdns
-rm -rf package/emortal/autosamba
 
 # 添加额外软件包
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
