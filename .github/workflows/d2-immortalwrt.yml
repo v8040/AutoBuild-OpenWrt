@@ -5,7 +5,7 @@ on:
 
 env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
-  SOURCE_BRANCH: openwrt-18.06-k5.4
+  SOURCE_BRANCH: openwrt-18.06
   CONFIG_FILE: configs/d2.config
   DIY_SCRIPT: scripts/diy/d2-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
