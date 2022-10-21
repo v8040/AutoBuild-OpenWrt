@@ -51,7 +51,7 @@ rm -rf feeds/luci/applications/luci-app-wizard
 rm -rf feeds/luci/applications/luci-app-wrtbwmon
 rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/packages/net/dnsproxy
-rm -rf feeds/packages/net/mosdns
+rm -rf feeds/packages/net/v2ray-geodata
 
 # 添加额外软件包
 # git clone https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
@@ -70,13 +70,12 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewo
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-ddns-go package/luci-app-ddns-go
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-mosdns package/luci-app-mosdns
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netspeedtest package/luci-app-netspeedtest
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-wizard package/luci-app-wizard
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
-svn co https://github.com/kiddin9/openwrt-packages/trunk/mosdns package/mosdns
 svn co https://github.com/kiddin9/openwrt-packages/trunk/speedtest-web package/speedtest-web
+svn co https://github.com/kiddin9/openwrt-packages/trunk/v2ray-geodata package/v2ray-geodata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/wrtbwmon package/wrtbwmon
 svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
@@ -126,6 +125,9 @@ sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
 sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
 sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
 sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
+sed -i 's/services/control/g' feeds/luci/applications/luci-app-nft-qos/luasrc/controller/nft-qos.lua
+sed -i 's/network/control/g' feeds/luci/applications/luci-app-sqm/luasrc/controller/sqm.lua
+sed -i 's/network/control/g' feeds/luci/applications/luci-app-eqos/luasrc/controller/eqos.lua
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
@@ -134,8 +136,9 @@ sed -i 's/"ChinaDNS-NG"/"ChinaDNS"/g' `grep "ChinaDNS-NG" -rl ./`
 sed -i 's/"DDNSTO 远程控制"/"DDNSTO"/g' `grep "DDNSTO 远程控制" -rl ./`
 sed -i 's/"KMS 服务器"/"KMS激活"/g' `grep "KMS 服务器" -rl ./`
 sed -i 's/"NFS 管理"/"NFS管理"/g' `grep "NFS 管理" -rl ./`
+sed -i 's/"QoS Nftables版"/"NFT-QoS"/g' `grep "QoS Nftables版" -rl ./`
 sed -i 's/"Rclone"/"网盘挂载"/g' `grep "Rclone" -rl ./`
-sed -i 's/"SQM QoS"/"流量控制"/g' `grep "SQM QoS" -rl ./`
+sed -i 's/"SQM QoS"/"SQM-QoS"/g' `grep "SQM QoS" -rl ./`
 sed -i 's/"SoftEther VPN 服务器"/"SoftEther"/g' `grep "SoftEther VPN 服务器" -rl ./`
 sed -i 's/"TTYD 终端"/"网页终端"/g' `grep "TTYD 终端" -rl ./`
 sed -i 's/"Turbo ACC 网络加速"/"网络加速"/g' `grep "Turbo ACC 网络加速" -rl ./`
@@ -147,7 +150,6 @@ sed -i 's/"iKoolProxy 滤广告"/"广告过滤"/g' `grep "iKoolProxy 滤广告" 
 sed -i 's/"miniDLNA"/"DLNA服务"/g' `grep "miniDLNA" -rl ./`
 sed -i 's/"上网时间控制"/"上网控制"/g' `grep "上网时间控制" -rl ./`
 sed -i 's/"动态 DNS"/"动态DNS"/g' `grep "动态 DNS" -rl ./`
-sed -i 's/"大吉"/"大吉DDNS"/g' `grep "大吉" -rl ./`
 sed -i 's/"带宽监控"/"监控"/g' `grep "带宽监控" -rl ./`
 sed -i 's/"挂载 SMB 网络共享"/"挂载共享"/g' `grep "挂载 SMB 网络共享" -rl ./`
 sed -i 's/"易有云文件管理器"/"易有云"/g' `grep "易有云文件管理器" -rl ./`
