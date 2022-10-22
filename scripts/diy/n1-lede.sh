@@ -24,9 +24,6 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/v2ray-geodata package/v
 
 # 调整菜单
 sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a

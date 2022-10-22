@@ -2,6 +2,7 @@
 
 # 移除package
 rm -rf feeds/luci/applications/luci-app-advanced
+rm -rf feeds/luci/applications/luci-app-aliyundrive-fuse
 rm -rf feeds/luci/applications/luci-app-amlogic
 rm -rf feeds/luci/applications/luci-app-argon-config
 rm -rf feeds/luci/applications/luci-app-autotimeset
@@ -33,7 +34,6 @@ rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/packages/net/dnsproxy
 rm -rf packages/multimedia/UnblockNeteaseMusic
 rm -rf packages/multimedia/aliyundrive-fuse
-rm -rf feeds/luci/applications/luci-app-aliyundrive-fuse
 
 # 添加package
 # git clone https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
@@ -60,6 +60,8 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/wrtbwmon package/wrtbwm
 svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
 svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
 svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
+svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/aliyundrive-fuse package/aliyundrive-fuses
+svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/luci-app-aliyundrive-fuse package/luci-app-aliyundrive-fuse
 svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
 svn co https://github.com/v8040/diy/trunk/applications/luci-app-onliner package/luci-app-onliner
 
@@ -106,20 +108,13 @@ find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_U
 
 # 调整菜单
 sed -i 's/network/control/g' feeds/luci/applications/luci-app-sqm/luasrc/controller/*.lua
+sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
+sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
+sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
-
-sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
-sed -i 's/services/nas/g' feeds/luci/applications/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
