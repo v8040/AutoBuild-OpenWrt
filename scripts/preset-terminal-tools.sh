@@ -3,7 +3,6 @@
 mkdir -p files/root
 pushd files/root
 
-# Install oh-my-zsh
 # Clone oh-my-zsh repository
 git clone https://github.com/robbyrussell/oh-my-zsh ./.oh-my-zsh
 

@@ -243,6 +243,7 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_SCRIPT
         cd $OPENWRT_PATH
+        $GITHUB_WORKSPACE/scripts/common.sh
         $GITHUB_WORKSPACE/$DIY_SCRIPT
         make defconfig
 
