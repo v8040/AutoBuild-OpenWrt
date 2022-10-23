@@ -10,17 +10,5 @@ wget https://raw.githubusercontent.com/v8040/diy/main/immortalwrt-settings -O pa
 # 修改opkg源
 echo "src/gz openwrt_kiddin9 https://op.supes.top/packages/aarch64_cortex-a53" >> package/system/opkg/files/customfeeds.conf
 
-# 移除重复package
-rm -rf feeds/luci/applications/luci-app-minidlna
-rm -rf feeds/luci/applications/luci-app-turboacc
-
-# 添加package
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-
-# 调整菜单
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
-
 ./scripts/feeds update -a
 ./scripts/feeds install -a

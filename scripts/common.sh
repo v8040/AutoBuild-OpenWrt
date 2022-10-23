@@ -35,6 +35,10 @@ rm -rf feeds/packages/net/dnsproxy
 rm -rf packages/multimedia/UnblockNeteaseMusic
 rm -rf packages/multimedia/aliyundrive-fuse
 
+rm -rf feeds/luci/applications/luci-app-eqos
+# rm -rf feeds/luci/applications/luci-app-minidlna
+# rm -rf feeds/luci/applications/luci-app-turboacc
+
 # 添加package
 # git clone https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
@@ -64,6 +68,10 @@ svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/aliyundrive-fu
 svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/luci-app-aliyundrive-fuse package/luci-app-aliyundrive-fuse
 svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
 svn co https://github.com/v8040/diy/trunk/applications/luci-app-onliner package/luci-app-onliner
+
+svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06/applications/luci-app-eqos package/luci-app-eqos
+# svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
+# svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
 
 # 修改默认shell为zsh
 # sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -115,6 +123,10 @@ sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
+
+sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
+# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
+# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
