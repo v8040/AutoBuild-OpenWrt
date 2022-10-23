@@ -18,6 +18,7 @@ find . -iname "*pushbot*" |xargs rm -rf
 find . -iname "*serverchan*" |xargs rm -rf
 find . -iname "*speedtest*" |xargs rm -rf
 find . -iname "*trojan*" |xargs rm -rf
+find . -iname "*turboacc*" |xargs rm -rf
 find . -iname "*v2ray*" |xargs rm -rf
 find . -iname "*verysync*" |xargs rm -rf
 find . -iname "*wizard*" |xargs rm -rf
@@ -29,8 +30,9 @@ git clone https://github.com/kenzok8/small-package package/small-package
 cp -rf package/kenzok-package/* package && rm -rf package/kenzok-package
 cp -rf package/small-package/* package && rm -rf package/small-package
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
+svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-# svn co https://github.com/v8040/diy/trunk/applications/luci-app-onliner package/luci-app-onliner
+svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 
 # 移除无用package
 find . -iname "*adguardhome*" |xargs rm -rf
@@ -39,6 +41,7 @@ find . -iname "*passwall*" |xargs rm -rf
 find . -iname "*shadowsocks*" |xargs rm -rf
 find . -iname "*ssr*" |xargs rm -rf
 find . -iname "*vssr*" |xargs rm -rf
+find . -iname "*xray*" |xargs rm -rf
 
 # Themes
 find . -iname "*argon*" |xargs rm -rf
