@@ -1,43 +1,43 @@
 #!/bin/bash
 
 # 移除重复package
-# find . -iname "*advanced*" | xargs rm -rf
-# find . -iname "*aliyundrive*" | xargs rm -rf
-# find . -iname "*amlogic*" | xargs rm -rf
-# find . -iname "*autotimeset*" | xargs rm -rf
-# find . -iname "*ddnsto*" | xargs rm -rf
-# find . -iname "*dnsproxy*" | xargs rm -rf
-# find . -iname "*dockerman*" | xargs rm -rf
-# find . -iname "*eqos*" | xargs rm -rf
-# find . -iname "*minidlna*" | xargs rm -rf
-# find . -iname "*music*" | xargs rm -rf
-# find . -iname "*netdata*" | xargs rm -rf
-# find . -iname "*onliner*" | xargs rm -rf
-# find . -iname "*openclash*" | xargs rm -rf
-# find . -iname "*pushbot*" | xargs rm -rf
-# find . -iname "*serverchan*" | xargs rm -rf
-# find . -iname "*speedtest*" | xargs rm -rf
-# find . -iname "*turboacc*" | xargs rm -rf
-# find . -iname "*verysync*" | xargs rm -rf
-# find . -iname "*wrtbwmon*" | xargs rm -rf
+find . -iname "*advanced*" | xargs rm -rf
+find . -iname "*aliyundrive*" | xargs rm -rf
+find . -iname "*amlogic*" | xargs rm -rf
+find . -iname "*autotimeset*" | xargs rm -rf
+find . -iname "*ddnsto*" | xargs rm -rf
+find . -iname "*dnsproxy*" | xargs rm -rf
+find . -iname "*dockerman*" | xargs rm -rf
+find . -iname "*eqos*" | xargs rm -rf
+find . -iname "*minidlna*" | xargs rm -rf
+find . -iname "*music*" | xargs rm -rf
+find . -iname "*netdata*" | xargs rm -rf
+find . -iname "*onliner*" | xargs rm -rf
+find . -iname "*openclash*" | xargs rm -rf
+find . -iname "*pushbot*" | xargs rm -rf
+find . -iname "*serverchan*" | xargs rm -rf
+find . -iname "*speedtest*" | xargs rm -rf
+find . -iname "*turboacc*" | xargs rm -rf
+find . -iname "*verysync*" | xargs rm -rf
+find . -iname "*wrtbwmon*" | xargs rm -rf
 
 # 添加package
 git clone https://github.com/kiddin9/openwrt-packages.git package/kiddin9-package
-cp -rf package/kiddin9-package/* package && rm -rf package/kiddin9-package
+# cp -rf package/kiddin9-package/* package && rm -rf package/kiddin9-package
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 
 # 移除无用package
-# find . -iname "*adguardhome*" | xargs rm -rf
-# find . -iname "*bypass*" | xargs rm -rf
-# find . -iname "*passwall*" | xargs rm -rf
-# find . -iname "*shadowsocks*" | xargs rm -rf
-# find . -iname "*ssr*" | xargs rm -rf
-# find . -iname "*trojan*" | xargs rm -rf
-# find . -iname "*v2ray*" | xargs rm -rf
-# find . -iname "*vssr*" | xargs rm -rf
-# find . -iname "*wizard*" | xargs rm -rf
-# find . -iname "*xray*" | xargs rm -rf
+find . -iname "*adguardhome*" | xargs rm -rf
+find . -iname "*bypass*" | xargs rm -rf
+find . -iname "*passwall*" | xargs rm -rf
+find . -iname "*shadowsocks*" | xargs rm -rf
+find . -iname "*ssr*" | xargs rm -rf
+find . -iname "*trojan*" | xargs rm -rf
+find . -iname "*v2ray*" | xargs rm -rf
+find . -iname "*vssr*" | xargs rm -rf
+find . -iname "*wizard*" | xargs rm -rf
+find . -iname "*xray*" | xargs rm -rf
 
 # Themes
 find . -iname "*argon*" | xargs rm -rf
@@ -54,12 +54,12 @@ sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.te
 sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/ttyd.config
 
 # amlogic
-sed -i "s|https.*/OpenWrt|https://github.com/v8040/AutoBuild-OpenWrt|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|opt/kernel|https://github.com/ophub/kernel/tree/main/pub/stable|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|https.*/OpenWrt|https://github.com/v8040/AutoBuild-OpenWrt|g" package/kiddin9-package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|opt/kernel|https://github.com/ophub/kernel/tree/main/pub/stable|g" package/kiddin9-package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|ARMv8|ARMv8_N1|g" package/kiddin9-package/luci-app-amlogic/root/etc/config/amlogic
 
 # unblockneteasemusic
-NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
+NAME=$"package/kiddin9-package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
 curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
 echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/app.js -o $NAME/core/app.js
@@ -76,16 +76,16 @@ find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_U
 
 # 调整菜单
 sed -i 's/network/control/g' feeds/luci/applications/luci-app-sqm/luasrc/controller/*.lua
-sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
+sed -i 's/network/control/g' package/kiddin9-package/luci-app-eqos/luasrc/controller/*.lua
+sed -i 's/services/nas/g' package/kiddin9-package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
+sed -i 's/services/nas/g' package/kiddin9-package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
+sed -i 's/services/nas/g' package/kiddin9-package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
 sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
-sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
-sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
-sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
-sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
+sed -i 's/services/vpn/g' package/kiddin9-package/luci-app-openclash/luasrc/*.lua
+sed -i 's/services/vpn/g' package/kiddin9-package/luci-app-openclash/luasrc/controller/*.lua
+sed -i 's/services/vpn/g' package/kiddin9-package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
+sed -i 's/services/vpn/g' package/kiddin9-package/luci-app-openclash/luasrc/view/openclash/*.htm
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
