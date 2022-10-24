@@ -19,6 +19,7 @@ find . -iname "*serverchan*" | xargs rm -rf
 find . -iname "*speedtest*" | xargs rm -rf
 find . -iname "*turboacc*" | xargs rm -rf
 find . -iname "*verysync*" | xargs rm -rf
+find . -iname "*wrtbwmon*" | xargs rm -rf
 
 # 添加package
 git clone https://github.com/kenzok8/openwrt-packages package/kenzok-package
@@ -40,7 +41,6 @@ find . -iname "*trojan*" | xargs rm -rf
 find . -iname "*v2ray*" | xargs rm -rf
 find . -iname "*vssr*" | xargs rm -rf
 find . -iname "*wizard*" | xargs rm -rf
-find . -iname "*wrtbwmon*" | xargs rm -rf
 find . -iname "*xray*" | xargs rm -rf
 
 # Themes
