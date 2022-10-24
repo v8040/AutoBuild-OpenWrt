@@ -1,6 +1,7 @@
 #!/bin/bash
 
 uci set luci.main.lang=zh_cn
+uci set luci.main.mediaurlbase='/luci-static/argon'
 uci commit luci
 
 uci -q batch <<-EOF
@@ -19,8 +20,6 @@ uci commit system
 uci set nlbwmon.@nlbwmon[0].refresh_interval=2s
 uci commit nlbwmon
 
-uci set luci.main.mediaurlbase='/luci-static/argon'
-uci commit luci
 
 sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
 
