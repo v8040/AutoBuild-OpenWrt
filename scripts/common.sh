@@ -22,14 +22,10 @@ find . -iname "*verysync*" | xargs rm -rf
 find . -iname "*wrtbwmon*" | xargs rm -rf
 
 # 添加package
-git clone https://github.com/kenzok8/openwrt-packages package/kenzok-package
-git clone https://github.com/kenzok8/small-package package/small-package
-cp -rf package/kenzok-package/* package && rm -rf package/kenzok-package
-cp -rf package/small-package/* package && rm -rf package/small-package
+git clone https://github.com/kiddin9/openwrt-packages.git package/kiddin9-package
+cp -rf package/kiddin9-package/* package && rm -rf package/kiddin9-package
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 
 # 移除无用package
 find . -iname "*adguardhome*" | xargs rm -rf
@@ -46,7 +42,7 @@ find . -iname "*xray*" | xargs rm -rf
 # Themes
 find . -iname "*argon*" | xargs rm -rf
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
+git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 
 # 修改默认shell为zsh
 # sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -71,12 +67,6 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/b
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
-
-# 科学上网openclash
-# 编译 po2lmo (如果有po2lmo可跳过)
-# pushd package/luci-app-openclash/tools/po2lmo
-# make && sudo make install
-# popd
 
 # 修改makefile
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
