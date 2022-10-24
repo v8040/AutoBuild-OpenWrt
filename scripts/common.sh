@@ -1,28 +1,24 @@
 #!/bin/bash
 
 # 移除重复package
-find . -iname "*advanced*" |xargs rm -rf
-find . -iname "*aliyundrive*" |xargs rm -rf
-find . -iname "*amlogic*" |xargs rm -rf
-find . -iname "*autotimeset*" |xargs rm -rf
-find . -iname "*ddnsto*" |xargs rm -rf
-find . -iname "*dnsproxy*" |xargs rm -rf
-find . -iname "*dockerman*" |xargs rm -rf
-find . -iname "*eqos*" |xargs rm -rf
-find . -iname "*minidlna*" |xargs rm -rf
-find . -iname "*music*" |xargs rm -rf
-find . -iname "*netdata*" |xargs rm -rf
-find . -iname "*onliner*" |xargs rm -rf
-find . -iname "*openclash*" |xargs rm -rf
-find . -iname "*pushbot*" |xargs rm -rf
-find . -iname "*serverchan*" |xargs rm -rf
-find . -iname "*speedtest*" |xargs rm -rf
-find . -iname "*trojan*" |xargs rm -rf
-find . -iname "*turboacc*" |xargs rm -rf
-find . -iname "*v2ray*" |xargs rm -rf
-find . -iname "*verysync*" |xargs rm -rf
-find . -iname "*wizard*" |xargs rm -rf
-find . -iname "*wrtbwmon*" |xargs rm -rf
+find . -iname "*advanced*" | xargs rm -rf
+find . -iname "*aliyundrive*" | xargs rm -rf
+find . -iname "*amlogic*" | xargs rm -rf
+find . -iname "*autotimeset*" | xargs rm -rf
+find . -iname "*ddnsto*" | xargs rm -rf
+find . -iname "*dnsproxy*" | xargs rm -rf
+find . -iname "*dockerman*" | xargs rm -rf
+find . -iname "*eqos*" | xargs rm -rf
+find . -iname "*minidlna*" | xargs rm -rf
+find . -iname "*music*" | xargs rm -rf
+find . -iname "*netdata*" | xargs rm -rf
+find . -iname "*onliner*" | xargs rm -rf
+find . -iname "*openclash*" | xargs rm -rf
+find . -iname "*pushbot*" | xargs rm -rf
+find . -iname "*serverchan*" | xargs rm -rf
+find . -iname "*speedtest*" | xargs rm -rf
+find . -iname "*turboacc*" | xargs rm -rf
+find . -iname "*verysync*" | xargs rm -rf
 
 # 添加package
 git clone https://github.com/kenzok8/openwrt-packages package/kenzok-package
@@ -35,16 +31,20 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc packa
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 
 # 移除无用package
-find . -iname "*adguardhome*" |xargs rm -rf
-find . -iname "*bypass*" |xargs rm -rf
-find . -iname "*passwall*" |xargs rm -rf
-find . -iname "*shadowsocks*" |xargs rm -rf
-find . -iname "*ssr*" |xargs rm -rf
-find . -iname "*vssr*" |xargs rm -rf
-find . -iname "*xray*" |xargs rm -rf
+find . -iname "*adguardhome*" | xargs rm -rf
+find . -iname "*bypass*" | xargs rm -rf
+find . -iname "*passwall*" | xargs rm -rf
+find . -iname "*shadowsocks*" | xargs rm -rf
+find . -iname "*ssr*" | xargs rm -rf
+find . -iname "*trojan*" | xargs rm -rf
+find . -iname "*v2ray*" | xargs rm -rf
+find . -iname "*vssr*" | xargs rm -rf
+find . -iname "*wizard*" | xargs rm -rf
+find . -iname "*wrtbwmon*" | xargs rm -rf
+find . -iname "*xray*" | xargs rm -rf
 
 # Themes
-find . -iname "*argon*" |xargs rm -rf
+find . -iname "*argon*" | xargs rm -rf
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
 
@@ -74,9 +74,9 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o
 
 # 科学上网openclash
 # 编译 po2lmo (如果有po2lmo可跳过)
-pushd package/luci-app-openclash/tools/po2lmo
-make && sudo make install
-popd
+# pushd package/luci-app-openclash/tools/po2lmo
+# make && sudo make install
+# popd
 
 # 修改makefile
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
