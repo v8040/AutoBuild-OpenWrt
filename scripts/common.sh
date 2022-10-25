@@ -1,67 +1,55 @@
 #!/bin/bash
 
 # 移除重复package
-# find . -iname "*adguardhome*" | xargs rm -rf
 # find . -iname "*advanced*" | xargs rm -rf
 # find . -iname "*aliyundrive*" | xargs rm -rf
 # find . -iname "*amlogic*" | xargs rm -rf
-# find . -iname "*argon*" | xargs rm -rf
 # find . -iname "*autotimeset*" | xargs rm -rf
-# find . -iname "*bypass*" | xargs rm -rf
 # find . -iname "*ddnsto*" | xargs rm -rf
 # find . -iname "*dnsproxy*" | xargs rm -rf
 # find . -iname "*dockerman*" | xargs rm -rf
-# find . -iname "*eqos*" | xargs rm -rf
-# find . -iname "*minidlna*" | xargs rm -rf
 # find . -iname "*music*" | xargs rm -rf
-# find . -iname "*netdata*" | xargs rm -rf
 # find . -iname "*onliner*" | xargs rm -rf
 # find . -iname "*openclash*" | xargs rm -rf
-# find . -iname "*passwall*" | xargs rm -rf
 # find . -iname "*pushbot*" | xargs rm -rf
 # find . -iname "*serverchan*" | xargs rm -rf
-# find . -iname "*shadowsocks*" | xargs rm -rf
 # find . -iname "*speedtest*" | xargs rm -rf
-# find . -iname "*ssr*" | xargs rm -rf
-# find . -iname "*trojan*" | xargs rm -rf
-# find . -iname "*turboacc*" | xargs rm -rf
-# find . -iname "*v2ray*" | xargs rm -rf
-# find . -iname "*verysync*" | xargs rm -rf
-# find . -iname "*vssr*" | xargs rm -rf
-# find . -iname "*wizard*" | xargs rm -rf
 # find . -iname "*wrtbwmon*" | xargs rm -rf
-# find . -iname "*xray*" | xargs rm -rf
 
-# 添加额外软件包
+# 添加package
+git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok-package
+git clone https://github.com/kenzok8/small-package.git package/small-package
+cp -rf package/kenzok-package/* package && rm -rf package/kenzok-package
+cp -rf package/small-package/* package && rm -rf package/small-package
+
+# 替换package
+find . -iname "*adguardhome*" | xargs rm -rf
+find . -iname "*argon*" | xargs rm -rf
+find . -iname "*bypass*" | xargs rm -rf
+find . -iname "*eqos*" | xargs rm -rf
+find . -iname "*minidlna*" | xargs rm -rf
+find . -iname "*netdata*" | xargs rm -rf
+find . -iname "*passwall*" | xargs rm -rf
+find . -iname "*shadowsocks*" | xargs rm -rf
+find . -iname "*ssr*" | xargs rm -rf
+find . -iname "*trojan*" | xargs rm -rf
+find . -iname "*turboacc*" | xargs rm -rf
+find . -iname "*v2ray*" | xargs rm -rf
+find . -iname "*verysync*" | xargs rm -rf
+find . -iname "*vssr*" | xargs rm -rf
+find . -iname "*wizard*" | xargs rm -rf
+find . -iname "*xray*" | xargs rm -rf
+
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
-git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
-git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
-git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
-git clone https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06/applications/luci-app-eqos package/luci-app-eqos
-svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
-svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
-svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
-svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
-svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
-svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
-svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
-svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/aliyundrive-fuse package/aliyundrive-fuses
-svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt/luci-app-aliyundrive-fuse package/luci-app-aliyundrive-fuse
-svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
 # 修改默认shell为zsh
 # sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -86,6 +74,7 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/b
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
+
 
 # 修改makefile
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
