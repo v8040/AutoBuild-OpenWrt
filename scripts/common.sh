@@ -1,36 +1,36 @@
 #!/bin/bash
 
 # 移除重复package
-find . -iname "*adguardhome*" | xargs rm -rf
-find . -iname "*advanced*" | xargs rm -rf
-find . -iname "*aliyundrive*" | xargs rm -rf
-find . -iname "*amlogic*" | xargs rm -rf
-find . -iname "*argon*" | xargs rm -rf
-find . -iname "*autotimeset*" | xargs rm -rf
-find . -iname "*bypass*" | xargs rm -rf
-find . -iname "*ddnsto*" | xargs rm -rf
-find . -iname "*dnsproxy*" | xargs rm -rf
-find . -iname "*dockerman*" | xargs rm -rf
-find . -iname "*eqos*" | xargs rm -rf
-find . -iname "*minidlna*" | xargs rm -rf
-find . -iname "*music*" | xargs rm -rf
-find . -iname "*netdata*" | xargs rm -rf
-find . -iname "*onliner*" | xargs rm -rf
-find . -iname "*openclash*" | xargs rm -rf
-find . -iname "*passwall*" | xargs rm -rf
-find . -iname "*pushbot*" | xargs rm -rf
-find . -iname "*serverchan*" | xargs rm -rf
-find . -iname "*shadowsocks*" | xargs rm -rf
-find . -iname "*speedtest*" | xargs rm -rf
-find . -iname "*ssr*" | xargs rm -rf
-find . -iname "*trojan*" | xargs rm -rf
-find . -iname "*turboacc*" | xargs rm -rf
-find . -iname "*v2ray*" | xargs rm -rf
-find . -iname "*verysync*" | xargs rm -rf
-find . -iname "*vssr*" | xargs rm -rf
-find . -iname "*wizard*" | xargs rm -rf
-find . -iname "*wrtbwmon*" | xargs rm -rf
-find . -iname "*xray*" | xargs rm -rf
+# find . -iname "*adguardhome*" | xargs rm -rf
+# find . -iname "*advanced*" | xargs rm -rf
+# find . -iname "*aliyundrive*" | xargs rm -rf
+# find . -iname "*amlogic*" | xargs rm -rf
+# find . -iname "*argon*" | xargs rm -rf
+# find . -iname "*autotimeset*" | xargs rm -rf
+# find . -iname "*bypass*" | xargs rm -rf
+# find . -iname "*ddnsto*" | xargs rm -rf
+# find . -iname "*dnsproxy*" | xargs rm -rf
+# find . -iname "*dockerman*" | xargs rm -rf
+# find . -iname "*eqos*" | xargs rm -rf
+# find . -iname "*minidlna*" | xargs rm -rf
+# find . -iname "*music*" | xargs rm -rf
+# find . -iname "*netdata*" | xargs rm -rf
+# find . -iname "*onliner*" | xargs rm -rf
+# find . -iname "*openclash*" | xargs rm -rf
+# find . -iname "*passwall*" | xargs rm -rf
+# find . -iname "*pushbot*" | xargs rm -rf
+# find . -iname "*serverchan*" | xargs rm -rf
+# find . -iname "*shadowsocks*" | xargs rm -rf
+# find . -iname "*speedtest*" | xargs rm -rf
+# find . -iname "*ssr*" | xargs rm -rf
+# find . -iname "*trojan*" | xargs rm -rf
+# find . -iname "*turboacc*" | xargs rm -rf
+# find . -iname "*v2ray*" | xargs rm -rf
+# find . -iname "*verysync*" | xargs rm -rf
+# find . -iname "*vssr*" | xargs rm -rf
+# find . -iname "*wizard*" | xargs rm -rf
+# find . -iname "*wrtbwmon*" | xargs rm -rf
+# find . -iname "*xray*" | xargs rm -rf
 
 # 添加额外软件包
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
@@ -132,6 +132,3 @@ sed -i 's/"易有云文件管理器"/"易有云"/g' `grep "易有云文件管理
 sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"解除网易云音乐播放限制"/"音乐解锁"/g' `grep "解除网易云音乐播放限制" -rl ./`
 sed -i 's/"阿里云盘 FUSE"/"阿里云盘"/g' `grep "阿里云盘 FUSE" -rl ./`
-
-./scripts/feeds update -a
-./scripts/feeds install -a
