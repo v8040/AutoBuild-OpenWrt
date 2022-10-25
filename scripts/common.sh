@@ -1,55 +1,48 @@
 #!/bin/bash
 
 # 移除重复package
-# find . -iname "*advanced*" | xargs rm -rf
-# find . -iname "*aliyundrive*" | xargs rm -rf
-# find . -iname "*amlogic*" | xargs rm -rf
-# find . -iname "*autotimeset*" | xargs rm -rf
-# find . -iname "*ddnsto*" | xargs rm -rf
-# find . -iname "*dnsproxy*" | xargs rm -rf
-# find . -iname "*dockerman*" | xargs rm -rf
-# find . -iname "*music*" | xargs rm -rf
-# find . -iname "*onliner*" | xargs rm -rf
-# find . -iname "*openclash*" | xargs rm -rf
-# find . -iname "*pushbot*" | xargs rm -rf
-# find . -iname "*serverchan*" | xargs rm -rf
-# find . -iname "*speedtest*" | xargs rm -rf
-# find . -iname "*wrtbwmon*" | xargs rm -rf
+find . -maxdepth 4 -iname "*advanced*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*aliyundrive*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*amlogic*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*autotimeset*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*ddnsto*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*dnsproxy*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*dockerman*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*music*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*netdata*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*onliner*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*openclash*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*pushbot*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*serverchan*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*speedtest*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*turboacc*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*verysync*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*wrtbwmon*" -type d |xargs rm -rf
 
 # 添加package
-git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok-package
-git clone https://github.com/kenzok8/small-package.git package/small-package
-cp -rf package/kenzok-package/* package && rm -rf package/kenzok-package
-cp -rf package/small-package/* package && rm -rf package/small-package
+git clone https://github.com/kiddin9/openwrt-packages package/kiddin9-package
+mv -n package/kiddin9-package/* package && rm -rf package/kiddin9-package
 
 # 替换package
-find . -iname "*adguardhome*" | xargs rm -rf
-find . -iname "*argon*" | xargs rm -rf
-find . -iname "*bypass*" | xargs rm -rf
-find . -iname "*eqos*" | xargs rm -rf
-find . -iname "*minidlna*" | xargs rm -rf
-find . -iname "*netdata*" | xargs rm -rf
-find . -iname "*passwall*" | xargs rm -rf
-find . -iname "*shadowsocks*" | xargs rm -rf
-find . -iname "*ssr*" | xargs rm -rf
-find . -iname "*trojan*" | xargs rm -rf
-find . -iname "*turboacc*" | xargs rm -rf
-find . -iname "*v2ray*" | xargs rm -rf
-find . -iname "*verysync*" | xargs rm -rf
-find . -iname "*vssr*" | xargs rm -rf
-find . -iname "*wizard*" | xargs rm -rf
-find . -iname "*xray*" | xargs rm -rf
+find . -maxdepth 4 -iname "*adguardhome*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*argon*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*bypass*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*eqos*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*minidlna*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*passwall*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*shadowsocks*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*ssr*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*trojan*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*v2ray*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*vssr*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*wizard*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*xray*" -type d |xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06/applications/luci-app-eqos package/luci-app-eqos
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
-svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
 
 # 修改默认shell为zsh
 # sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -74,7 +67,6 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/b
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
-
 
 # 修改makefile
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
