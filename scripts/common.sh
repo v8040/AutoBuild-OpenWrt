@@ -1,42 +1,42 @@
 #!/bin/bash
 
 # 移除重复package
-find . -maxdepth 4 -iname "*advanced*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*aliyundrive*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*amlogic*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*autotimeset*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*ddnsto*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*dnsproxy*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*dockerman*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*music*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*netdata*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*onliner*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*openclash*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*pushbot*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*serverchan*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*speedtest*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*turboacc*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*verysync*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*wrtbwmon*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*advanced*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*amlogic*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*autotimeset*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*dockerman*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*music*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*onliner*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*pushbot*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*serverchan*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*speedtest*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*wrtbwmon*" -type d | xargs rm -rf
 
 # 添加package
 git clone https://github.com/kiddin9/openwrt-packages package/kiddin9-package
 mv -n package/kiddin9-package/* package && rm -rf package/kiddin9-package
 
 # 替换package
-find . -maxdepth 4 -iname "*adguardhome*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*argon*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*bypass*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*eqos*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*minidlna*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*passwall*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*shadowsocks*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*ssr*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*trojan*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*v2ray*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*vssr*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*wizard*" -type d |xargs rm -rf
-find . -maxdepth 4 -iname "*xray*" -type d |xargs rm -rf
+find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*argon*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*vssr*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*wizard*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
