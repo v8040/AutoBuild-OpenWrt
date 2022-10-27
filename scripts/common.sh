@@ -24,7 +24,7 @@ cp -rf package/small-package/* package && rm -rf package/small-package
 find . -maxdepth 4 -iname "*argon*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
 # find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
@@ -46,8 +46,10 @@ svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/l
 # 移除多余package
 find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*dnsforwarder*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*pdnsd*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
@@ -92,8 +94,8 @@ sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
+# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
+# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
