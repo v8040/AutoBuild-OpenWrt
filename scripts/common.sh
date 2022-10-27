@@ -46,10 +46,10 @@ svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/l
 # 移除多余package
 find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*dnsforwarder*" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*dnsforwarder*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*pdnsd*" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*pdnsd*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
