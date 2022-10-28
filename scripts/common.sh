@@ -27,16 +27,16 @@ find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
 # find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 # svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
-svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06/applications/luci-app-eqos package/luci-app-eqos
+# svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
@@ -55,9 +55,6 @@ find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*vssr*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wizard*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
-
-# 修改默认shell为zsh
-# sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 
 # samba解除root限制
 sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.template
