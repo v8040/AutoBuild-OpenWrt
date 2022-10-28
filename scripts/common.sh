@@ -24,7 +24,7 @@ cp -rf package/small-package/* package && rm -rf package/small-package
 find . -maxdepth 4 -iname "*argon*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
@@ -32,8 +32,8 @@ find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
-# svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
-# svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
+svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
+svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
