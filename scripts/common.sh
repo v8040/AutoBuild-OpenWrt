@@ -34,10 +34,10 @@ git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luc
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
@@ -119,6 +119,7 @@ sed -i 's/"动态 DNS"/"动态DNS"/g' `grep "动态 DNS" -rl ./`
 sed -i 's/"带宽监控"/"监控"/g' `grep "带宽监控" -rl ./`
 sed -i 's/"挂载 SMB 网络共享"/"挂载共享"/g' `grep "挂载 SMB 网络共享" -rl ./`
 sed -i 's/"易有云文件管理器"/"易有云"/g' `grep "易有云文件管理器" -rl ./`
+sed -i 's/"网络共享 (KSMBD 内核)"/"KSMBD共享"/g' `grep "网络共享 (KSMBD 内核)" -rl ./`
 sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"联机用户"/"在线用户"/g' `grep "联机用户" -rl ./`
 sed -i 's/"解除网易云音乐播放限制"/"音乐解锁"/g' `grep "解除网易云音乐播放限制" -rl ./`
