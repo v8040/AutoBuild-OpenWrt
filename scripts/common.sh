@@ -89,8 +89,8 @@ sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
-# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
-# sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
+sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
+sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
