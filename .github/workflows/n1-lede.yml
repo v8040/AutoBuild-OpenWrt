@@ -302,7 +302,7 @@ jobs:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
-        KERNEL_VERSION_NAME: 6.0.2
+        KERNEL_VERSION_NAME: 6.0.6
         KERNEL_AUTO_LATEST: true
 
     - name: 重整理文件
@@ -339,7 +339,6 @@ jobs:
           > OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - lede源码：`6.0+内核` immortalwrt源码：`5.4+内核`
           - 安装：1.`晶晨宝盒`  2.使用Rufus写入`.img.gz`镜像，输入：`openwrt-install-amlogic`
           - 升级：1.`晶晨宝盒`  2.上传目录`mmcblk2p4` 输入：`openwrt-update-amlogic` 或 `openwrt-kernel`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】

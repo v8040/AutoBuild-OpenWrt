@@ -5,7 +5,7 @@ on:
 
 env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
-  SOURCE_BRANCH: openwrt-18.06-k5.4
+  SOURCE_BRANCH: openwrt-18.06
   CONFIG_FILE: configs/n1.config
   DIY_SCRIPT: scripts/diy/n1-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
@@ -302,7 +302,7 @@ jobs:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
-        KERNEL_VERSION_NAME: 5.4.212
+        KERNEL_VERSION_NAME: 5.10.151
         KERNEL_AUTO_LATEST: true
 
     - name: 重整理文件
@@ -316,7 +316,7 @@ jobs:
         name1=$(basename *rootfs.tar.gz)
         name2=$(basename *.img.gz)
         re_name1=$(echo rootfs-${{ env.SOURCE }}-armvirt-64.tar.gz)
-        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.4+.img.gz)
+        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.10+.img.gz)
         sed -i "s/${name1}/${re_name1}/g" sha256sums
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
@@ -339,7 +339,6 @@ jobs:
           > OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - lede源码：`6.0+内核` immortalwrt源码：`5.4+内核`
           - 安装：1.`晶晨宝盒`  2.使用Rufus写入`.img.gz`镜像，输入：`openwrt-install-amlogic`
           - 升级：1.`晶晨宝盒`  2.上传目录`mmcblk2p4` 输入：`openwrt-update-amlogic` 或 `openwrt-kernel`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
