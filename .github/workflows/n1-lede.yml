@@ -289,8 +289,6 @@ jobs:
         cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
         tar -zcf ipk-${{ env.SOURCE }}.tar.gz packages
-        mv -f *.config *.tar.gz $OPENWRT_PATH/bin/targets/*/*
-        cd $OPENWRT_PATH/bin/targets/*/*
         rm -rf packages *.buildinfo *.manifest *.json
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT

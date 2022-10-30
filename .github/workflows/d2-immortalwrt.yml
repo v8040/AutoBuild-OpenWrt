@@ -288,8 +288,7 @@ jobs:
         cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
         tar -zcf ipk-${{ env.SOURCE }}.tar.gz packages
-        mv -f *.config *.tar.gz $OPENWRT_PATH/bin/targets/*/*
-        cd $OPENWRT_PATH/bin/targets/*/*
+        rm -rf packages *.buildinfo *.manifest *.json
         ls -lh
         name1=$(basename *initramfs-kernel.bin)
         name2=$(basename *squashfs-sysupgrade.bin)
@@ -300,7 +299,6 @@ jobs:
         mv -f ${name1} ${re_name1}
         mv -f ${name2} ${re_name2}
         mv -f sha256sums openwrt-${{ env.SOURCE }}.sha256sums
-        rm -rf packages *.buildinfo *.manifest *.json
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
         echo "OUTPUTDATE=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
