@@ -27,17 +27,19 @@ find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
+svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
@@ -76,15 +78,10 @@ curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o
 curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
 
 # 修改makefile
-# find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
-# find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/lang\/golang\/golang\-package\.mk/include \$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang\-package\.mk/g' {}
-# find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHREPO/PKG_SOURCE_URL:=https:\/\/github\.com/g' {}
-# find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload\.github\.com/g' {}
-
-# 编译 po2lmo (如果有po2lmo可跳过)
-pushd package/luci-app-openclash/tools/po2lmo
-make && sudo make install
-popd
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/lang\/golang\/golang\-package\.mk/include \$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang\-package\.mk/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHREPO/PKG_SOURCE_URL:=https:\/\/github\.com/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload\.github\.com/g' {}
 
 # 调整菜单
 sed -i 's/network/control/g' feeds/luci/applications/luci-app-sqm/luasrc/controller/*.lua
