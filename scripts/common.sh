@@ -48,6 +48,7 @@ find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*qbittorrent*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
