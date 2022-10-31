@@ -339,7 +339,7 @@ jobs:
           > OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - 安装：1.`晶晨宝盒`  2.使用Rufus写入`.img.gz`镜像，输入：`openwrt-install-amlogic`
-          - 升级：1.`晶晨宝盒`  2.上传目录`mmcblk2p4` 输入：`openwrt-update-amlogic` 或 `openwrt-kernel`
+          - 安装：`openwrt-install-amlogic`
+          - 升级：`openwrt-update-amlogic` 或 `openwrt-kernel`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
