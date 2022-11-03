@@ -318,7 +318,7 @@ jobs:
         name1=$(basename *rootfs.tar.gz)
         name2=$(basename *.img.gz)
         re_name1=$(echo rootfs-${{ env.SOURCE }}-armvirt-64.tar.gz)
-        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.15+.img.gz)
+        re_name2=$(echo openwrt-${{ env.SOURCE }}-n1-k5.4+.img.gz)
         sed -i "s/${name1}/${re_name1}/g" sha256sums
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
