@@ -305,6 +305,7 @@ jobs:
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
         KERNEL_VERSION_NAME: 6.0.6
         KERNEL_AUTO_LATEST: true
+        DISTRIB_REVISION: R${{ env.OUTPUTDATE }} by v8040
 
     - name: 重整理文件
       id: reorganize

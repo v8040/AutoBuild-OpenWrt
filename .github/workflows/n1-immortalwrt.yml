@@ -10,7 +10,6 @@ env:
   DIY_SCRIPT: scripts/diy/n1-immortalwrt.sh
   TOOLCHAIN_TAG: Toolchain
   OPENWRT_RELEASE_TAG: ARMv8_N1
-  CLASH_KERNEL: armv8
   SOURCE: immortalwrt
   TZ: Asia/Shanghai
 
@@ -306,6 +305,7 @@ jobs:
         KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
         KERNEL_VERSION_NAME: 5.4.222
         KERNEL_AUTO_LATEST: true
+        DISTRIB_REVISION: R${{ env.OUTPUTDATE }} by v8040
 
     - name: 重整理文件
       id: reorganize
