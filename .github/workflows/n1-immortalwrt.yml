@@ -301,7 +301,7 @@ jobs:
       uses: unifreq/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
-        PACKAGE_SOC: s905d_qemu
+        PACKAGE_SOC: s905d
         # KERNEL_REPO_URL: https://github.com/ophub/kernel/tree/main/pub/stable
         KERNEL_VERSION_NAME: 5.4.220
         KERNEL_AUTO_LATEST: true
