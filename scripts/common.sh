@@ -13,6 +13,7 @@ find . -maxdepth 4 -iname "*pushbot*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*serverchan*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*speedtest*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wrtbwmon*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
 
 # 添加package
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok-package
@@ -28,7 +29,6 @@ find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
 
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
@@ -39,8 +39,8 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnspro
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
-svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
+# svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
+# svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
 # 移除多余package
