@@ -66,8 +66,6 @@ svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto pa
 svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
 svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt package/aliyundrive-fuse
 svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
-svn co https://github.com/sbwml/luci-app-alist/trunk/alist package/alist
-svn co https://github.com/sbwml/luci-app-alist/trunk/luci-app-alist package/luci-app-alist
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
 # samba解除root限制
