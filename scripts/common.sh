@@ -1,63 +1,73 @@
 #!/bin/bash
 
-# 移除重复package
+# 移除package
+find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*advanced*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*amlogic*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*autotimeset*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*dockerman*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*music*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*onliner*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*speedtest*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*wrtbwmon*" -type d | xargs rm -rf
-
-# 添加package
-git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok-package
-git clone https://github.com/kenzok8/small-package.git package/small-package
-cp -rf package/kenzok-package/* package && rm -rf package/kenzok-package
-cp -rf package/small-package/* package && rm -rf package/small-package
-
-# 替换package
 find . -maxdepth 4 -iname "*argon*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*autotimeset*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*dockerman*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*onliner*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*openclash*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*pushbot*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*qbittorrent*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*serverchan*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*speedtest*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*turboacc*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*verysync*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*vssr*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*wizard*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*wrtbwmon*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 
+# 添加package
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
+git clone https://github.com/sbwml/luci-app-alist.git package/alist
+git clone https://github.com/sbwml/luci-app-mosdns.git package/mosdns
+git clone https://github.com/sbwml/v2ray-geodata.git package/geodata
+git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
+git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
 git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
 git clone https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
+svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
+svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
+svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
+svn co https://github.com/kiddin9/openwrt-packages/trunk/ddnsgo package/ddnsgo
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-ddns-go package/luci-app-ddns-go
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
+svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
+svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
+svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
+svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt package/aliyundrive-fuse
+svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
-
-# 移除多余package
-find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*passwall*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*qbittorrent*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*vssr*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*wizard*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 
 # samba解除root限制
 sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.template
