@@ -38,7 +38,6 @@ find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
-git clone https://github.com/sbwml/luci-app-alist.git package/alist
 git clone https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata.git package/geodata
 git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
@@ -67,6 +66,8 @@ svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto pa
 svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
 svn co https://github.com/messense/aliyundrive-fuse/trunk/openwrt package/aliyundrive-fuse
 svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
+svn co https://github.com/sbwml/luci-app-alist/trunk/alist package/alist
+svn co https://github.com/sbwml/luci-app-alist/trunk/luci-app-alist package/luci-app-alist
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
 # samba解除root限制
