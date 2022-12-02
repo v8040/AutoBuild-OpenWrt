@@ -81,7 +81,7 @@ sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/tt
 # turboacc start_dnsproxy
 sed -i 's|tls://9.9.9.9|https://1.12.12.12/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 sed -i 's|tls://8.8.8.8|https://1.0.0.1/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
-sed -i 's|--cache --cache-min-ttl=3600 ||g' package/luci-app-turboacc/root/etc/init.d/turboacc
+sed -i 's|--cache --cache-min-ttl=3600|--http3|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 
 # amlogic
 sed -i "s|https.*/OpenWrt|https://github.com/v8040/AutoBuild-OpenWrt|g" package/luci-app-amlogic/root/etc/config/amlogic
