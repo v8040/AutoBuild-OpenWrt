@@ -5,7 +5,6 @@ find . -maxdepth 4 -iname "*adguardhome*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*advanced*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*amlogic*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*argon*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*autotimeset*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
@@ -35,9 +34,7 @@ find . -maxdepth 4 -iname "*wrtbwmon*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 
 # 添加package
-git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
-git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata.git package/geodata
 git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
