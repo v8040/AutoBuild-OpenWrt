@@ -118,8 +118,8 @@ sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
 sed -i 's|admin/network|admin/control|g' feeds/luci/applications/luci-app-sqm/root/usr/share/luci/menu.d/*.json
-sed -i 's|network|nlbw|g' package/luci-app-wrtbwmon/root/usr/share/luci/menu.d/*.json
-sed -i 's|services/||g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/*.json
+sed -i 's|admin/network|admin/nlbw|g' package/luci-app-wrtbwmon/root/usr/share/luci/menu.d/*.json
+sed -i 's|admin/services|admin/|g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/*.json
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
@@ -133,12 +133,13 @@ sed -i 's/"Rclone"/"网盘挂载"/g' `grep "Rclone" -rl ./`
 sed -i 's/"SQM QoS"/"流量控制"/g' `grep "SQM QoS" -rl ./`
 sed -i 's/"SQM 队列管理"/"流量控制"/g' `grep "SQM 队列管理" -rl ./`
 sed -i 's/"SoftEther VPN 服务器"/"SoftEther"/g' `grep "SoftEther VPN 服务器" -rl ./`
-sed -i 's/"TTYD 终端"/"终端"/g' `grep "TTYD 终端" -rl ./`
+sed -i 's/"TTYD 终端"/"网页终端"/g' `grep "TTYD 终端" -rl ./`
 sed -i 's/"Turbo ACC 网络加速"/"网络加速"/g' `grep "Turbo ACC 网络加速" -rl ./`
 sed -i 's/"UPnP"/"UPnP服务"/g' `grep "UPnP" -rl ./`
 sed -i 's/"USB 打印服务器"/"USB打印"/g' `grep "USB 打印服务器" -rl ./`
 sed -i 's/"Web 管理"/"Web"/g' `grep "Web 管理" -rl ./`
 sed -i 's/"WireGuard 状态"/"WiGd状态"/g' `grep "WireGuard 状态" -rl ./`
+sed -i 's/"WireGuard"/"WiGd状态"/g' `grep "WireGuard" -rl ./`
 sed -i 's/"iKoolProxy 滤广告"/"广告过滤"/g' `grep "iKoolProxy 滤广告" -rl ./`
 sed -i 's/"miniDLNA"/"DLNA服务"/g' `grep "miniDLNA" -rl ./`
 sed -i 's/"上网时间控制"/"上网控制"/g' `grep "上网时间控制" -rl ./`
