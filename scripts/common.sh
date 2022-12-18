@@ -45,8 +45,8 @@ svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna
 # svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
-# svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
-# svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
+svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
+svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
 svn co https://github.com/kiddin9/openwrt-packages/trunk/ddnsgo package/ddnsgo
 svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
