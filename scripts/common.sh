@@ -11,6 +11,7 @@ find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dockerman*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*miniupnpd*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
@@ -40,6 +41,7 @@ git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-adv
 git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
 git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
 git clone https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
+svn co https://github.com/coolsnowwolf/packages/trunk/net/miniupnpd package/miniupnpd
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
 svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
@@ -52,7 +54,6 @@ svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-ddns-go package/luci-app-ddns-go
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-onliner package/luci-app-onliner
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
 svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
@@ -118,32 +119,32 @@ sed -i 's|admin/services|admin/|g' feeds/luci/applications/luci-app-nlbwmon/root
 
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
-sed -i 's/"Aria2 配置"/"Aria2下载"/g' `grep "Aria2 配置" -rl ./`
-sed -i 's/"Aria2"/"Aria2下载"/g' `grep "Aria2" -rl ./`
+sed -i 's/"Aria2 配置"/"Aria2设置"/g' `grep "Aria2 配置" -rl ./`
+sed -i 's/"Aria2"/"Aria2设置"/g' `grep "Aria2" -rl ./`
 sed -i 's/"ChinaDNS-NG"/"ChinaDNS"/g' `grep "ChinaDNS-NG" -rl ./`
 sed -i 's/"DDNS-GO"/"DDNSGO"/g' `grep "DDNS-GO" -rl ./`
 sed -i 's/"DDNSTO 远程控制"/"DDNSTO"/g' `grep "DDNSTO 远程控制" -rl ./`
 sed -i 's/"KMS 服务器"/"KMS激活"/g' `grep "KMS 服务器" -rl ./`
 sed -i 's/"NFS 管理"/"NFS管理"/g' `grep "NFS 管理" -rl ./`
 sed -i 's/"Rclone"/"网盘挂载"/g' `grep "Rclone" -rl ./`
-sed -i 's/"SQM QoS"/"流量控制"/g' `grep "SQM QoS" -rl ./`
-sed -i 's/"SQM 队列管理"/"流量控制"/g' `grep "SQM 队列管理" -rl ./`
+sed -i 's/"SQM QoS"/"SQM管理"/g' `grep "SQM QoS" -rl ./`
+sed -i 's/"SQM 队列管理"/"SQM管理"/g' `grep "SQM 队列管理" -rl ./`
 sed -i 's/"SoftEther VPN 服务器"/"SoftEther"/g' `grep "SoftEther VPN 服务器" -rl ./`
-sed -i 's/"TTYD 终端"/"网页终端"/g' `grep "TTYD 终端" -rl ./`
+sed -i 's/"TTYD 终端"/"终端"/g' `grep "TTYD 终端" -rl ./`
 sed -i 's/"Turbo ACC 网络加速"/"网络加速"/g' `grep "Turbo ACC 网络加速" -rl ./`
-sed -i 's/"UPnP"/"UPnP服务"/g' `grep "UPnP" -rl ./`
+sed -i 's/"UPnP"/"UPnP设置"/g' `grep "UPnP" -rl ./`
 sed -i 's/"USB 打印服务器"/"USB打印"/g' `grep "USB 打印服务器" -rl ./`
 sed -i 's/"Web 管理"/"Web"/g' `grep "Web 管理" -rl ./`
 sed -i 's/"WireGuard 状态"/"WiGd状态"/g' `grep "WireGuard 状态" -rl ./`
 sed -i 's/"WireGuard"/"WiGd状态"/g' `grep "WireGuard" -rl ./`
 sed -i 's/"iKoolProxy 滤广告"/"广告过滤"/g' `grep "iKoolProxy 滤广告" -rl ./`
-sed -i 's/"miniDLNA"/"DLNA服务"/g' `grep "miniDLNA" -rl ./`
+sed -i 's/"miniDLNA"/"DLNA设置"/g' `grep "miniDLNA" -rl ./`
+sed -i 's/"迷你DLNA"/"DLNA设置"/g' `grep "迷你DLNA" -rl ./`
 sed -i 's/"上网时间控制"/"上网控制"/g' `grep "上网时间控制" -rl ./`
 sed -i 's/"动态 DNS"/"动态DNS"/g' `grep "动态 DNS" -rl ./`
 sed -i 's/"带宽监控"/"监控"/g' `grep "带宽监控" -rl ./`
 sed -i 's/"挂载 SMB 网络共享"/"挂载共享"/g' `grep "挂载 SMB 网络共享" -rl ./`
 sed -i 's/"易有云文件管理器"/"易有云"/g' `grep "易有云文件管理器" -rl ./`
-sed -i 's/"终端"/"网页终端"/g' `grep "终端" -rl ./`
 sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"联机用户"/"在线用户"/g' `grep "联机用户" -rl ./`
 sed -i 's/"解除网易云音乐播放限制"/"音乐解锁"/g' `grep "解除网易云音乐播放限制" -rl ./`
