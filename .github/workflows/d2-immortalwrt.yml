@@ -298,7 +298,7 @@ jobs:
         sed -i "s/${name2}/${re_name2}/g" sha256sums
         mv -f ${name1} ${re_name1}
         mv -f ${name2} ${re_name2}
-        mv -f sha256sums openwrt-${{ env.SOURCE }}.sha256sums
+        mv -f sha256sums openwrt-${{ env.SOURCE }}-d2.sha256sums
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
         echo "OUTPUTDATE=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
