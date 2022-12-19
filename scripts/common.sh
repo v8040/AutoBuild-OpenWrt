@@ -11,7 +11,6 @@ find . -maxdepth 4 -iname "*ddnsto*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dnsproxy*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dockerman*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*eqos*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*minidlna*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata*" -type d | xargs rm -rf
@@ -41,8 +40,6 @@ git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-adv
 git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
 git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
 git clone https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-minidlna package/luci-app-minidlna
-svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/minidlna package/minidlna
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
 svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
@@ -111,8 +108,6 @@ sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/controller/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/model/cbi/aliyundrive-fuse/*.lua
 sed -i 's/services/nas/g' package/luci-app-aliyundrive-fuse/luasrc/view/aliyundrive-fuse/*.htm
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-minidlna/luasrc/view/*.htm
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
@@ -124,6 +119,7 @@ sed -i 's|admin/services|admin/|g' feeds/luci/applications/luci-app-nlbwmon/root
 # 修改插件名字
 sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl ./`
 sed -i 's/"Aria2 配置"/"Aria2下载"/g' `grep "Aria2 配置" -rl ./`
+sed -i 's/"Aria2"/"Aria2下载"/g' `grep "Aria2" -rl ./`
 sed -i 's/"ChinaDNS-NG"/"ChinaDNS"/g' `grep "ChinaDNS-NG" -rl ./`
 sed -i 's/"DDNS-GO"/"DDNSGO"/g' `grep "DDNS-GO" -rl ./`
 sed -i 's/"DDNSTO 远程控制"/"DDNSTO"/g' `grep "DDNSTO 远程控制" -rl ./`
@@ -147,6 +143,7 @@ sed -i 's/"动态 DNS"/"动态DNS"/g' `grep "动态 DNS" -rl ./`
 sed -i 's/"带宽监控"/"监控"/g' `grep "带宽监控" -rl ./`
 sed -i 's/"挂载 SMB 网络共享"/"挂载共享"/g' `grep "挂载 SMB 网络共享" -rl ./`
 sed -i 's/"易有云文件管理器"/"易有云"/g' `grep "易有云文件管理器" -rl ./`
+sed -i 's/"终端"/"网页终端"/g' `grep "终端" -rl ./`
 sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"联机用户"/"在线用户"/g' `grep "联机用户" -rl ./`
 sed -i 's/"解除网易云音乐播放限制"/"音乐解锁"/g' `grep "解除网易云音乐播放限制" -rl ./`
