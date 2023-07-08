@@ -45,7 +45,7 @@ jobs:
         sudo -E apt-get -o Acquire::Retries=3 -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
         sudo -E apt-get -o Acquire::Retries=3 -qq install -y libfuse-dev
         sudo -E apt-get -o Acquire::Retries=3 -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
-        # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
+        sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
         # sudo -E apt-get -o Acquire::Retries=3 -y full-upgrade
         sudo -E apt-get -o Acquire::Retries=3 -y autoremove --purge
@@ -264,11 +264,10 @@ jobs:
         [ -e files ] && mv files $OPENWRT_PATH/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRT_PATH/.config
         chmod +x $GITHUB_WORKSPACE/scripts/*.sh
-        chmod +x $DIY_SCRIPT
-        chmod +x $COM_SCRIPT
+        chmod +x $GITHUB_WORKSPACE/scripts/*/*.sh
         cd $OPENWRT_PATH
-        $GITHUB_WORKSPACE/$DIY_SCRIPT
         $GITHUB_WORKSPACE/$COM_SCRIPT
+        $GITHUB_WORKSPACE/$DIY_SCRIPT
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
@@ -316,7 +315,7 @@ jobs:
         cat sha256sums
         cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
-        tar -zcf ipk-${{ env.SOURCE }}.tar.gz packages
+        tar -cJf ipk-${{ env.SOURCE }}.tar.xz packages
         rm -rf packages *.buildinfo *.manifest *.json
         ls -lh
         name1=$(basename *initramfs-kernel.bin)

@@ -26,31 +26,34 @@ find . -maxdepth 4 -iname "*turboacc" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*unblock*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*verysync" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*wechatpush" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wizard" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wrtbwmon" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "dnsproxy" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "dnsproxy" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "luci*argon*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "miniupnpd" -type d | xargs rm -rf
 
 # 添加package
 git clone --depth=1 https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
+git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
+git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone --depth=1 https://github.com/sbwml/v2ray-geodata.git package/geodata
 git clone --depth=1 https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
 git clone --depth=1 https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
-git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
+git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git package/ddns-go
+git clone --depth=1 https://github.com/tty228/luci-app-wechatpush.git package/luci-app-wechatpush
 git clone --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 svn co https://github.com/coolsnowwolf/packages/trunk/net/miniupnpd package/miniupnpd
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
 svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
 svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
-svn co https://github.com/kiddin9/openwrt-packages/trunk/ddnsgo package/ddnsgo
-svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
+# svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-ddns-go package/luci-app-ddns-go
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
@@ -69,7 +72,7 @@ svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/l
 
 # alist
 rm -rf feeds/packages/lang/golang
-svn export https://github.com/sbwml/packages_lang_golang/branches/19.x feeds/packages/lang/golang
+git clone --depth=1 -b 20.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
 git clone --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
 
 # samba解除root限制
@@ -84,9 +87,10 @@ sed -i 's|tls://8.8.8.8|https://1.0.0.1/dns-query|g' package/luci-app-turboacc/r
 sed -i 's|--cache --cache-min-ttl=3600|--http3|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 
 # amlogic
-sed -i "s|https.*/OpenWrt|https://github.com/v8040/AutoBuild-OpenWrt|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|opt/kernel|https://github.com/ophub/kernel/tree/main/pub/stable|g" package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|.img.gz|.img.xz|g" package/luci-app-amlogic/root/etc/config/amlogic
+sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
 # unblockneteasemusic
 NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
