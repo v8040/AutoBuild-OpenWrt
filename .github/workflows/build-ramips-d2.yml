@@ -1,4 +1,4 @@
-name: Build lede for D2
+name: Build OpenWrt for newifi-d2
 
 on:
   workflow_dispatch:
@@ -6,14 +6,15 @@ on:
     - cron: 0 17 */3 * *
 
 env:
-  SOURCE_URL: https://github.com/coolsnowwolf/lede
-  SOURCE_BRANCH: master
+  SOURCE_URL: https://github.com/immortalwrt/immortalwrt
+  SOURCE_BRANCH: openwrt-21.02
   CONFIG_FILE: configs/d2.config
-  DIY_SCRIPT: scripts/diy/d2-lede.sh
+  DIY_SCRIPT: scripts/diy/d2.sh
   COM_SCRIPT: scripts/common.sh
   TOOLCHAIN_TAG: Toolchain
-  OPENWRT_RELEASE_TAG: Newifi_D2
-  SOURCE: lede
+  TARGETE: newifi-d2
+  OPENWRT_RELEASE_TAG: ramips
+  SOURCE: immortalwrt
   TZ: Asia/Shanghai
 
 jobs:
@@ -120,6 +121,7 @@ jobs:
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
       run: |
         cd $OPENWRT_PATH
+        make defconfig
         echo -e "$(nproc) thread compile"
         make tools/compile -j$(nproc) || make tools/compile -j1 V=s
 
@@ -127,7 +129,6 @@ jobs:
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
       run: |
         cd $OPENWRT_PATH
-        make defconfig
         echo -e "$(nproc) thread compile"
         make toolchain/compile -j$(nproc) || make toolchain/compile -j1 V=s
         rm -rf .config* dl bin
@@ -150,10 +151,15 @@ jobs:
         name: Toolchain-Image
         allowUpdates: true
         replacesArtifacts: true
+        prerelease: true
         tag: ${{ env.TOOLCHAIN_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: output/*
-        body: OpenWrt 工具链镜像文件
+        body: |
+          > ${{ env.TOOLCHAIN_TAG }} for ${{ env.SOURCE }}
+          - 编译时间：`${{ env.DATE }}`
+          - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
+            ${{ env.VERSION_INFO }}
 
   Build:
     needs: [Toolchain]
@@ -312,21 +318,14 @@ jobs:
         sed -i '/buildinfo/d' sha256sums
         sed -i '/manifest/d' sha256sums
         sed -i '/json/d' sha256sums
+        sed -i '/initramfs-kernel.bin/d' sha256sums
         cat sha256sums
-        cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}.config
+        name=$(basename *squashfs-sysupgrade.bin)
+        mv -f sha256sums ${name}.sha
+        cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}-${{ env.TARGETE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
-        tar -cJf ipk-${{ env.SOURCE }}.tar.xz packages
-        rm -rf packages *.buildinfo *.manifest *.json
-        ls -lh
-        name1=$(basename *initramfs-kernel.bin)
-        name2=$(basename *squashfs-sysupgrade.bin)
-        re_name1=$(echo openwrt-${{ env.SOURCE }}-d2-initramfs-kernel.bin)
-        re_name2=$(echo openwrt-${{ env.SOURCE }}-d2-squashfs-sysupgrade.bin)
-        sed -i "s/${name1}/${re_name1}/g" sha256sums
-        sed -i "s/${name2}/${re_name2}/g" sha256sums
-        mv -f ${name1} ${re_name1}
-        mv -f ${name2} ${re_name2}
-        mv -f sha256sums openwrt-${{ env.SOURCE }}-d2.sha256sums
+        tar -cJf ipk-${{ env.SOURCE }}-${{ env.TARGETE }}.tar.xz packages
+        rm -rf packages *.buildinfo *.manifest *.json *initramfs-kernel.bin
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
         echo "OUTPUTDATE=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
@@ -340,13 +339,14 @@ jobs:
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         allowUpdates: true
         replacesArtifacts: true
+        prerelease: true
         tag: ${{ env.OPENWRT_RELEASE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          >  OpenWrt for ${{ env.OPENWRT_RELEASE_TAG }}
+          > ${{ env.SOURCE }} for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
-          - 默认 IP：`10.10.11.1` 默认密码：`password`
-          - 集成`ddns` `openclash` `zerotier`，没有集成任何存储、下载、USB等相关插件
+          - 默认 IP：`10.10.11.1`或`10.10.12.1` 默认密码：`password`
+          - 精简上网，没有集成任何存储、下载、USB等相关插件
           - `openclash务必设置小闪存模式`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}

@@ -1,0 +1,27 @@
+name: Cleaning
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 16 */3 * *
+
+jobs:
+  Cleaning:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 清理workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        retain_days: 1
+        keep_minimum_runs: 0
+
+    - name: 清理releases
+      uses: dev-drprasad/delete-older-releases@master
+      with:
+        repo: ${{ github.repository }}
+        keep_latest: 3
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

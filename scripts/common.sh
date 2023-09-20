@@ -3,14 +3,13 @@
 # 移除package
 find . -maxdepth 4 -iname "*adguardhome" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*advanced" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*alist" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*alist" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*amlogic" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*autotimeset" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ddnsto" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*dockerman" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*eqos" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*mosdns" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*netdata" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*onliner" -type d | xargs rm -rf
@@ -21,59 +20,58 @@ find . -maxdepth 4 -iname "*qbittorrent*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*serverchan" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*shadowsocks*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
+find . -maxdepth 4 -iname "*transmission*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*turboacc" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*unblock*music*" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*unblock*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*verysync" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "*wechatpush" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*verysync" -type d | xargs rm -rf
+# find . -maxdepth 4 -iname "*wechatpush" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wizard" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wrtbwmon" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "dnsproxy" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "luci*argon*" -type d | xargs rm -rf
-find . -maxdepth 4 -iname "miniupnpd" -type d | xargs rm -rf
 
 # 添加package
-git clone --depth=1 https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
+# git clone --depth=1 https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone --depth=1 https://github.com/sbwml/v2ray-geodata.git package/geodata
 git clone --depth=1 https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
 git clone --depth=1 https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
-git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git package/ddns-go
-git clone --depth=1 https://github.com/tty228/luci-app-wechatpush.git package/luci-app-wechatpush
+# git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git package/ddns-go
+# git clone --depth=1 https://github.com/tty228/luci-app-wechatpush.git package/luci-app-wechatpush
 git clone --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
-svn co https://github.com/coolsnowwolf/packages/trunk/net/miniupnpd package/miniupnpd
-svn co https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
-svn co https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
-svn co https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
-# svn co https://github.com/kiddin9/openwrt-packages/trunk/dnsproxy package/dnsproxy
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-eqos package/luci-app-eqos
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
-svn co https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
-svn co https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
-svn co https://github.com/linkease/istore-ui/trunk/app-store-ui package/app-store-ui
-svn co https://github.com/linkease/istore/trunk/luci package/istore
-svn co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
-svn co https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
-svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
-svn co https://github.com/messense/aliyundrive-webdav/trunk/openwrt/aliyundrive-webdav package/aliyundrive-webdav
-svn co https://github.com/messense/aliyundrive-webdav/trunk/openwrt/luci-app-aliyundrive-webdav package/luci-app-aliyundrive-webdav
-svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
+svn export https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
+svn export https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
+svn export https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
+# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
+svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
+svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
+svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
+# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
+svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
+# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
+# svn export https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
+# svn export https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
+# svn export https://github.com/linkease/istore-ui/trunk/app-store-ui package/app-store-ui
+# svn export https://github.com/linkease/istore/trunk/luci package/istore
+svn export https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
+svn export https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
+svn export https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
+# svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt/aliyundrive-webdav package/aliyundrive-webdav
+# svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt/luci-app-aliyundrive-webdav package/luci-app-aliyundrive-webdav
+svn export https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
+svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
 # alist
-rm -rf feeds/packages/lang/golang
-git clone --depth=1 -b 20.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
-git clone --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
+# rm -rf feeds/packages/lang/golang
+# git clone --depth=1 -b 20.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
+# git clone --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
+
+# 更改 Argon 主题背景
+cp -f $GITHUB_WORKSPACE/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
 # samba解除root限制
 sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.template
@@ -84,41 +82,31 @@ sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/tt
 # turboacc start_dnsproxy
 sed -i 's|tls://9.9.9.9|https://1.12.12.12/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 sed -i 's|tls://8.8.8.8|https://1.0.0.1/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
-sed -i 's|--cache --cache-min-ttl=3600|--http3|g' package/luci-app-turboacc/root/etc/init.d/turboacc
+sed -i 's|--cache-min-ttl=3600|--http3 --edns --cache-optimistic|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 
 # amlogic
 sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
+# sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|.img.gz|.img.xz|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
 # unblockneteasemusic
-NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
-curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
-echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
-curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/app.js -o $NAME/core/app.js
-curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/bridge.js -o $NAME/core/bridge.js
-curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
-curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
-curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
+# NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
+# curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
+# echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
+# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/app.js -o $NAME/core/app.js
+# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/bridge.js -o $NAME/core/bridge.js
+# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
+# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
+# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
 
 # 修改makefile
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/luci\.mk/include \$(TOPDIR)\/feeds\/luci\/luci\.mk/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/include\ \.\.\/\.\.\/lang\/golang\/golang\-package\.mk/include \$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang\-package\.mk/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHREPO/PKG_SOURCE_URL:=https:\/\/github\.com/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=\@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload\.github\.com/g' {}
-
-# 编译 po2lmo (如果有po2lmo可跳过)
-pushd package/luci-app-openclash/tools/po2lmo
-make && sudo make install
-popd
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/lang\/golang\/golang-package.mk/$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang-package.mk/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHREPO/PKG_SOURCE_URL:=https:\/\/github.com/g' {}
+find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload.github.com/g' {}
 
 # 调整菜单
-sed -i 's/network/control/g' feeds/luci/applications/luci-app-sqm/luasrc/controller/*.lua
-sed -i 's/network/control/g' package/luci-app-eqos/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-webdav/luasrc/controller/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-webdav/luasrc/model/cbi/aliyundrive-webdav/*.lua
-sed -i 's/services/nas/g' package/luci-app-aliyundrive-webdav/luasrc/view/aliyundrive-webdav/*.htm
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
@@ -133,7 +121,7 @@ sed -i 's/"Argon 主题设置"/"主题设置"/g' `grep "Argon 主题设置" -rl 
 sed -i 's/"Aria2 配置"/"Aria2设置"/g' `grep "Aria2 配置" -rl ./`
 sed -i 's/"Aria2"/"Aria2设置"/g' `grep "Aria2" -rl ./`
 sed -i 's/"ChinaDNS-NG"/"ChinaDNS"/g' `grep "ChinaDNS-NG" -rl ./`
-sed -i 's/"DDNS-GO"/"DDNSGO"/g' `grep "DDNS-GO" -rl ./`
+sed -i 's/"DDNS-Go"/"DDNSGO"/g' `grep "DDNS-Go" -rl ./`
 sed -i 's/"DDNSTO 远程控制"/"DDNSTO"/g' `grep "DDNSTO 远程控制" -rl ./`
 sed -i 's/"KMS 服务器"/"KMS激活"/g' `grep "KMS 服务器" -rl ./`
 sed -i 's/"NFS 管理"/"NFS管理"/g' `grep "NFS 管理" -rl ./`
@@ -161,3 +149,8 @@ sed -i 's/"网络存储"/"存储"/g' `grep "网络存储" -rl ./`
 sed -i 's/"联机用户"/"在线用户"/g' `grep "联机用户" -rl ./`
 sed -i 's/"解除网易云音乐播放限制"/"音乐解锁"/g' `grep "解除网易云音乐播放限制" -rl ./`
 sed -i 's/"阿里云盘 WebDAV"/"阿里云盘"/g' `grep "阿里云盘 WebDAV" -rl ./`
+
+# 编译 po2lmo (如果有po2lmo可跳过)
+pushd package/luci-app-openclash/tools/po2lmo
+make && sudo make install
+popd

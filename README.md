@@ -1,6 +1,6 @@
 <div align="center">
-<img width="768" src="https://img.gejiba.com/images/1fc7fe307631666f4e11d1cf69cf6f78.png"/>
-<h1>OpenWrt 固件云编译 适配 ARMv8_N1 和 Newifi_D2</h1>
+<img width="768" src="https://image.v8040v.top/file/b0c3270176d75764add55.png"/>
+<h1>OpenWrt 固件云编译 适配 ARMv8 和 ramips 平台 </h1>
 </div>
 
 ## 项目说明
@@ -9,25 +9,22 @@
 - 固件打包：[Flippy](https://github.com/unifreq/openwrt_packit) 、 [ophub](https://github.com/ophub/kernel)
 - 使用 Github Actions 拉取 [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 或 [Lean](https://github.com/coolsnowwolf/lede) 的 Openwrt 源码仓库进行云编译
 - 固件默认管理地址：`10.10.10.1` 、 `10.10.11.1` 默认用户：`root` 默认密码：`password` 默认主题：`Argon`
-- 适配 `ARMv8_N1` 和 `Newifi_D2` 的 OpenWrt 固件，分为 `ImmortalWrt版` 和 `Lean版` ，插件一样，仅源码不同
--  `ImmortalWrt版` : `21.02` 分支，[F大](https://github.com/unifreq/openwrt_packit)打包 `5.4+` 内核 ； `Lean版` ：[F大](https://github.com/unifreq/openwrt_packit)打包 `6.0+` 内核
-- Releases 下载： [ARMv8_N1](https://github.com/v8040/AutoBuild-OpenWrt/releases/tag/ARMv8_N1) 和 [Newifi_D2](https://github.com/v8040/AutoBuild-OpenWrt/releases/tag/Newifi_D2)
-- 固件集成的所有 `ipk` 插件全部打包，可以在 [Releases](https://github.com/v8040/AutoBuild-OpenWrt/releases) 内进行下载
+- 固件和集成的所有 `ipk` 插件全部打包，可以在 [Releases](https://github.com/v8040/AutoBuild-OpenWrt/releases) 内进行下载
 - 默认添加[kiddin9](https://github.com/kiddin9/openwrt-packages)大佬的opkg源，可在线opkg安装插件
 - 项目编译的固件插件为最新版本，最新版插件可能有 BUG，如果之前使用稳定则无需追新
 - 第一次使用请采用全新安装，避免出现升级失败以及其他一些可能的 BUG
 
 ## 插件预览
 <details>
-<summary><b>&nbsp;N1固件插件预览</b></summary>
+<summary><b>&nbsp;ARMv8 固件插件预览</b></summary>
 <br/>
-<img src="https://img.gejiba.com/images/a5713ee4e4b6327064aecb0295c5b585.png"/>
+<img src="https://image.v8040v.top/file/faad25abd01fe8a4bd969.png"/>
 </details>
 
 <details>
-<summary><b>&nbsp;D2固件插件预览</b></summary>
+<summary><b>&nbsp;ramips 固件插件预览</b></summary>
 <br/>
-参照N1固件插件预览（集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件）
+参照 ARMv8 固件插件预览（集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件）
 </details>
 
 ## 定制固件
@@ -55,6 +52,6 @@
 ## 鸣谢
 | [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) | [coolsnowwolf](https://github.com/coolsnowwolf) | [P3TERX](https://github.com/P3TERX) | [Flippy](https://github.com/unifreq) | [kiddin9](https://github.com/kiddin9) |
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
-| <img width="100" src="https://avatars.githubusercontent.com/u/53193414"/> | <img width="100" src="https://avatars.githubusercontent.com/u/31687149"/> | <img width="100" src="https://avatars.githubusercontent.com/u/25927179"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39355261"/> | <img width="100" src="https://avatars.githubusercontent.com/u/48883331"/> | 
+| <img width="100" src="https://avatars.githubusercontent.com/u/53193414"/> | <img width="100" src="https://avatars.githubusercontent.com/u/31687149"/> | <img width="100" src="https://avatars.githubusercontent.com/u/25927179"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39355261"/> | <img width="100" src="https://avatars.githubusercontent.com/u/48883331"/> |
 | [Ophub](https://github.com/ophub) | [SuLingGG](https://github.com/SuLingGG) | [haibo](https://github.com/haiibo) | [IvanSolis1989](https://github.com/IvanSolis1989) | [kenzok8](https://github.com/kenzok8/small-package) |
 | <img width="100" src="https://avatars.githubusercontent.com/u/68696949"/> | <img width="100" src="https://avatars.githubusercontent.com/u/22287562"/> | <img width="100" src="https://avatars.githubusercontent.com/u/85640068"/> | <img width="100" src="https://avatars.githubusercontent.com/u/44228691"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39034242"/> |
