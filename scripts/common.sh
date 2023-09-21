@@ -3,8 +3,6 @@
 # 移除package
 find . -maxdepth 4 -iname "*adguardhome" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*advanced" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*alist" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*aliyundrive*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*amlogic" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*autotimeset" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*bypass" -type d | xargs rm -rf
@@ -23,52 +21,33 @@ find . -maxdepth 4 -iname "*ssr*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*transmission*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*trojan*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*turboacc" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*unblock*music*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*v2ray*" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*verysync" -type d | xargs rm -rf
-# find . -maxdepth 4 -iname "*wechatpush" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wizard" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*wrtbwmon" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "*xray*" -type d | xargs rm -rf
 find . -maxdepth 4 -iname "luci*argon*" -type d | xargs rm -rf
 
 # 添加package
-# git clone --depth=1 https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone --depth=1 https://github.com/sbwml/v2ray-geodata.git package/geodata
 git clone --depth=1 https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
 git clone --depth=1 https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
-# git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git package/ddns-go
-# git clone --depth=1 https://github.com/tty228/luci-app-wechatpush.git package/luci-app-wechatpush
 git clone --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 svn export https://github.com/kenzok8/small-package/trunk/luci-app-onliner package/luci-app-onliner
 svn export https://github.com/kenzok8/small-package/trunk/luci-app-wrtbwmon package/luci-app-wrtbwmon
 svn export https://github.com/kenzok8/small-package/trunk/wrtbwmon package/wrtbwmon
-# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-speedlimit package/luci-app-control-speedlimit
 svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-timewol package/luci-app-control-timewol
 svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-webrestriction package/luci-app-control-webrestriction
 svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-control-weburl package/luci-app-control-weburl
-# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-netdata package/luci-app-netdata
 svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-turboacc package/luci-app-turboacc
-# svn export https://github.com/kiddin9/openwrt-packages/trunk/luci-app-verysync package/luci-app-verysync
-# svn export https://github.com/kiddin9/openwrt-packages/trunk/netdata package/netdata
-# svn export https://github.com/kiddin9/openwrt-packages/trunk/verysync package/verysync
-# svn export https://github.com/linkease/istore-ui/trunk/app-store-ui package/app-store-ui
-# svn export https://github.com/linkease/istore/trunk/luci package/istore
 svn export https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto package/luci-app-ddnsto
 svn export https://github.com/linkease/nas-packages/trunk/network/services/ddnsto package/ddnsto
 svn export https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman package/luci-app-dockerman
-# svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt/aliyundrive-webdav package/aliyundrive-webdav
-# svn export https://github.com/messense/aliyundrive-webdav/trunk/openwrt/luci-app-aliyundrive-webdav package/luci-app-aliyundrive-webdav
 svn export https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
 svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
 
-# alist
-# rm -rf feeds/packages/lang/golang
-# git clone --depth=1 -b 20.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
-# git clone --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
 
 # 更改 Argon 主题背景
 cp -f $GITHUB_WORKSPACE/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
@@ -86,19 +65,9 @@ sed -i 's|--cache-min-ttl=3600|--http3 --edns --cache-optimistic|g' package/luci
 
 # amlogic
 sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
-# sed -i "s|ARMv8|ARMv8_N1|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|.img.gz|.img.xz|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
-# unblockneteasemusic
-# NAME=$"package/luci-app-unblockneteasemusic/root/usr/share/unblockneteasemusic" && mkdir -p $NAME/core
-# curl 'https://api.github.com/repos/UnblockNeteaseMusic/server/commits?sha=enhanced&path=precompiled' -o commits.json
-# echo "$(grep sha commits.json | sed -n "1,1p" | cut -c 13-52)">"$NAME/core_local_ver"
-# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/app.js -o $NAME/core/app.js
-# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/precompiled/bridge.js -o $NAME/core/bridge.js
-# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/ca.crt -o $NAME/core/ca.crt
-# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.crt -o $NAME/core/server.crt
-# curl -L https://github.com/UnblockNeteaseMusic/server/raw/enhanced/server.key -o $NAME/core/server.key
 
 # 修改makefile
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' {}

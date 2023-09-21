@@ -157,7 +157,6 @@ jobs:
         artifacts: output/*
         body: |
           > ${{ env.TOOLCHAIN_TAG }} for ${{ env.SOURCE }}
-          - 编译时间：`${{ env.DATE }}`
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
 
