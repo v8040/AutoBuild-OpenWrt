@@ -1,4 +1,4 @@
-name: Build OpenWrt for miwifi-mini
+name: Build OpenWrt for redmi-ac2100
 
 on:
   workflow_dispatch:
@@ -8,11 +8,11 @@ on:
 env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
-  CONFIG_FILE: configs/r1cm.config
+  CONFIG_FILE: configs/rm2100.config
   DIY_SCRIPT: scripts/diy/ramips.sh
   COM_SCRIPT: scripts/common.sh
   TOOLCHAIN_TAG: Toolchain
-  TARGETE: miwifi-mini
+  TARGETE: redmi-ac2100
   OPENWRT_RELEASE_TAG: ramips
   SOURCE: immortalwrt
   TZ: Asia/Shanghai

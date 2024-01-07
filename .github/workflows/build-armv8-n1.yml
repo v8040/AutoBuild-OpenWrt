@@ -9,7 +9,7 @@ env:
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
   CONFIG_FILE: configs/n1.config
-  DIY_SCRIPT: scripts/diy/n1.sh
+  DIY_SCRIPT: scripts/diy/armv8.sh
   COM_SCRIPT: scripts/common.sh
   TOOLCHAIN_TAG: Toolchain
   TARGETE: s905d-n1
@@ -39,21 +39,15 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi `docker images -q`
+        docker rmi $(docker images -q)
         [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
-        sudo -E apt-get -o Acquire::Retries=3 -y update
-        sudo -E apt-get -o Acquire::Retries=3 -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -o Acquire::Retries=3 -qq install -y libfuse-dev
-        sudo -E apt-get -o Acquire::Retries=3 -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
+        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+        sudo -E apt-get -y update
+        sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
         sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
-        sudo -E systemctl daemon-reload
-        # sudo -E apt-get -o Acquire::Retries=3 -y full-upgrade
-        sudo -E apt-get -o Acquire::Retries=3 -y autoremove --purge
-        sudo -E apt-get -o Acquire::Retries=3 clean
-        sudo mkdir -p /workdir
-        sudo chown ${USER}:${GROUPS} /workdir
-        sudo timedatectl set-timezone "${TZ}"
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get -y clean
+        sudo timedatectl set-timezone "$TZ"
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: 克隆源码
@@ -178,36 +172,31 @@ jobs:
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
+        echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
         echo "--------------------------CPU信息--------------------------"
-        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo "CPU核心数量: $(nproc)"
+        echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
         echo "--------------------------内存信息--------------------------"
-        echo "已安装内存详细信息："
-        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+        echo "已安装内存详细信息:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
         echo "--------------------------硬盘信息--------------------------"
-        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
     - name: 初始化环境
       id: init
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi `docker images -q`
+        docker rmi $(docker images -q)
         [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
-        sudo -E apt-get -o Acquire::Retries=3 -y update
-        sudo -E apt-get -o Acquire::Retries=3 -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -o Acquire::Retries=3 -qq install -y libfuse-dev
-        sudo -E apt-get -o Acquire::Retries=3 -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
-        # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
-        sudo -E systemctl daemon-reload
-        # sudo -E apt-get -o Acquire::Retries=3 -y full-upgrade
-        sudo -E apt-get -o Acquire::Retries=3 -y autoremove --purge
-        sudo -E apt-get -o Acquire::Retries=3 clean
-        sudo mkdir -p /workdir
-        sudo chown ${USER}:${GROUPS} /workdir
-        sudo timedatectl set-timezone "${TZ}"
+        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+        sudo -E apt-get -y update
+        sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
+        sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get -y clean
+        sudo timedatectl set-timezone "$TZ"
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: 组合磁盘
@@ -319,12 +308,14 @@ jobs:
         sed -i '/buildinfo/d' sha256sums
         sed -i '/manifest/d' sha256sums
         sed -i '/json/d' sha256sums
+        sed -i '/kernel.*\.bin/d' sha256sums
+        sed -i '/rootfs.*\.bin/d' sha256sums
         sed -i '/Image/d' sha256sums
         cat sha256sums
         cp $OPENWRT_PATH/.config build-${{ env.SOURCE }}-${{ env.TARGETE }}.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
         tar -cJf ipk-${{ env.SOURCE }}-${{ env.TARGETE }}.tar.xz packages
-        rm -rf packages *.buildinfo *.manifest *.json *Image
+        rm -rf packages *.buildinfo *.manifest *.json *Image *kernel*.bin *rootfs*.bin *u-boot*
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
@@ -337,7 +328,7 @@ jobs:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
         PACKAGE_SOC: s905d
         KERNEL_REPO_URL: ophub/kernel
-        KERNEL_VERSION_NAME: 5.4.256
+        KERNEL_VERSION_NAME: 5.4.265
         KERNEL_AUTO_LATEST: true
         GZIP_IMGS: .xz
         WHOAMI: v8040
@@ -350,11 +341,11 @@ jobs:
         mv -f $FIRMWARE_PATH/ipk*.tar.xz ${{ env.PACKAGED_OUTPUTPATH }}
         cd ${{ env.PACKAGED_OUTPUTPATH }}/
         ls -lh
-        name=$(basename *k5*.img.xz)
+        name=$(basename *k5.4*.img.xz)
         re_name=$(echo ${{ env.SOURCE }}-${{ env.TARGETE }}-k5.4+.img.xz)
+        mv -f ${name} ${re_name}
         cat *.sha > sha256sums && rm -f *.sha
         sed -i "s/${name}/${re_name}/g" sha256sums
-        mv -f ${name} ${re_name}
         mv -f sha256sums ${re_name}.sha
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
