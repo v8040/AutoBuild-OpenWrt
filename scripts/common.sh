@@ -10,6 +10,7 @@ rm_package "*advanced"
 rm_package "*amlogic"
 rm_package "*autotimeset"
 rm_package "*bypass"
+rm_package "*ddns-go"
 rm_package "*ddnsto"
 rm_package "*dockerman"
 rm_package "*mosdns"
@@ -21,6 +22,7 @@ rm_package "*passwall"
 rm_package "*pushbot"
 rm_package "*qbittorrent*"
 rm_package "*shadowsocks*"
+rm_package "*smartdns"
 rm_package "*ssr*"
 rm_package "*transmission*"
 rm_package "*trojan*"
@@ -44,6 +46,10 @@ git_sparse_clone() {
 
 git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 git_sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
+git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
+git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
+git_sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
+git_sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages.git luci-app-control-timewol
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages.git luci-app-onliner
 git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
