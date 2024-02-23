@@ -21,10 +21,10 @@ rm_package "*passwall"
 rm_package "*pushbot"
 rm_package "*qbittorrent*"
 rm_package "*shadowsocks*"
+rm_package "*smartdns"
 rm_package "*ssr*"
 rm_package "*transmission*"
 rm_package "*trojan*"
-rm_package "*turboacc"
 rm_package "*v2ray*"
 rm_package "*xray*"
 
@@ -45,9 +45,10 @@ git_sparse_clone() {
 
 git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 git_sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
+git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
+git_sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages.git luci-app-control-timewol
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages.git luci-app-onliner
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages.git luci-app-turboacc
 git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
 git_sparse_clone master https://github.com/lisaac/luci-app-dockerman.git applications/luci-app-dockerman
 git_sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
@@ -60,11 +61,6 @@ sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.te
 
 # ttyd自动登录
 sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/ttyd.config
-
-# turboacc start_dnsproxy
-sed -i 's|tls://9.9.9.9|https://1.12.12.12/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
-sed -i 's|tls://8.8.8.8|https://1.0.0.1/dns-query|g' package/luci-app-turboacc/root/etc/init.d/turboacc
-sed -i 's|--cache-min-ttl=3600|--http3 --edns --cache-optimistic|g' package/luci-app-turboacc/root/etc/init.d/turboacc
 
 # amlogic
 sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
