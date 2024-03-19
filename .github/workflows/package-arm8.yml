@@ -1,14 +1,16 @@
-name: Package OpenWrt for s905d-n1
+name: Package OpenWrt for ARMv8
 
 on:
   workflow_dispatch:
 
 env:
+  SOURCE: immortalwrt
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
-  TARGETE: s905d-n1
-  OPENWRT_RELEASE_TAG: ARMv8
-  SOURCE: immortalwrt
+  ROOTFS_RELEASE_TAG: ARMv8
+  OPENWRT_RELEASE_TAG: Package
+  PACKAGE_SOC: all
+  PACKAGE_KERNEL: 5.4.270_6.6.20
   TZ: Asia/Shanghai
 
 jobs:
@@ -52,8 +54,8 @@ jobs:
       run: |
         FIRMWARE_PATH=${{ env.OPENWRT_PATH }}/bin/targets/armvirt/64
         [ -d $FIRMWARE_PATH ] || mkdir -p $FIRMWARE_PATH
-        FIRMWARE_URL=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/releases" | grep -o "${{ env.OPENWRT_RELEASE_TAG }}.*rootfs.tar.gz")
-        wget -q -P $FIRMWARE_PATH https://github.com/$GITHUB_REPOSITORY/releases/download/$FIRMWARE_URL
+        FIRMWARE_URL=$(curl -s "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/${{ env.ROOTFS_RELEASE_TAG }}" | grep -o '"browser_download_url": "[^"]*rootfs\.tar\.gz"' | cut -d '"' -f 4)
+        wget -q -P $FIRMWARE_PATH $FIRMWARE_URL
         echo "status=success" >> $GITHUB_OUTPUT
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
 
@@ -62,44 +64,30 @@ jobs:
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
-        PACKAGE_SOC: s905d
+        PACKAGE_SOC: ${{ env.PACKAGE_SOC }}
         KERNEL_REPO_URL: ophub/kernel
-        KERNEL_VERSION_NAME: 5.4.265
+        KERNEL_VERSION_NAME: ${{ env.PACKAGE_KERNEL }}
         KERNEL_AUTO_LATEST: true
         GZIP_IMGS: .xz
         WHOAMI: v8040
 
-    - name: 重整理文件
-      id: reorganize
-      if: env.PACKAGED_STATUS == 'success'
-      run: |
-        cd ${{ env.PACKAGED_OUTPUTPATH }}/
-        ls -lh
-        name=$(basename *k5.4*.img.xz)
-        re_name=$(echo ${{ env.SOURCE }}-${{ env.TARGETE }}-k5.4+.img.xz)
-        mv -f ${name} ${re_name}
-        cat *.sha > sha256sums && rm -f *.sha
-        sed -i "s/${name}/${re_name}/g" sha256sums
-        mv -f sha256sums ${re_name}.sha
-        ls -lh
-        echo "status=success" >> $GITHUB_OUTPUT
-
     - name: 发布固件
-      if: steps.reorganize.outputs.status == 'success'
+      if: env.PACKAGED_STATUS == 'success'
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.PACKAGED_OUTPUTDATE }}
         artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
         allowUpdates: true
-        replacesArtifacts: true
+        removeArtifacts: true
+        prerelease: true
         tag: ${{ env.OPENWRT_RELEASE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          > ${{ env.SOURCE }} for ${{ env.OPENWRT_RELEASE_TAG }}
+          > ${{ env.SOURCE }} for ${{ env.ROOTFS_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - 安装：`openwrt-install-amlogic`
-          - 升级：`openwrt-update-amlogic`
-          - 自用版：集成插件不多，只有小猫咪,可按需在线安装插件
+          - amlogic平台安装和升级：`openwrt-install-amlogic`，`openwrt-update-amlogic`
+          - 重要提醒：未经测试，不保证可用性
+          - 自用版：集成插件不多，只有小猫咪，可按需在线安装插件
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}

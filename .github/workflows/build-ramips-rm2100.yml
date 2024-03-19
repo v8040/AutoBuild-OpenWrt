@@ -6,6 +6,7 @@ on:
     - cron: 0 17 */3 * *
 
 env:
+  SOURCE: immortalwrt
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
   CONFIG_FILE: configs/rm2100.config
@@ -14,7 +15,6 @@ env:
   TOOLCHAIN_TAG: Toolchain
   TARGETE: redmi-ac2100
   OPENWRT_RELEASE_TAG: ramips
-  SOURCE: immortalwrt
   TZ: Asia/Shanghai
 
 jobs:

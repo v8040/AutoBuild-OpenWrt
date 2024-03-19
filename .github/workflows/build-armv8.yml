@@ -1,4 +1,4 @@
-name: Build OpenWrt for s905d-n1
+name: Build OpenWrt for ARMv8
 
 on:
   workflow_dispatch:
@@ -6,15 +6,17 @@ on:
     - cron: 0 17 */3 * *
 
 env:
+  SOURCE: immortalwrt
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
-  CONFIG_FILE: configs/n1.config
+  CONFIG_FILE: configs/armv8.config
   DIY_SCRIPT: scripts/diy/armv8.sh
   COM_SCRIPT: scripts/common.sh
   TOOLCHAIN_TAG: Toolchain
-  TARGETE: s905d-n1
+  TARGETE: armvirt-64
   OPENWRT_RELEASE_TAG: ARMv8
-  SOURCE: immortalwrt
+  PACKAGE_SOC: s905d
+  PACKAGE_KERNEL: 5.4.270
   TZ: Asia/Shanghai
 
 jobs:
@@ -326,9 +328,9 @@ jobs:
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: workspace/openwrt/bin/targets/*/*/*rootfs.tar.gz
-        PACKAGE_SOC: s905d
+        PACKAGE_SOC: ${{ env.PACKAGE_SOC }}
         KERNEL_REPO_URL: ophub/kernel
-        KERNEL_VERSION_NAME: 5.4.265
+        KERNEL_VERSION_NAME: ${{ env.PACKAGE_KERNEL }}
         KERNEL_AUTO_LATEST: true
         GZIP_IMGS: .xz
         WHOAMI: v8040
@@ -341,12 +343,13 @@ jobs:
         mv -f $FIRMWARE_PATH/ipk*.tar.xz ${{ env.PACKAGED_OUTPUTPATH }}
         cd ${{ env.PACKAGED_OUTPUTPATH }}/
         ls -lh
-        name=$(basename *k5.4*.img.xz)
-        re_name=$(echo ${{ env.SOURCE }}-${{ env.TARGETE }}-k5.4+.img.xz)
-        mv -f ${name} ${re_name}
-        cat *.sha > sha256sums && rm -f *.sha
-        sed -i "s/${name}/${re_name}/g" sha256sums
-        mv -f sha256sums ${re_name}.sha
+        name_img=$(basename *.img.xz)
+        kernel=$(echo "$name_img" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
+        rename_img=$(echo ${{ env.SOURCE }}-${{ env.PACKAGE_SOC }}-${kernel}.img.xz)
+        [ -f "${name_img}" ] && mv -f "${name_img}" "${rename_img}"
+        name_sha=$(basename *.img.xz.sha)
+        sed -i "s/${name_img}/${rename_img}/g" ${name_sha}
+        [ -f "${name_sha}" ] && mv -f "${name_sha}" "${rename_img}.sha"
         ls -lh
         echo "status=success" >> $GITHUB_OUTPUT
 
@@ -364,8 +367,8 @@ jobs:
           > ${{ env.SOURCE }} for ${{ env.OPENWRT_RELEASE_TAG }}
           - 编译时间：`${{ env.DATE }}`
           - 默认 IP：`10.10.10.1` 默认密码：`password`
-          - 安装：`openwrt-install-amlogic`
-          - 升级：`openwrt-update-amlogic`
-          - 自用版：集成插件不多，只有小猫咪,可按需在线安装插件
+          - amlogic平台安装和升级：`openwrt-install-amlogic`，`openwrt-update-amlogic`
+          - 默认打包`s905d`和`h28k`固件，其他设备请自行fork，修改对应`PACKAGE_SOC`和`KERNEL_VERSION_NAME`即可
+          - 自用版：集成插件不多，只有小猫咪，可按需在线安装插件
           - 当前使用版本:【编译前的最后一次➦[${{ env.SOURCE }}源码](${{ env.SOURCE_URL }})更新记录】
             ${{ env.VERSION_INFO }}
