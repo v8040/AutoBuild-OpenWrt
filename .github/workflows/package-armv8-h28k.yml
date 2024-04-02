@@ -2,6 +2,8 @@ name: Package OpenWrt for h28k
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: 0 22 */3 * *
 
 env:
   SOURCE: immortalwrt

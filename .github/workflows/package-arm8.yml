@@ -2,13 +2,15 @@ name: Package OpenWrt for ARMv8
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: 0 22 */3 * *
 
 env:
   SOURCE: immortalwrt
   SOURCE_URL: https://github.com/immortalwrt/immortalwrt
   SOURCE_BRANCH: openwrt-21.02
   ROOTFS_RELEASE_TAG: ARMv8
-  OPENWRT_RELEASE_TAG: Package
+  OPENWRT_RELEASE_TAG: package
   PACKAGE_SOC: all
   PACKAGE_KERNEL: 5.4.270_6.6.20
   TZ: Asia/Shanghai
