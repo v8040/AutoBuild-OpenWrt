@@ -71,7 +71,7 @@ sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/tt
 
 # amlogic
 sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|.img.gz|.img.xz|g" package/luci-app-amlogic/root/etc/config/amlogic
+# sed -i "s|.img.gz|.img.xz|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
 # 修改makefile
