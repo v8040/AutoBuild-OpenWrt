@@ -30,6 +30,6 @@ replace_text() {
   sed -i "s/$search_text/$new_text/g" $(grep "$search_text" -rl ./ 2>/dev/null) || echo -e "\e[31mNot found [$search_text]\e[0m"
 }
 
-replace_text "迷你DLNA" "miniDLNA"
+replace_text "迷你DLNA" "DLNA"
 
 echo -e "\e[32m$0 [DONE]\e[0m"

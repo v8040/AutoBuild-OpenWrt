@@ -125,12 +125,13 @@ replace_text() {
 }
 
 replace_text "Argon 主题设置" "主题设置"
+replace_text "DDNS-Go" "DDNSGO"
 replace_text "DDNSTO 远程控制" "DDNSTO"
 replace_text "KMS 服务器" "KMS激活"
 replace_text "QoS Nftables 版" "QoS管理"
 replace_text "SQM 队列管理" "SQM管理"
 replace_text "动态 DNS" "动态DNS"
-replace_text "网络存储" "NAS存储"
+replace_text "网络存储" "NAS"
 replace_text "解除网易云音乐播放限制" "音乐解锁"
 
 echo -e "\e[32m$0 [DONE]\e[0m"
