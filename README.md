@@ -1,16 +1,15 @@
 <div align="center">
 <img width="768" src="https://image.v8040v.top/file/b0c3270176d75764add55.png"/>
-<h1>OpenWrt 固件云编译 适配 ARMv8 和 ramips 平台 </h1>
+<h1>OpenWrt 固件云编译</h1>
 </div>
 
 ## 项目说明
-- OpenWrt 源码：[ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 、 [Lean](https://github.com/coolsnowwolf/lede)
+- OpenWrt 源码：[ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 、 [hanwckf](https://github.com/hanwckf/immortalwrt-mt798x)
 - 云编译方法：[P3TERX](https://github.com/P3TERX/Actions-OpenWrt) 、 [Haiibo](https://github.com/haiibo/OpenWrt)
 - 固件打包：[Flippy](https://github.com/unifreq/openwrt_packit) 、 [ophub](https://github.com/ophub/kernel)
-- 使用 Github Actions 拉取 [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 或 [Lean](https://github.com/coolsnowwolf/lede) 的 Openwrt 源码仓库进行云编译
 - 固件默认管理地址：`10.10.10.1` 、 `10.10.11.1` 默认用户：`root` 默认密码：`password` 默认主题：`Argon`
-- 固件和集成的所有 `ipk` 插件全部打包，可以在 [Releases](https://github.com/v8040/AutoBuild-OpenWrt/releases) 内进行下载
-- 默认添加[kiddin9](https://github.com/kiddin9/openwrt-packages)大佬的opkg源，可在线opkg安装插件
+- 固件可以在 [Releases](https://github.com/v8040/AutoBuild-OpenWrt/releases) 内进行下载
+- 默认添加[kiddin9](https://github.com/kiddin9/openwrt-packages)的opkg源，可在线opkg安装插件
 - 项目编译的固件插件为最新版本，最新版插件可能有 BUG，如果之前使用稳定则无需追新
 - 第一次使用请采用全新安装，避免出现升级失败以及其他一些可能的 BUG
 
@@ -24,7 +23,7 @@
 <details>
 <summary><b>&nbsp;ramips 固件插件预览</b></summary>
 <br/>
-参照 ARMv8 固件插件预览（集成ddns openclash zerotier，没有集成任何存储、下载、USB等相关插件）
+参照 ARMv8 固件插件预览（集成ddns zerotier，没有集成任何存储、下载、USB等相关插件）
 </details>
 
 ## 定制固件
@@ -53,5 +52,5 @@
 | [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) | [coolsnowwolf](https://github.com/coolsnowwolf) | [P3TERX](https://github.com/P3TERX) | [Flippy](https://github.com/unifreq) | [kiddin9](https://github.com/kiddin9) |
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
 | <img width="100" src="https://avatars.githubusercontent.com/u/53193414"/> | <img width="100" src="https://avatars.githubusercontent.com/u/31687149"/> | <img width="100" src="https://avatars.githubusercontent.com/u/25927179"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39355261"/> | <img width="100" src="https://avatars.githubusercontent.com/u/48883331"/> |
-| [Ophub](https://github.com/ophub) | [SuLingGG](https://github.com/SuLingGG) | [haibo](https://github.com/haiibo) | [IvanSolis1989](https://github.com/IvanSolis1989) | [kenzok8](https://github.com/kenzok8/small-package) |
-| <img width="100" src="https://avatars.githubusercontent.com/u/68696949"/> | <img width="100" src="https://avatars.githubusercontent.com/u/22287562"/> | <img width="100" src="https://avatars.githubusercontent.com/u/85640068"/> | <img width="100" src="https://avatars.githubusercontent.com/u/44228691"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39034242"/> |
+| [Ophub](https://github.com/ophub) | [SuLingGG](https://github.com/SuLingGG) | [haibo](https://github.com/haiibo) | [hanwckf](https://github.com/hanwckf) | [kenzok8](https://github.com/kenzok8/small-package) |
+| <img width="100" src="https://avatars.githubusercontent.com/u/68696949"/> | <img width="100" src="https://avatars.githubusercontent.com/u/22287562"/> | <img width="100" src="https://avatars.githubusercontent.com/u/85640068"/> | <img width="100" src="https://avatars.githubusercontent.com/u/27666983"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39034242"/> |

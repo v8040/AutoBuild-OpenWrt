@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 修改默认IP和hostname
-sed -i 's/192.168.1.1/10.10.10.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/10.10.11.1/g' package/base-files/files/bin/config_generate
 sed -i 's/ImmortalWrt/OpenWrt/g' package/base-files/files/bin/config_generate
 
 # 修改opkg源
@@ -25,11 +25,6 @@ git_sparse_clone() {
 
 git_sparse_clone main https://github.com/v8040/openwrt-packages.git zerotier
 
-replace_text() {
-  search_text="$1" new_text="$2"
-  sed -i "s/$search_text/$new_text/g" $(grep "$search_text" -rl ./ 2>/dev/null) || echo -e "\e[31mNot found [$search_text]\e[0m"
-}
-
-replace_text "迷你DLNA" "miniDLNA"
+sed -i 's/services/control/g' package/mtk/applications/luci-app-eqos-mtk/root/usr/share/luci/menu.d/*.json
 
 echo -e "\e[32m$0 [DONE]\e[0m"

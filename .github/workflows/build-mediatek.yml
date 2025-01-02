@@ -1,4 +1,4 @@
-name: Build OpenWrt for ARMv8
+name: Build OpenWrt for mediatek
 
 on:
   workflow_dispatch:
@@ -10,41 +10,23 @@ on:
         type: choice
         options:
           - immortalwrt-21.02
-          - immortalwrt-24.10
       openwrt_target:
         description: "Select device target"
         required: false
-        default: "armv8"
+        default: "mediatek"
         type: choice
         options:
-          - armv8
+          - mediatek
       openwrt_board:
         description: "Select device board"
         required: false
-        default: "h28k"
+        default: "ax3000t"
         type: choice
         options:
-          - h28k
-          - s905d
-      openwrt_kernel:
-        description: "Select kernel version"
-        required: false
-        default: "5.10.y"
-        type: choice
-        options:
-          - 5.4.y
-          - 5.10.y
-          - 5.15.y
-          - 6.1.y
-          - 6.6.y
-      auto_kernel:
-        description: "Auto use the latest kernel"
-        required: false
-        default: true
-        type: boolean
+          - ax3000t
 
 env:
-  CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.config
+  CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
   DIY_SCRIPT: scripts/diy/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.sh
   COM_SCRIPT: scripts/common.sh
   TZ: Asia/Shanghai
@@ -118,18 +100,10 @@ jobs:
       working-directory: /builder
       if: ${{ steps.init.outputs.status }} == 'success'
       run: |
-        REPO_URL="https://github.com/immortalwrt/immortalwrt"
-        case "${{ inputs.source_branch }}" in
-            "immortalwrt-21.02")
-                REPO_BRANCH="openwrt-21.02"
-                ;;
-            "immortalwrt-24.10")
-                REPO_BRANCH="openwrt-24.10"
-                ;;
-        esac
+        REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
+        REPO_BRANCH="openwrt-21.02"
         git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
         ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
-        # ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
         df -hT ${PWD}
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
@@ -157,7 +131,6 @@ jobs:
         ${GITHUB_WORKSPACE}/${COM_SCRIPT}
         ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
         ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
-        ${GITHUB_WORKSPACE}/scripts/preset-terminal-tools.sh
 
     - name: Download DL Package
       run: |
@@ -207,89 +180,53 @@ jobs:
         make -j$(nproc) || make -j1
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Clear Server Space
-      id: clean
+    - name: Organize Files
+      id: organize
       if: ${{ steps.compile.outputs.status }} == 'success'
       run: |
         cd ${OPENWRT_PATH}
         [[ -d "output/packages" ]] || mkdir -p  output/packages
-        mv -f bin/targets/*/*/*rootfs.tar.gz output
-        mv -f .config output/build-${{ inputs.source_branch }}.config
+        mv -f bin/targets/*/*/*squashfs-sysupgrade.bin output
+        mv -f .config output/build-${{ inputs.source_branch }}-${{ inputs.openwrt_board }}.config
         cd output
-        rm -rf $(ls | grep -v -E "\.(gz|xz|config)$" | xargs) 2>/dev/null
-        df -hT ${PWD}
-        ls -lh ${PWD}
-        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
-        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
-        echo "status=success" >> ${GITHUB_OUTPUT}
-
-    - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      if: ${{ steps.clean.outputs.status }} == 'success'
-      uses: ophub/flippy-openwrt-actions@main
-      env:
-        OPENWRT_ARMVIRT: openwrt/output/*rootfs.tar.gz
-        PACKAGE_SOC: ${{ inputs.openwrt_board }}
-        KERNEL_REPO_URL: ophub/kernel
-        KERNEL_VERSION_NAME: ${{ inputs.openwrt_kernel }}
-        KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
-        WHOAMI: v8040
-
-    # - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      # if: ${{ steps.clean.outputs.status }} == 'success'
-      # uses: ophub/amlogic-s9xxx-openwrt@main
-      # with:
-        # openwrt_path: openwrt/output/*rootfs.tar.gz
-        # openwrt_board: ${{ inputs.openwrt_board }}
-        # openwrt_kernel: ${{ inputs.openwrt_kernel }}
-        # auto_kernel: ${{ inputs.auto_kernel }}
-        # builder_name: v8040
-
-    - name: Organize Files
-      id: organize
-      if: ${{ env.PACKAGED_STATUS }} == 'success'
-      run: |
-        cd ${{ env.PACKAGED_OUTPUTPATH }}
-        rm -rf $(ls | grep -v -E "\.(img\.gz|img\.xz)$" | xargs) 2>/dev/null
-        mv -f ${OUTPUT_PATH}/* .
-        rm -rf $(ls | grep -v -E "\.(gz|xz|config)$" | xargs) 2>/dev/null
-        for file in *rootfs.tar.gz; do
+        rm -rf $(ls | grep -v -E '(squashfs-sysupgrade\.bin|\.xz|\.config)$' | xargs) 2>/dev/null
+        for file in *.bin; do
             new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
             [ -f "${file}" ] && mv -f "${file}" "${new_name}"
         done
-        for file in *.img.gz; do
-            kernel=$(echo "${file}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
-            new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
-            [ -f "${file}" ] && mv -f "${file}" "${new_name}"
-        done
-        for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha"; done
-        cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "rootfs.tar.gz"
+        for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha"; done
+        cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "squashfs-sysupgrade.bin"
         cat *.sha
         df -hT ${PWD}
         ls -lh ${PWD}
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_ENV}
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
       if: ${{ steps.organize.outputs.status }} == 'success'
       uses: ncipollo/release-action@main
       with:
-        name: v${{ env.PACKAGED_OUTPUTDATE }}
-        artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
+        name: v${{ env.OUTPUT_DATE }}
+        artifacts: ${{ env.OUTPUT_PATH }}/*
         tag: ${{ inputs.openwrt_target }}
         token: ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: true
         replacesArtifacts: true
+        prerelease: true
         body: |
           > OpenWrt for ${{ inputs.openwrt_target }}
-          ### 📒 固件信息（默认打包`h28k`或`s905d`，其他的在package标签下）
-          - 🚀 自用版：集成插件不多，只有小猫咪，可按需在线安装插件
+          ### 📒 固件信息
+          - 🚀 自用版：专注上网，没有集成任何存储、下载、USB等相关插件
           - 💻 平台架构: ${{ env.DEVICE_TARGET }}
           - ⚽ 固件源码: [${{ env.SOURCE_REPO }}](${{ env.REPO_URL }})
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
-          - 🌐 默认地址: 10.10.10.1
+          - 🌐 默认地址: 10.10.11.1
           - 🔑 默认密码: password
           ### 🍻 安装与更新
-          - 插件: 系统 → 晶晨宝盒 → 安装 OpenWrt → 选择型号 → 安装
-          - 命令: `openwrt-install-amlogic`，`openwrt-update-amlogic`
+          - 系统-备份/升级-刷写新的固件([底包下载](https://firmware-selector.immortalwrt.org))
           ### 🧊 固件版本
           - 固件编译前最后一次➦[源码](${{ env.REPO_URL }})更新记录
           - ${{ env.COMMIT_AUTHOR }}
