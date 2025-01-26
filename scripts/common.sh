@@ -84,6 +84,11 @@ git_sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scri
 rm -rf feeds/packages/lang/golang
 git clone -q --depth=1 https://github.com/sbwml/packages_lang_golang.git feeds/packages/lang/golang
 
+# 修改默认IP和hostname
+sed -i "s|192\.168\.[0-9]*\.[0-9]*|$OPENWRT_IP|g" $(find feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
+sed -i "s|192\.168\.[0-9]*\.[0-9]*|$OPENWRT_IP|g" package/base-files/files/bin/config_generate
+sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+
 # 更改默认主题背景
 cp -f $GITHUB_WORKSPACE/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 

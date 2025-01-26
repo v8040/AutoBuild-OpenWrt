@@ -42,6 +42,14 @@ on:
         required: false
         default: true
         type: boolean
+      openwrt_ip:
+        description: "Select default ip"
+        required: false
+        default: "10.10.10.1"
+        type: choice
+        options:
+          - 10.10.10.1
+          - 10.10.11.1
 
 env:
   CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.config
@@ -82,7 +90,7 @@ jobs:
         sudo rm -f /swapfile /mnt/swapfile
         sudo -E apt-get -y update
         sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -y install $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
+        sudo -E apt-get -y install $(curl -fsSL https://sink.v8040v.top/depends)
         # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
         sudo -E apt-get -y autoremove --purge
@@ -153,6 +161,7 @@ jobs:
         cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/files/etc/uci-defaults/99-init-settings
         cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/emortal/default-settings/files/99-default-settings-chinese
         find "${GITHUB_WORKSPACE}/scripts" -type f -name '*.sh' | xargs chmod +x
+        echo "OPENWRT_IP=${{ inputs.openwrt_ip }}" >> ${GITHUB_ENV}
         cd ${OPENWRT_PATH}
         ${GITHUB_WORKSPACE}/${COM_SCRIPT}
         ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
@@ -285,7 +294,7 @@ jobs:
           - 💻 平台架构: ${{ env.DEVICE_TARGET }}
           - ⚽ 固件源码: [${{ env.SOURCE_REPO }}](${{ env.REPO_URL }})
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
-          - 🌐 默认地址: 10.10.10.1
+          - 🌐 默认地址: ${{ inputs.openwrt_ip }}
           - 🔑 默认密码: password
           ### 🍻 安装与更新
           - 插件: 系统 → 晶晨宝盒 → 安装 OpenWrt → 选择型号 → 安装
