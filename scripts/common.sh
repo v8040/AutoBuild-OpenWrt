@@ -63,9 +63,9 @@ git_sparse_clone() {
 
 git_sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-timewol
 git_sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
-git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
+# git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 git_sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
-git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
+# git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
 git_sparse_clone master https://github.com/lisaac/luci-app-dockerman.git applications/luci-app-dockerman
 git_sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
@@ -93,7 +93,7 @@ sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/confi
 cp -f $GITHUB_WORKSPACE/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
 # samba解除root限制
-sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.template
+sed -i "s/invalid users = root/#&/g" feeds/packages/net/samba4/files/smb.conf.template
 
 # ttyd自动登录
 sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/ttyd.config
@@ -131,7 +131,7 @@ replace_text() {
 
 replace_text "Argon 主题设置" "主题设置"
 replace_text "DDNS-Go" "DDNSGO"
-replace_text "DDNSTO 远程控制" "DDNSTO"
+# replace_text "DDNSTO 远程控制" "DDNSTO"
 replace_text "KMS 服务器" "KMS激活"
 replace_text "QoS Nftables 版" "QoS管理"
 replace_text "SQM 队列管理" "SQM管理"
