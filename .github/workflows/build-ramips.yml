@@ -150,7 +150,7 @@ jobs:
         cd ${OPENWRT_PATH}
         ${GITHUB_WORKSPACE}/${COM_SCRIPT}
         ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
-        ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh mipsle
+        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh mipsle
 
     - name: Download DL Package
       run: |

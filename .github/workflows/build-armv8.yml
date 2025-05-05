@@ -165,7 +165,7 @@ jobs:
         cd ${OPENWRT_PATH}
         ${GITHUB_WORKSPACE}/${COM_SCRIPT}
         ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
-        ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
+        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
         ${GITHUB_WORKSPACE}/scripts/preset-clash-core.sh arm64
         ${GITHUB_WORKSPACE}/scripts/preset-terminal-tools.sh
 

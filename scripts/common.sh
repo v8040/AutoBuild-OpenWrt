@@ -50,7 +50,6 @@ git clone -q --depth=1 https://github.com/sirpdboy/luci-app-advanced.git package
 git clone -q --depth=1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
 git clone -q --depth=1 https://github.com/sirpdboy/luci-app-taskplan.git package/luci-app-taskplan
 git clone -q --depth=1 https://github.com/sirpdboy/netspeedtest.git package/luci-app-netspeedtest
-git clone -q --depth=1 https://github.com/tty228/luci-app-wechatpush.git package/luci-app-wechatpush
 git clone -q --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 
 git_sparse_clone() {
@@ -68,10 +67,10 @@ git_sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onli
 git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 git_sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
 git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
-git_sparse_clone master https://github.com/lisaac/luci-app-dockerman.git applications/luci-app-dockerman
 git_sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
 git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
+git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
 git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
 git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
 git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
