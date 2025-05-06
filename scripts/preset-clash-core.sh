@@ -7,10 +7,10 @@ CLASH_META_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/maste
 GEOIP_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
 GEOSITE_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
 
-curl -fsSL $CLASH_META_URL | tar xOz > files/etc/openclash/core/clash_meta
-curl -fsSL $GEOIP_URL > files/etc/openclash/GeoIP.dat
-curl -fsSL $GEOSITE_URL > files/etc/openclash/GeoSite.dat
+curl -fsSL ${CLASH_META_URL} | tar xOz > files/etc/openclash/core/clash_meta
+curl -fsSL ${GEOIP_URL} > files/etc/openclash/GeoIP.dat
+curl -fsSL ${GEOSITE_URL} > files/etc/openclash/GeoSite.dat
 
 chmod +x files/etc/openclash/core/clash*
 
-echo -e "\e[32m$0 [DONE]\e[0m"
+printf "\033[32m[%s] [DONE]\033[0m\n" "$(basename "${0}")"
