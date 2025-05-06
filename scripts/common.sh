@@ -1,45 +1,51 @@
 #!/bin/bash
 
-MAX_PARENT_LEVEL=3
-if [[ -v "BASH_SOURCE[0]" ]]; then
-  SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)"
-  FUNCTIONS_FILE=""
-  for ((i = 0; i <= MAX_PARENT_LEVEL; i++)); do
-    if [[ -f "${SCRIPT_DIR}/functions.sh" ]]; then
-      FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
-      break
+load_functions() {
+  local MAX_PARENT_LEVEL=3
+  local FUNCTIONS_FILE=""
+  local FUNCTIONS_RESULT=""
+
+  if [[ -v "BASH_SOURCE[0]" ]]; then
+    local SCRIPT_DIR
+    SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)"
+
+    for ((i = 0; i <= MAX_PARENT_LEVEL; i++)); do
+      if [[ -f "${SCRIPT_DIR}/functions.sh" ]]; then
+        FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+        break
+      fi
+      SCRIPT_DIR="$(realpath "${SCRIPT_DIR}/.." 2>/dev/null)"
+      [[ -d "${SCRIPT_DIR}" ]] || break
+    done
+  fi
+
+  if [[ -n "${FUNCTIONS_FILE}" ]]; then
+    if source "${FUNCTIONS_FILE}" &>/dev/null; then
+      FUNCTIONS_RESULT="local: ${FUNCTIONS_FILE}"
+    else
+      FUNCTIONS_RESULT="error: Failed to load from ${FUNCTIONS_FILE}"
     fi
-    SCRIPT_DIR="$(realpath "${SCRIPT_DIR}/.." 2>/dev/null)"
-    if [[ ! -d "$SCRIPT_DIR" ]]; then
-      break
+  else
+    local FUNCTIONS_URL='https://sink.v8040v.top/function-openwrt'
+    if source <(curl -fsSL "${FUNCTIONS_URL}") &>/dev/null; then
+      FUNCTIONS_RESULT="remote: ${FUNCTIONS_URL}"
+    else
+      FUNCTIONS_RESULT="error: Failed to load from ${FUNCTIONS_URL}"
     fi
-  done
-else
-  FUNCTIONS_FILE=""
-fi
+  fi
 
-FUNCTIONS_URL='https://sink.v8040v.top/function-openwrt'
-if ! [[ -z "${FUNCTIONS_FILE}" ]]; then
-  source "${FUNCTIONS_FILE}" || {
-    echo "Error: Failed to load local functions.sh" >&2
+  if [[ "${FUNCTIONS_RESULT}" == error:* ]]; then
     exit 1
-  }
-else
-  source <(curl -fsSL ${FUNCTIONS_URL}) || {
-    echo "Error: Failed to load remote functions.sh" >&2
-    exit 1
-  }
-fi
+  else
+    echo "${FUNCTIONS_RESULT}" || exit 1
+  fi
+}
 
-TARGET_DIR="${OPENWRT_PATH}"
-WORK_DIR="${PWD}"
-if [ "${WORK_DIR}" != "${TARGET_DIR}" ]; then
-  error "This script must be executed in the '${TARGET_DIR}' directory !"
-fi
+load_functions
+info "[${FUNCTIONS_RESULT}]"
+info "[$(basename ${0})] init"
 
-info "[$(basename ${0})]"
-
-# 移除 package
+# Remove packages
 rm_pkg "*adguardhome"
 rm_pkg "*advanced"
 rm_pkg "*alist"
@@ -75,7 +81,7 @@ rm_pkg "minidlna"
 rm_pkg "miniupnpc"
 rm_pkg "miniupnpd"
 
-# 添加 package
+# Add packages
 git clone -q --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone -q --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone -q --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
@@ -106,30 +112,30 @@ sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
 sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
 sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
 
-# requires golang latest version
+# Requires golang latest version
 rm -rf feeds/packages/lang/golang
 git clone -q --depth=1 https://github.com/sbwml/packages_lang_golang.git feeds/packages/lang/golang
 
-# 更改默认主题背景
+# Change default theme background
 [[ -f "${GITHUB_WORKSPACE}/images/bg1.jpg" ]] && cp -f ${GITHUB_WORKSPACE}/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
-# samba解除root限制
+# Samba root restriction removal
 sub_file "invalid users = root" "#&" "feeds/packages/net/samba4/files/smb.conf.template"
 
-# ttyd自动登录
+# Modify ttyd auto login
 sub_file "/bin/login" "/usr/libexec/login.sh" "feeds/packages/utils/ttyd/files/ttyd.config"
 
-# amlogic
+# Modify amlogic
 sub_file "amlogic_firmware_repo.*" "amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'" "package/luci-app-amlogic/root/etc/config/amlogic"
 sub_file "amlogic_kernel_path.*" "amlogic_kernel_path 'https://github.com/ophub/kernel'" "package/luci-app-amlogic/root/etc/config/amlogic"
 
-# 修改makefile
+# Modify makefiles
 sub_makefiles "../../luci.mk" "\$(TOPDIR)/feeds/luci/luci.mk"
 sub_makefiles "../../lang/golang/golang-package.mk" "\$(TOPDIR)/feeds/packages/lang/golang/golang-package.mk"
 sub_makefiles "PKG_SOURCE_URL:=@GHREPO" "PKG_SOURCE_URL:=https://github.com"
 sub_makefiles "PKG_SOURCE_URL:=@GHCODELOAD" "PKG_SOURCE_URL:=https://codeload.github.com"
 
-# 调整菜单
+# Adjust menu
 sub_file "services" "control" "feeds/luci/applications/luci-app-eqos/root/usr/share/luci/menu.d/*.json"
 sub_file "services" "control" "feeds/luci/applications/luci-app-nft-qos/luasrc/controller/*.lua"
 sub_file "services" "nas" "feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/*.json"
@@ -138,7 +144,7 @@ sub_file "services" "vpn" "package/luci-app-openclash/luasrc/model/cbi/openclash
 sub_file "services" "vpn" "package/luci-app-openclash/luasrc/view/openclash/*.htm"
 sub_file "admin/network" "admin/control" "package/luci-app-sqm/root/usr/share/luci/menu.d/*.json"
 
-# 修改默认IP和hostname固件信息
+# Modify default IP and hostname
 sub_file "192\.168\.[0-9]*\.[0-9]*" "${OPENWRT_IP}" "feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js"
 sub_file "192\.168\.[0-9]*\.[0-9]*" "${OPENWRT_IP}" "package/base-files/files/bin/config_generate"
 sub_file "hostname='.*'" "hostname='OpenWrt'" "package/base-files/files/bin/config_generate"
@@ -147,7 +153,7 @@ sub_file "DISTRIB_RELEASE='[^']*'" "DISTRIB_RELEASE='OpenWrt'" "package/base-fil
 sub_file "DISTRIB_DESCRIPTION='[^']*'" "DISTRIB_DESCRIPTION='OpenWrt'" "package/base-files/files/etc/openwrt_release"
 sub_file "DISTRIB_REVISION='[^']*'" "DISTRIB_REVISION='R$(TZ=UTC-8 date '+%-m.%-d')'" "package/base-files/files/etc/openwrt_release"
 
-# 修改插件名字
+# Modify plugin names
 sub_name "Argon 主题设置" "主题设置"
 sub_name "DDNS-Go" "DDNSGO"
 sub_name "DDNSTO 远程控制" "DDNSTO"
@@ -159,3 +165,4 @@ sub_name "网络存储" "NAS"
 sub_name "解除网易云音乐播放限制" "音乐解锁"
 
 success
+exit 0

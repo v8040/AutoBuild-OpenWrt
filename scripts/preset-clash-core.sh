@@ -14,3 +14,4 @@ curl -fsSL ${GEOSITE_URL} > files/etc/openclash/GeoSite.dat
 chmod +x files/etc/openclash/core/clash*
 
 printf "\033[32m[%s] [DONE]\033[0m\n" "$(basename "${0}")"
+exit 0

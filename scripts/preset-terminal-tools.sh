@@ -13,3 +13,4 @@ git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git 
 [[ -f "${GITHUB_WORKSPACE}/scripts/.zshrc" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/.zshrc files/root/.zshrc
 
 printf "\033[32m[%s] [DONE]\033[0m\n" "$(basename "${0}")"
+exit 0
