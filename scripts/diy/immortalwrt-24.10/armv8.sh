@@ -4,11 +4,8 @@ load_functions() {
   local MAX_PARENT_LEVEL=3
   local FUNCTIONS_FILE=""
   local FUNCTIONS_RESULT=""
-
-  if [[ -v "BASH_SOURCE[0]" ]]; then
-    local SCRIPT_DIR
-    SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)"
-
+  if [[ -v BASH_SOURCE[0] ]]; then
+    local SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)"
     for ((i = 0; i <= MAX_PARENT_LEVEL; i++)); do
       if [[ -f "${SCRIPT_DIR}/functions.sh" ]]; then
         FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
@@ -18,8 +15,7 @@ load_functions() {
       [[ -d "${SCRIPT_DIR}" ]] || break
     done
   fi
-
-  if [[ -n "${FUNCTIONS_FILE}" ]]; then
+  if [[ -f "${FUNCTIONS_FILE}" ]]; then
     if source "${FUNCTIONS_FILE}" &>/dev/null; then
       FUNCTIONS_RESULT="local: ${FUNCTIONS_FILE}"
     else
@@ -33,16 +29,14 @@ load_functions() {
       FUNCTIONS_RESULT="error: Failed to load from ${FUNCTIONS_URL}"
     fi
   fi
-
   if [[ "${FUNCTIONS_RESULT}" == error:* ]]; then
     exit 1
   else
-    echo "${FUNCTIONS_RESULT}" || exit 1
+    info "${FUNCTIONS_RESULT}" || exit 1
   fi
 }
 
 load_functions
-info "[${FUNCTIONS_RESULT}]"
 info "[$(basename ${0})] init"
 
 # Modify opkg source
