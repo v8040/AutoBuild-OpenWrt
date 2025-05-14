@@ -1,31 +1,57 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# 修改opkg源
+load_functions() {
+  local FUNCTIONS_FILE=""
+  local FUNCTIONS_RESULT=""
+  local FUNCTIONS_URL='https://sink.v8040v.top/function-openwrt'
+  local SCRIPT_DIR PARENT_DIR
+  if [[ -v BASH_SOURCE[0] ]]; then
+    SCRIPT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)
+    if [[ -d "${SCRIPT_DIR}" ]]; then
+      local CURRENT_LEVEL=0
+      while : ; do
+        if [[ -f "${SCRIPT_DIR}/functions.sh" ]]; then
+          FUNCTIONS_FILE=$(realpath "${SCRIPT_DIR}/functions.sh")
+          if [[ -e "${FUNCTIONS_FILE}" ]]; then
+            if source "${FUNCTIONS_FILE}" &>/dev/null; then
+              FUNCTIONS_RESULT="local: [$(basename "${FUNCTIONS_FILE}")]"
+              break
+            fi
+          fi
+        fi
+        [[ "${SCRIPT_DIR}" == "/" ]] && break
+        PARENT_DIR=$(realpath "${SCRIPT_DIR}/.." 2>/dev/null)
+        if [[ -z "${PARENT_DIR}" || "${PARENT_DIR}" == "${SCRIPT_DIR}" || ! -d "${PARENT_DIR}" ]]; then
+          break
+        fi
+        SCRIPT_DIR="${PARENT_DIR}"
+        (( CURRENT_LEVEL++ >= 10 )) && break
+      done
+    fi
+  fi
+  if [[ -z "${FUNCTIONS_RESULT}" ]]; then
+    if source <(curl -fsSL "${FUNCTIONS_URL}") &>/dev/null; then
+      FUNCTIONS_RESULT="remote: [$(basename "${FUNCTIONS_URL}")]"
+    fi
+  fi
+  if [[ "${FUNCTIONS_RESULT}" =~ ^(local:|remote:) ]]; then
+    info "${FUNCTIONS_RESULT}" || exit 1
+  else
+    exit 1
+  fi
+}
+
+load_functions
+info "[$(basename "${0}")] init"
+
+# Modify opkg source
 echo "src/gz openwrt_kiddin9 https://dl.openwrt.ai/latest/packages/aarch64_cortex-a53/kiddin9" >> package/system/opkg/files/customfeeds.conf
 
-rm_package() {
-    find ./ -maxdepth 4 -iname "$1" -type d | xargs rm -rf || echo -e "\e[31mNot found [$1]\e[0m"
-}
+rm_pkg "zerotier"
 
-rm_package "zerotier"
+sparse_clone main https://github.com/v8040/openwrt-packages.git zerotier
 
-git_sparse_clone() {
-    branch="$1" repourl="$2" repodir="$3"
-    [[ -d "package/cache" ]] && rm -rf package/cache
-    git clone -q --branch=$branch --depth=1 --filter=blob:none --sparse $repourl package/cache &&
-    git -C package/cache sparse-checkout set $repodir &&
-    mv -f package/cache/$repodir package &&
-    rm -rf package/cache ||
-    echo -e "\e[31mFailed to sparse clone $repodir from $repourl($branch).\e[0m"
-}
+sub_name "迷你DLNA" "miniDLNA"
 
-git_sparse_clone main https://github.com/v8040/openwrt-packages.git zerotier
-
-replace_text() {
-  search_text="$1" new_text="$2"
-  sed -i "s/$search_text/$new_text/g" $(grep "$search_text" -rl ./ 2>/dev/null) || echo -e "\e[31mNot found [$search_text]\e[0m"
-}
-
-replace_text "迷你DLNA" "DLNA"
-
-echo -e "\e[32m$0 [DONE]\e[0m"
+success "[$(basename "${0}")] done"
+exit 0

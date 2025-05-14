@@ -1,46 +1,86 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# 移除package
-rm_package() {
-    find ./ -maxdepth 4 -iname "$1" -type d | xargs rm -rf || echo -e "\e[31mNot found [$1]\e[0m"
+load_functions() {
+  local FUNCTIONS_FILE=""
+  local FUNCTIONS_RESULT=""
+  local FUNCTIONS_URL='https://sink.v8040v.top/function-openwrt'
+  local SCRIPT_DIR PARENT_DIR
+  if [[ -v BASH_SOURCE[0] ]]; then
+    SCRIPT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null)
+    if [[ -d "${SCRIPT_DIR}" ]]; then
+      local CURRENT_LEVEL=0
+      while : ; do
+        if [[ -f "${SCRIPT_DIR}/functions.sh" ]]; then
+          FUNCTIONS_FILE=$(realpath "${SCRIPT_DIR}/functions.sh")
+          if [[ -e "${FUNCTIONS_FILE}" ]]; then
+            if source "${FUNCTIONS_FILE}" &>/dev/null; then
+              FUNCTIONS_RESULT="local: [$(basename "${FUNCTIONS_FILE}")]"
+              break
+            fi
+          fi
+        fi
+        [[ "${SCRIPT_DIR}" == "/" ]] && break
+        PARENT_DIR=$(realpath "${SCRIPT_DIR}/.." 2>/dev/null)
+        if [[ -z "${PARENT_DIR}" || "${PARENT_DIR}" == "${SCRIPT_DIR}" || ! -d "${PARENT_DIR}" ]]; then
+          break
+        fi
+        SCRIPT_DIR="${PARENT_DIR}"
+        (( CURRENT_LEVEL++ >= 10 )) && break
+      done
+    fi
+  fi
+  if [[ -z "${FUNCTIONS_RESULT}" ]]; then
+    if source <(curl -fsSL "${FUNCTIONS_URL}") &>/dev/null; then
+      FUNCTIONS_RESULT="remote: [$(basename "${FUNCTIONS_URL}")]"
+    fi
+  fi
+  if [[ "${FUNCTIONS_RESULT}" =~ ^(local:|remote:) ]]; then
+    info "${FUNCTIONS_RESULT}" || exit 1
+  else
+    exit 1
+  fi
 }
 
-rm_package "*adguardhome"
-rm_package "*advanced"
-rm_package "*alist"
-rm_package "*amlogic"
-rm_package "*argon-config"
-rm_package "*bypass"
-rm_package "*ddns-go"
-rm_package "*ddnsto"
-rm_package "*dockerman"
-rm_package "*mosdns"
-rm_package "*netdata"
-rm_package "*netspeedtest"
-rm_package "*nlbwmon*"
-rm_package "*onliner"
-rm_package "*openclash"
-rm_package "*partexp"
-rm_package "*passwall"
-rm_package "*pushbot"
-rm_package "*qbittorrent*"
-rm_package "*shadowsocks*"
-rm_package "*smartdns"
-rm_package "*sqm*"
-rm_package "*ssr*"
-rm_package "*taskplan"
-rm_package "*theme-argon"
-rm_package "*transmission*"
-rm_package "*trojan*"
-rm_package "*v2ray*"
-rm_package "*wechatpush"
-rm_package "*xray*"
-rm_package "dnsproxy"
-rm_package "minidlna"
-rm_package "miniupnpc"
-rm_package "miniupnpd"
+load_functions
+info "[$(basename "${0}")] init"
 
-# 添加package
+# Remove packages
+rm_pkg "*adguardhome"
+rm_pkg "*advanced"
+rm_pkg "*alist"
+rm_pkg "*amlogic"
+rm_pkg "*argon-config"
+rm_pkg "*bypass"
+rm_pkg "*ddns-go"
+rm_pkg "*ddnsto"
+rm_pkg "*dockerman"
+rm_pkg "*mosdns"
+rm_pkg "*netdata"
+rm_pkg "*netspeedtest"
+rm_pkg "*nlbwmon*"
+rm_pkg "*onliner"
+rm_pkg "*openclash"
+rm_pkg "*partexp"
+rm_pkg "*passwall"
+rm_pkg "*pushbot"
+rm_pkg "*qbittorrent*"
+rm_pkg "*shadowsocks*"
+rm_pkg "*smartdns"
+rm_pkg "*sqm*"
+rm_pkg "*ssr*"
+rm_pkg "*taskplan"
+rm_pkg "*theme-argon"
+rm_pkg "*transmission*"
+rm_pkg "*trojan*"
+rm_pkg "*v2ray*"
+rm_pkg "*wechatpush"
+rm_pkg "*xray*"
+rm_pkg "dnsproxy"
+rm_pkg "minidlna"
+rm_pkg "miniupnpc"
+rm_pkg "miniupnpd"
+
+# Add packages
 git clone -q --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone -q --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 git clone -q --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
@@ -52,59 +92,49 @@ git clone -q --depth=1 https://github.com/sirpdboy/luci-app-taskplan.git package
 git clone -q --depth=1 https://github.com/sirpdboy/netspeedtest.git package/luci-app-netspeedtest
 git clone -q --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 
-git_sparse_clone() {
-    branch="$1" repourl="$2" repodir="$3"
-    [[ -d "package/cache" ]] && rm -rf package/cache
-    git clone -q --branch=$branch --depth=1 --filter=blob:none --sparse $repourl package/cache &&
-    git -C package/cache sparse-checkout set $repodir &&
-    mv -f package/cache/$repodir package &&
-    rm -rf package/cache ||
-    echo -e "\e[31mFailed to sparse clone $repodir from $repourl($branch).\e[0m"
-}
+sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-timewol
+sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
+sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
+sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
+sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
+sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
-git_sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-timewol
-git_sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
-git_sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
-git_sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
-git_sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
-git_sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
+sparse_clone master https://github.com/immortalwrt/packages.git multimedia/minidlna
+sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
+sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpc
+sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
+sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
+sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
 
-git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
-git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
-git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
-git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
-git_sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
-git_sparse_clone master https://github.com/immortalwrt/packages.git multimedia/minidlna
-git_sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
-git_sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpc
-git_sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
-git_sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
-git_sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
-
-# requires golang latest version
+# Requires golang latest version
 rm -rf feeds/packages/lang/golang
 git clone -q --depth=1 https://github.com/sbwml/packages_lang_golang.git feeds/packages/lang/golang
 
-# 更改默认主题背景
-cp -f ${GITHUB_WORKSPACE}/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
+# Change default theme background
+[[ -f "${GITHUB_WORKSPACE}/images/bg1.jpg" ]] && cp -f ${GITHUB_WORKSPACE}/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
-# samba解除root限制
+# Samba root restriction removal
 sed -i 's/invalid users = root/#&/g' feeds/packages/net/samba4/files/smb.conf.template
 
-# ttyd自动登录
+# Modify ttyd auto login
 sed -i "s?/bin/login?/usr/libexec/login.sh?g" feeds/packages/utils/ttyd/files/ttyd.config
 
-# amlogic
+# Modify amlogic
 sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
 sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
-# 修改makefile
+# Modify makefiles
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' {}
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/lang\/golang\/golang-package.mk/$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang-package.mk/g' {}
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHREPO/PKG_SOURCE_URL:=https:\/\/github.com/g' {}
 find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload.github.com/g' {}
 
-# 调整菜单
+# Adjust menu
 sed -i 's/services/control/g' feeds/luci/applications/luci-app-eqos/root/usr/share/luci/menu.d/*.json
 sed -i 's/services/control/g' feeds/luci/applications/luci-app-nft-qos/luasrc/controller/*.lua
 sed -i 's/services/nas/g' feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/*.json
@@ -113,7 +143,7 @@ sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
 sed -i 's|admin/network|admin/control|g' package/luci-app-sqm/root/usr/share/luci/menu.d/*.json
 
-# 修改默认IP和hostname固件信息
+# Modify default IP and hostname
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
@@ -122,20 +152,15 @@ sed -i "s/DISTRIB_RELEASE='[^']*'/DISTRIB_RELEASE='OpenWrt'/" package/base-files
 sed -i "s/DISTRIB_DESCRIPTION='[^']*'/DISTRIB_DESCRIPTION='OpenWrt'/" package/base-files/files/etc/openwrt_release
 sed -i "s/DISTRIB_REVISION='[^']*'/DISTRIB_REVISION='R$(TZ=UTC-8 date '+%-m.%-d')'/" package/base-files/files/etc/openwrt_release
 
-# 修改插件名字
-replace_text() {
-  search_text="$1" new_text="$2"
-  sed -i "s/$search_text/$new_text/g" $(grep "$search_text" -rl ./ 2>/dev/null) || echo -e "\e[31mNot found [$search_text]\e[0m"
-}
+# Modify plugin names
+sub_name "Argon 主题设置" "主题设置"
+sub_name "DDNS-Go" "DDNSGO"
+sub_name "DDNSTO 远程控制" "DDNSTO"
+sub_name "KMS 服务器" "KMS激活"
+sub_name "QoS Nftables 版" "QoS管理"
+sub_name "SQM 队列管理" "SQM管理"
+sub_name "动态 DNS" "动态DNS"
+sub_name "解除网易云音乐播放限制" "音乐解锁"
 
-replace_text "Argon 主题设置" "主题设置"
-replace_text "DDNS-Go" "DDNSGO"
-replace_text "DDNSTO 远程控制" "DDNSTO"
-replace_text "KMS 服务器" "KMS激活"
-replace_text "QoS Nftables 版" "QoS管理"
-replace_text "SQM 队列管理" "SQM管理"
-replace_text "动态 DNS" "动态DNS"
-replace_text "网络存储" "NAS"
-replace_text "解除网易云音乐播放限制" "音乐解锁"
-
-echo -e "\e[32m$0 [DONE]\e[0m"
+success "[$(basename "${0}")] done"
+exit 0

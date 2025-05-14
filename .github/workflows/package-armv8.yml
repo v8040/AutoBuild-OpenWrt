@@ -187,3 +187,12 @@ jobs:
           ### 🍻 安装与更新
           - 插件: 系统 → 晶晨宝盒 → 安装 OpenWrt → 选择型号 → 安装
           - 命令: `openwrt-install-amlogic`，`openwrt-update-amlogic`
+
+    - name: Delete releases and workflows runs
+      uses: ophub/delete-releases-workflows@main
+      with:
+        delete_releases: true
+        releases_keep_latest: 4
+        delete_workflows: true
+        workflows_keep_day: 2
+        gh_token: ${{ secrets.GITHUB_TOKEN }}

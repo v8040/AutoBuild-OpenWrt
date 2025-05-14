@@ -10,6 +10,7 @@ git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git file
 git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git files/root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 
 # Get .zshrc dotfile
-cp -f $GITHUB_WORKSPACE/scripts/.zshrc files/root/.zshrc
+[[ -f "${GITHUB_WORKSPACE}/scripts/.zshrc" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/.zshrc files/root/.zshrc
 
-echo -e "\e[32m$0 [DONE]\e[0m"
+printf "\e[32m[SUCCESS]\e[0m \e[37m%s\e[0m\n" "[$(basename "${0}")] done"
+exit 0

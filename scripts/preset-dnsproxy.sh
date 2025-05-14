@@ -1,9 +1,9 @@
 #!/bin/bash
 
 REPO="AdguardTeam/dnsproxy"
-LATEST_VERSION=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | cut -d '"' -f 4)
+LATEST_VERSION=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | cut -d '"' -f 4)
 URL="https://github.com/$REPO/releases/latest/download/dnsproxy-linux-${1}-$LATEST_VERSION.tar.gz"
-curl -fsSL $URL | tar xz
+curl -fsSL ${URL} | tar xz
 mkdir -p files/usr/bin
 mv -f ./linux*/dnsproxy files/usr/bin/dnsproxy
 chmod +x files/usr/bin/dnsproxy
@@ -38,4 +38,5 @@ stop_service() {
 EOF
 chmod +x files/etc/init.d/dnsproxy
 
-echo -e "\e[32m$0 [DONE]\e[0m"
+printf "\e[32m[SUCCESS]\e[0m \e[37m%s\e[0m\n" "[$(basename "${0}")] done"
+exit 0
