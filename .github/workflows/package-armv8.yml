@@ -159,7 +159,7 @@ jobs:
             new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
             [ -f "${file}" ] && mv -f "${file}" "${new_name}"
         done
-        for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha"; done
+        # for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
         df -hT ${PWD}
         ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}

@@ -203,9 +203,9 @@ jobs:
             new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
             [ -f "${file}" ] && mv -f "${file}" "${new_name}"
         done
-        for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha"; done
+        # for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
+        # cat *.sha256
         cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "squashfs-sysupgrade.bin"
-        cat *.sha
         df -hT ${PWD}
         ls -lh ${PWD}
         echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_ENV}
