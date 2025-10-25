@@ -65,7 +65,6 @@ rm_pkg "*passwall"
 rm_pkg "*pushbot"
 rm_pkg "*qbittorrent*"
 rm_pkg "*shadowsocks*"
-rm_pkg "*smartdns"
 rm_pkg "*sqm*"
 rm_pkg "*ssr*"
 rm_pkg "*taskplan"
@@ -96,20 +95,17 @@ sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-
 sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
 sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
-sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
-sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
-
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
 sparse_clone master https://github.com/immortalwrt/packages.git multimedia/minidlna
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
 sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpc
 sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
-sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
 sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
+sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
+sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
 # Requires golang latest version
 rm -rf feeds/packages/lang/golang

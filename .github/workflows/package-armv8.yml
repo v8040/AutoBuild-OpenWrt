@@ -6,7 +6,7 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-21.02"
+        default: "immortalwrt-24.10"
         type: choice
         options:
           - immortalwrt-21.02

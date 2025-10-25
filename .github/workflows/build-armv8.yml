@@ -6,7 +6,7 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-21.02"
+        default: "immortalwrt-24.10"
         type: choice
         options:
           - immortalwrt-21.02
@@ -170,7 +170,7 @@ jobs:
         [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
         cd ${OPENWRT_PATH}
         make defconfig
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
