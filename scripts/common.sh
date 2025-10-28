@@ -65,7 +65,6 @@ rm_pkg "*passwall"
 rm_pkg "*pushbot"
 rm_pkg "*qbittorrent*"
 rm_pkg "*shadowsocks*"
-rm_pkg "*smartdns"
 rm_pkg "*sqm*"
 rm_pkg "*ssr*"
 rm_pkg "*taskplan"
@@ -96,20 +95,17 @@ sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-
 sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
 sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
-sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
-sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
-
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
 sparse_clone master https://github.com/immortalwrt/packages.git multimedia/minidlna
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
 sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpc
 sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
-sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
 sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
+sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
+sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
 # Requires golang latest version
 rm -rf feeds/packages/lang/golang
@@ -138,6 +134,7 @@ find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_U
 sed -i 's/services/control/g' feeds/luci/applications/luci-app-eqos/root/usr/share/luci/menu.d/*.json
 sed -i 's/services/control/g' feeds/luci/applications/luci-app-nft-qos/luasrc/controller/*.lua
 sed -i 's/services/nas/g' feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/*.json
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-homeproxy/root/usr/share/luci/menu.d/*.json
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
@@ -147,10 +144,12 @@ sed -i 's|admin/network|admin/control|g' package/luci-app-sqm/root/usr/share/luc
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+sed -i 's/NAME="[^"]*"/NAME="OpenWrt"/' package/base-files/files/usr/lib/os-release
+sed -i "s/VERSION=\"[^\"]*\"/VERSION=\"R$(TZ=UTC+8 date '+%-m.%-d')\"/" package/base-files/files/usr/lib/os-release
 sed -i 's/OPENWRT_RELEASE="[^"]*"/OPENWRT_RELEASE="OpenWrt"/' package/base-files/files/usr/lib/os-release
 sed -i "s/DISTRIB_RELEASE='[^']*'/DISTRIB_RELEASE='OpenWrt'/" package/base-files/files/etc/openwrt_release
 sed -i "s/DISTRIB_DESCRIPTION='[^']*'/DISTRIB_DESCRIPTION='OpenWrt'/" package/base-files/files/etc/openwrt_release
-sed -i "s/DISTRIB_REVISION='[^']*'/DISTRIB_REVISION='R$(TZ=UTC-8 date '+%-m.%-d')'/" package/base-files/files/etc/openwrt_release
+sed -i "s/DISTRIB_REVISION='[^']*'/DISTRIB_REVISION='R$(TZ=UTC+8 date '+%-m.%-d')'/" package/base-files/files/etc/openwrt_release
 
 # Modify plugin names
 sub_name "Argon 主题设置" "主题设置"

@@ -47,11 +47,7 @@ info "[$(basename "${0}")] init"
 # Modify opkg source
 echo "src/gz openwrt_kiddin9 https://dl.openwrt.ai/latest/packages/mipsel_24kc/kiddin9" >> package/system/opkg/files/customfeeds.conf
 
-# Add turboacc for firewall4
-curl -fsSL https://raw.githubusercontent.com/chenmozhijin/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh &>/dev/null
-
 sub_name "UPnP IGD 和 PCP" "UPnP设置"
-sub_name "Turbo ACC 网络加速" "网络加速"
 
 success "[$(basename "${0}")] done"
 exit 0

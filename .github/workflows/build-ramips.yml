@@ -47,7 +47,7 @@ env:
 jobs:
   Build:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
     - name: Check Server Performance
@@ -111,7 +111,7 @@ jobs:
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       id: code
       working-directory: /builder
-      if: ${{ steps.init.outputs.status }} == 'success'
+      if: ${{ steps.init.outputs.status == 'success' }}
       run: |
         REPO_URL="https://github.com/immortalwrt/immortalwrt"
         case "${{ inputs.source_branch }}" in
@@ -153,12 +153,12 @@ jobs:
         [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
         cd ${OPENWRT_PATH}
         make defconfig
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
     - name: Generate Variables
-      if: ${{ steps.code.outputs.status }} == 'success'
+      if: ${{ steps.code.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -198,7 +198,7 @@ jobs:
 
     - name: Organize Files
       id: organize
-      if: ${{ steps.compile.outputs.status }} == 'success'
+      if: ${{ steps.compile.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
         [[ -d "output/packages" ]] || mkdir -p  output/packages
@@ -222,7 +222,7 @@ jobs:
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.OUTPUT_DATE }}

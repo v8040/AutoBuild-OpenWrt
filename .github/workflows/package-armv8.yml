@@ -6,11 +6,26 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-21.02"
+        default: "immortalwrt-24.10"
         type: choice
         options:
           - immortalwrt-21.02
           - immortalwrt-24.10
+      openwrt_target:
+        description: "Select device target"
+        required: false
+        default: "armv8"
+        type: choice
+        options:
+          - armv8
+      package_method:
+        description: "Select package method"
+        required: false
+        default: "ophub"
+        type: choice
+        options:
+          - ophub
+          - flippy
       openwrt_board:
         description: "Select device board"
         required: false
@@ -20,17 +35,10 @@ on:
           - all
           - h28k
           - s905d
-      openwrt_target:
-        description: "Select device target"
-        required: false
-        default: "armv8"
-        type: choice
-        options:
-          - armv8
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "6.6.y"
+        default: "6.12.y"
         type: choice
         options:
           - 5.4.y
@@ -38,6 +46,7 @@ on:
           - 5.15.y
           - 6.1.y
           - 6.6.y
+          - 6.12.y
       auto_kernel:
         description: "Auto use the latest kernel"
         required: false
@@ -52,6 +61,7 @@ env:
 jobs:
   Package:
     runs-on: ubuntu-22.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
     - name: Check Server Performance
@@ -127,8 +137,8 @@ jobs:
         ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      if: ${{ steps.down.outputs.status }} == 'success'
+    - name: Package OpenWrt Firmware [flippy] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+      if: ${{ steps.down.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: openwrt/output/*rootfs.tar.gz
@@ -136,21 +146,21 @@ jobs:
         KERNEL_REPO_URL: ophub/kernel
         KERNEL_VERSION_NAME: ${{ inputs.openwrt_kernel }}
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
-        WHOAMI: v8040
+        WHOAMI: ${{ github.repository_owner }}
 
-    # - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      # if: ${{ steps.down.outputs.status }} == 'success'
-      # uses: ophub/amlogic-s9xxx-openwrt@main
-      # with:
-        # openwrt_path: openwrt/output/*rootfs.tar.gz
-        # openwrt_board: ${{ inputs.openwrt_board }}
-        # openwrt_kernel: ${{ inputs.openwrt_kernel }}
-        # auto_kernel: ${{ inputs.auto_kernel }}
-        # builder_name: v8040
+    - name: Package OpenWrt Firmware [ophub] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+      if: ${{ steps.down.outputs.status == 'success' && inputs.package_method == 'ophub' }}
+      uses: ophub/amlogic-s9xxx-openwrt@main
+      with:
+        openwrt_path: openwrt/output/*rootfs.tar.gz
+        openwrt_board: ${{ inputs.openwrt_board }}
+        openwrt_kernel: ${{ inputs.openwrt_kernel }}
+        auto_kernel: ${{ inputs.auto_kernel }}
+        builder_name: ${{ github.repository_owner }}
 
     - name: Organize Files
       id: organize
-      if: ${{ env.PACKAGED_STATUS }} == 'success'
+      if: ${{ env.PACKAGED_STATUS == 'success' }}
       run: |
         cd ${{ env.PACKAGED_OUTPUTPATH }}
         rm -rf $(ls | grep -v -E "\.(img\.gz|img\.xz)$" | xargs) 2>/dev/null
@@ -165,7 +175,7 @@ jobs:
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.PACKAGED_OUTPUTDATE }}
