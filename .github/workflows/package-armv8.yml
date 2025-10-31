@@ -24,8 +24,8 @@ on:
         default: "ophub"
         type: choice
         options:
-          - ophub
           - flippy
+          - ophub
       openwrt_board:
         description: "Select device board"
         required: false

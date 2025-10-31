@@ -21,11 +21,11 @@ on:
       package_method:
         description: "Select package method"
         required: false
-        default: "ophub"
+        default: "flippy"
         type: choice
         options:
-          - ophub
           - flippy
+          - ophub
       openwrt_board:
         description: "Select device board"
         required: false
