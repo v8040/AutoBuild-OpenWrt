@@ -47,6 +47,9 @@ info "[$(basename "${0}")] init"
 # Modify opkg source
 echo "src/gz openwrt_kiddin9 https://dl.openwrt.ai/latest/packages/mipsel_24kc/kiddin9" >> package/system/opkg/files/customfeeds.conf
 
+rm_pkg "fullconenat-nft"
+rm_pkg "nft-fullcone"
+
 sub_name "UPnP IGD 和 PCP" "UPnP设置"
 
 success "[$(basename "${0}")] done"
