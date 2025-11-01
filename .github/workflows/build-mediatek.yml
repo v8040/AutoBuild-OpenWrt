@@ -6,7 +6,7 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-24.10"
+        default: "immortalwrt-21.02"
         type: choice
         options:
           - immortalwrt-21.02
@@ -105,7 +105,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}]
       id: code
       working-directory: /builder
       if: ${{ steps.init.outputs.status == 'success' }}
@@ -188,7 +188,7 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd ${OPENWRT_PATH}
