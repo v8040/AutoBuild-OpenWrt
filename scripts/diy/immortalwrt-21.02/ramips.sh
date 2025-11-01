@@ -48,16 +48,16 @@ info "[$(basename "${0}")] init"
 echo "src/gz openwrt_kiddin9 https://dl.openwrt.ai/latest/packages/mipsel_24kc/kiddin9" >> package/system/opkg/files/customfeeds.conf
 
 rm_pkg "*ddns-go"
+rm_pkg "*smartdns"
+rm_pkg "*theme-argon"
 rm_pkg "zerotier"
 
-sparse_clone openwrt-21.02 https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
-sparse_clone openwrt-21.02 https://github.com/immortalwrt/packages.git net/ddns-go
+sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-ddns-go
+sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-smartdns
+sparse_clone main https://github.com/v8040/openwrt-packages.git luci-theme-argon
+sparse_clone main https://github.com/v8040/openwrt-packages.git ddns-go
+sparse_clone main https://github.com/v8040/openwrt-packages.git smartdns
 sparse_clone main https://github.com/v8040/openwrt-packages.git zerotier
-
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/..\/..\/lang\/golang\/golang-package.mk/$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang-package.mk/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHREPO/PKG_SOURCE_URL:=https:\/\/github.com/g' {}
-find package/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i 's/PKG_SOURCE_URL:=@GHCODELOAD/PKG_SOURCE_URL:=https:\/\/codeload.github.com/g' {}
 
 sub_name "DDNS-Go" "DDNSGO"
 
