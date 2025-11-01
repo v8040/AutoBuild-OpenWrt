@@ -6,7 +6,7 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-24.10"
+        default: "immortalwrt-21.02"
         type: choice
         options:
           - immortalwrt-21.02
@@ -131,7 +131,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [ ${{ inputs.source_branch }} ] [${{ inputs.openwrt_board }}] [${{ inputs.package_method }}] [${{ inputs.openwrt_kernel }}]
       id: code
       working-directory: /builder
       if: ${{ steps.init.outputs.status == 'success' }}
@@ -214,7 +214,7 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd ${OPENWRT_PATH}
@@ -238,7 +238,7 @@ jobs:
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [flippy] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+    - name: Package OpenWrt Firmware
       if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
@@ -249,7 +249,7 @@ jobs:
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
         WHOAMI: ${{ github.repository_owner }}
 
-    - name: Package OpenWrt Firmware [ophub] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+    - name: Package OpenWrt Firmware
       if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'ophub' }}
       uses: ophub/amlogic-s9xxx-openwrt@main
       with:

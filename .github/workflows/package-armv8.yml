@@ -6,7 +6,7 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-24.10"
+        default: "immortalwrt-21.02"
         type: choice
         options:
           - immortalwrt-21.02
@@ -122,7 +122,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Download Armvirt Firmware [${{ inputs.source_branch }}]
+    - name: Download Armvirt Firmware [ ${{ inputs.source_branch }} ] [${{ inputs.openwrt_board }}] [${{ inputs.package_method }}] [${{ inputs.openwrt_kernel }}]
       id: down
       working-directory: /builder
       run: |
@@ -137,7 +137,7 @@ jobs:
         ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [flippy] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+    - name: Package OpenWrt Firmware
       if: ${{ steps.down.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
@@ -148,7 +148,7 @@ jobs:
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
         WHOAMI: ${{ github.repository_owner }}
 
-    - name: Package OpenWrt Firmware [ophub] [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
+    - name: Package OpenWrt Firmware
       if: ${{ steps.down.outputs.status == 'success' && inputs.package_method == 'ophub' }}
       uses: ophub/amlogic-s9xxx-openwrt@main
       with:
