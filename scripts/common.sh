@@ -46,8 +46,6 @@ info "[$(basename "${0}")] init"
 
 # Remove packages
 rm_pkg "*adguardhome"
-rm_pkg "*advanced"
-rm_pkg "*alist"
 rm_pkg "*amlogic"
 rm_pkg "*argon-config"
 rm_pkg "*bypass"
@@ -55,61 +53,37 @@ rm_pkg "*ddns-go"
 rm_pkg "*ddnsto"
 rm_pkg "*dockerman"
 rm_pkg "*mosdns"
-rm_pkg "*netdata"
-rm_pkg "*netspeedtest"
 rm_pkg "*nlbwmon*"
 rm_pkg "*onliner"
 rm_pkg "*openclash"
-rm_pkg "*partexp"
 rm_pkg "*passwall"
 rm_pkg "*pushbot"
 rm_pkg "*qbittorrent*"
 rm_pkg "*shadowsocks*"
-rm_pkg "*smartdns"
-rm_pkg "*sqm*"
 rm_pkg "*ssr*"
-rm_pkg "*taskplan"
 rm_pkg "*theme-argon"
 rm_pkg "*transmission*"
 rm_pkg "*trojan*"
 rm_pkg "*v2ray*"
-rm_pkg "*wechatpush"
 rm_pkg "*xray*"
 rm_pkg "dnsproxy"
-rm_pkg "minidlna"
-rm_pkg "miniupnpc"
-rm_pkg "miniupnpd"
 
 # Add packages
 git clone -q --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone -q --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-git clone -q --depth=1 https://github.com/sbwml/luci-app-alist.git package/alist
 git clone -q --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
 git clone -q --depth=1 https://github.com/sbwml/v2ray-geodata.git package/v2ray-geodata
-git clone -q --depth=1 https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
-git clone -q --depth=1 https://github.com/sirpdboy/luci-app-partexp.git package/luci-app-partexp
-git clone -q --depth=1 https://github.com/sirpdboy/luci-app-taskplan.git package/luci-app-taskplan
-git clone -q --depth=1 https://github.com/sirpdboy/netspeedtest.git package/luci-app-netspeedtest
 git clone -q --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 
 sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-timewol
 sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
 sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
-sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
-sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
-
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-minidlna
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-smartdns
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-sqm
-sparse_clone master https://github.com/immortalwrt/packages.git multimedia/minidlna
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
-sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpc
-sparse_clone master https://github.com/immortalwrt/packages.git net/miniupnpd
-sparse_clone master https://github.com/immortalwrt/packages.git net/smartdns
-sparse_clone master https://github.com/immortalwrt/packages.git net/sqm-scripts
+sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
+sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
 # Requires golang latest version
 rm -rf feeds/packages/lang/golang
@@ -141,16 +115,18 @@ sed -i 's/services/nas/g' feeds/luci/applications/luci-app-ksmbd/root/usr/share/
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's/services/vpn/g' package/luci-app-openclash/luasrc/view/openclash/*.htm
-sed -i 's|admin/network|admin/control|g' package/luci-app-sqm/root/usr/share/luci/menu.d/*.json
+sed -i 's|admin/network|admin/control|g' feeds/luci/applications/luci-app-sqm/root/usr/share/luci/menu.d/*.json
 
 # Modify default IP and hostname
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js
 sed -i "s|192\.168\.[0-9]*\.[0-9]*|${OPENWRT_IP}|g" package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+sed -i 's/NAME="[^"]*"/NAME="OpenWrt"/' package/base-files/files/usr/lib/os-release
+sed -i "s/VERSION=\"[^\"]*\"/VERSION=\"R$(TZ=UTC+8 date '+%-m.%-d')\"/" package/base-files/files/usr/lib/os-release
 sed -i 's/OPENWRT_RELEASE="[^"]*"/OPENWRT_RELEASE="OpenWrt"/' package/base-files/files/usr/lib/os-release
 sed -i "s/DISTRIB_RELEASE='[^']*'/DISTRIB_RELEASE='OpenWrt'/" package/base-files/files/etc/openwrt_release
 sed -i "s/DISTRIB_DESCRIPTION='[^']*'/DISTRIB_DESCRIPTION='OpenWrt'/" package/base-files/files/etc/openwrt_release
-sed -i "s/DISTRIB_REVISION='[^']*'/DISTRIB_REVISION='R$(TZ=UTC-8 date '+%-m.%-d')'/" package/base-files/files/etc/openwrt_release
+sed -i "s/DISTRIB_REVISION='[^']*'/DISTRIB_REVISION='R$(TZ=UTC+8 date '+%-m.%-d')'/" package/base-files/files/etc/openwrt_release
 
 # Modify plugin names
 sub_name "Argon 主题设置" "主题设置"

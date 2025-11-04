@@ -18,6 +18,14 @@ on:
         type: choice
         options:
           - armv8
+      package_method:
+        description: "Select package method"
+        required: false
+        default: "flippy"
+        type: choice
+        options:
+          - flippy
+          - ophub
       openwrt_board:
         description: "Select device board"
         required: false
@@ -29,7 +37,7 @@ on:
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "5.10.y"
+        default: "6.1.y"
         type: choice
         options:
           - 5.4.y
@@ -37,6 +45,7 @@ on:
           - 5.15.y
           - 6.1.y
           - 6.6.y
+          - 6.12.y
       auto_kernel:
         description: "Auto use the latest kernel"
         required: false
@@ -50,6 +59,11 @@ on:
         options:
           - 10.10.10.1
           - 10.10.11.1
+      diy_config:
+        description: "Load custom configuration"
+        required: false
+        default: true
+        type: boolean
 
 env:
   CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.config
@@ -61,7 +75,7 @@ env:
 jobs:
   Build:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
     - name: Check Server Performance
@@ -122,10 +136,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}] [${{ inputs.package_method }}] [${{ inputs.openwrt_kernel }}]
       id: code
       working-directory: /builder
-      if: ${{ steps.init.outputs.status }} == 'success'
+      if: ${{ steps.init.outputs.status == 'success' }}
       run: |
         REPO_URL="https://github.com/immortalwrt/immortalwrt"
         case "${{ inputs.source_branch }}" in
@@ -134,7 +148,6 @@ jobs:
         esac
         git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
         ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
-        # ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
         df -hT ${PWD}
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
@@ -152,6 +165,7 @@ jobs:
         ./scripts/feeds install -a
 
     - name: Load custom configuration
+      if: ${{ inputs.diy_config }}
       run: |
         [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
         [[ -d "${OPENWRT_PATH}/files/etc/uci-defaults" ]] || mkdir -p  ${OPENWRT_PATH}/files/etc/uci-defaults
@@ -170,12 +184,12 @@ jobs:
         [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
         cd ${OPENWRT_PATH}
         make defconfig
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Generate Variables
-      if: ${{ steps.code.outputs.status }} == 'success'
+    - name: Generate Version Information
+      if: ${{ steps.code.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -205,7 +219,7 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd ${OPENWRT_PATH}
@@ -215,22 +229,20 @@ jobs:
 
     - name: Clear Server Space
       id: clean
-      if: ${{ steps.compile.outputs.status }} == 'success'
+      if: ${{ steps.compile.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
-        [[ -d "output/packages" ]] || mkdir -p  output/packages
+        mkdir -p output
         mv -f bin/targets/*/*/*rootfs.tar.gz output
         mv -f .config output/build-${{ inputs.source_branch }}.config
         cd output
         rm -rf $(ls | grep -v -E "\.(gz|xz|config)$" | xargs) 2>/dev/null
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      if: ${{ steps.clean.outputs.status }} == 'success'
+    - name: Package OpenWrt Firmware
+      if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: openwrt/output/*rootfs.tar.gz
@@ -238,21 +250,21 @@ jobs:
         KERNEL_REPO_URL: ophub/kernel
         KERNEL_VERSION_NAME: ${{ inputs.openwrt_kernel }}
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
-        WHOAMI: v8040
+        WHOAMI: ${{ github.repository_owner }}
 
-    # - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      # if: ${{ steps.clean.outputs.status }} == 'success'
-      # uses: ophub/amlogic-s9xxx-openwrt@main
-      # with:
-        # openwrt_path: openwrt/output/*rootfs.tar.gz
-        # openwrt_board: ${{ inputs.openwrt_board }}
-        # openwrt_kernel: ${{ inputs.openwrt_kernel }}
-        # auto_kernel: ${{ inputs.auto_kernel }}
-        # builder_name: v8040
+    - name: Package OpenWrt Firmware
+      if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'ophub' }}
+      uses: ophub/amlogic-s9xxx-openwrt@main
+      with:
+        openwrt_path: openwrt/output/*rootfs.tar.gz
+        openwrt_board: ${{ inputs.openwrt_board }}
+        openwrt_kernel: ${{ inputs.openwrt_kernel }}
+        auto_kernel: ${{ inputs.auto_kernel }}
+        builder_name: ${{ github.repository_owner }}
 
     - name: Organize Files
       id: organize
-      if: ${{ env.PACKAGED_STATUS }} == 'success'
+      if: ${{ env.PACKAGED_STATUS == 'success' }}
       run: |
         cd ${{ env.PACKAGED_OUTPUTPATH }}
         rm -rf $(ls | grep -v -E "\.(img\.gz|img\.xz)$" | xargs) 2>/dev/null
@@ -270,12 +282,10 @@ jobs:
         # for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
         # cat *.sha256
         cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "rootfs.tar.gz"
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.PACKAGED_OUTPUTDATE }}

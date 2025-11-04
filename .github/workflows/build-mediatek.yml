@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - immortalwrt-21.02
+          - immortalwrt-24.10
       openwrt_target:
         description: "Select device target"
         required: false
@@ -32,6 +33,11 @@ on:
         options:
           - 10.10.10.1
           - 10.10.11.1
+      diy_config:
+        description: "Load custom configuration"
+        required: false
+        default: true
+        type: boolean
 
 env:
   CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
@@ -43,7 +49,7 @@ env:
 jobs:
   Build:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
     - name: Check Server Performance
@@ -104,13 +110,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}]
       id: code
       working-directory: /builder
-      if: ${{ steps.init.outputs.status }} == 'success'
+      if: ${{ steps.init.outputs.status == 'success' }}
       run: |
-        REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
-        REPO_BRANCH="openwrt-21.02"
+        case "${{ inputs.source_branch }}" in
+          "immortalwrt-21.02")
+            REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
+            REPO_BRANCH="openwrt-21.02" ;;
+          "immortalwrt-24.10")
+            REPO_URL="https://github.com/immortalwrt/immortalwrt"
+            REPO_BRANCH="openwrt-24.10" ;;
+        esac
         git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
         ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
         df -hT ${PWD}
@@ -130,6 +142,7 @@ jobs:
         ./scripts/feeds install -a
 
     - name: Load custom configuration
+      if: ${{ inputs.diy_config }}
       run: |
         [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
         [[ -d "${OPENWRT_PATH}/files/etc/uci-defaults" ]] || mkdir -p  ${OPENWRT_PATH}/files/etc/uci-defaults
@@ -146,12 +159,12 @@ jobs:
         [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
         cd ${OPENWRT_PATH}
         make defconfig
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Generate Variables
-      if: ${{ steps.code.outputs.status }} == 'success'
+    - name: Generate Version Information
+      if: ${{ steps.code.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -181,7 +194,7 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd ${OPENWRT_PATH}
@@ -191,10 +204,10 @@ jobs:
 
     - name: Organize Files
       id: organize
-      if: ${{ steps.compile.outputs.status }} == 'success'
+      if: ${{ steps.compile.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
-        [[ -d "output/packages" ]] || mkdir -p  output/packages
+        mkdir -p output
         mv -f bin/targets/*/*/*squashfs-sysupgrade.bin output
         mv -f .config output/build-${{ inputs.source_branch }}-${{ inputs.openwrt_board }}.config
         cd output
@@ -206,8 +219,6 @@ jobs:
         # for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
         # cat *.sha256
         cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "squashfs-sysupgrade.bin"
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_ENV}
         echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
@@ -215,7 +226,7 @@ jobs:
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.OUTPUT_DATE }}
