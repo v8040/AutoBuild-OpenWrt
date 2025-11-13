@@ -34,6 +34,13 @@ sparse_clone() {
     warning "Failed to sparse-checkout directory ${REPODIR} from ${REPOURL}"
   else
     rsync -a --delete "${CACHE_DIR}/${REPODIR}" package
+    local DIRNAME=$(basename "${REPODIR}")
+    if [ -d "package/${DIRNAME}" ]; then
+      find "package/${DIRNAME}/" -maxdepth 2 -path "*/Makefile" -print0 | xargs -0r sed -i 's|../../luci.mk|$(TOPDIR)/feeds/luci/luci.mk|g'
+      find "package/${DIRNAME}/" -maxdepth 2 -path "*/Makefile" -print0 | xargs -0r sed -i 's|../../lang/golang/golang-package.mk|$(TOPDIR)/feeds/packages/lang/golang/golang-package.mk|g'
+      find "package/${DIRNAME}/" -maxdepth 2 -path "*/Makefile" -print0 | xargs -0r sed -i 's|PKG_SOURCE_URL:=@GHREPO|PKG_SOURCE_URL:=https://github.com|g'
+      find "package/${DIRNAME}/" -maxdepth 2 -path "*/Makefile" -print0 | xargs -0r sed -i 's|PKG_SOURCE_URL:=@GHCODELOAD|PKG_SOURCE_URL:=https://codeload.github.com|g'
+    fi
   fi
 }
 rm_pkg() {
