@@ -6,11 +6,26 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-21.02"
+        default: "lede"
         type: choice
         options:
-          - immortalwrt-21.02
-          - immortalwrt-24.10
+          - immortalwrt
+          - lede
+      openwrt_target:
+        description: "Select device target"
+        required: false
+        default: "armv8"
+        type: choice
+        options:
+          - armv8
+      package_method:
+        description: "Select package method"
+        required: false
+        default: "flippy"
+        type: choice
+        options:
+          - flippy
+          - ophub
       openwrt_board:
         description: "Select device board"
         required: false
@@ -20,17 +35,10 @@ on:
           - all
           - h28k
           - s905d
-      openwrt_target:
-        description: "Select device target"
-        required: false
-        default: "armv8"
-        type: choice
-        options:
-          - armv8
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "6.6.y"
+        default: "6.12.y"
         type: choice
         options:
           - 5.4.y
@@ -38,6 +46,7 @@ on:
           - 5.15.y
           - 6.1.y
           - 6.6.y
+          - 6.12.y
       auto_kernel:
         description: "Auto use the latest kernel"
         required: false
@@ -51,10 +60,11 @@ env:
 
 jobs:
   Package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
-    - name: Check Server Performance
+    - name: Information [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}] [${{ inputs.package_method }}] [${{ inputs.openwrt_kernel }}]
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
@@ -74,24 +84,28 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi $(docker images -q) 2>/dev/null
+        docker stop $(docker ps -q) 2>/dev/null || true
+        docker rmi -f $(docker images -q) 2>/dev/null || true
         [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        sudo -E apt update &>/dev/null
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* &>/dev/null || true
+        # sudo -E apt install -y $(curl -fsSL https://ophub.org/ubuntu2404-make-openwrt-depends) &>/dev/null
+        sudo -E apt autoremove --purge -y &>/dev/null
+        sudo -E apt clean &>/dev/null
         sudo swapoff -a
         sudo rm -f /swapfile /mnt/swapfile
-        sudo -E apt-get -y update
-        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        # sudo -E apt-get -y install $(curl -fsSL https://is.gd/depend_ubuntu2204_openwrt)
-        # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
-        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
-        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
-        sudo timedatectl set-timezone "${TZ}"
+        sudo -E timedatectl set-timezone "${TZ}"
+        sudo -E timedatectl set-ntp true
+        timedatectl status
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Create simulated physical disk
+      id: disk
+      if: ${{ steps.init.outputs.status == 'success' }}
       run: |
         mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
         root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -103,32 +117,32 @@ jobs:
         sudo pvcreate /dev/loop7
         sudo vgcreate github /dev/loop6 /dev/loop7
         sudo lvcreate -n runner -l 100%FREE github
-        sudo mkfs.xfs /dev/github/runner
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
-        sudo chown -R runner.runner /builder
+        sudo chown -R runner:runner /builder
         df -Th
+        echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Download Armvirt Firmware [${{ inputs.source_branch }}]
-      id: down
+    - name: Download Armvirt Firmware
+      id: download
       working-directory: /builder
+      if: ${{ steps.disk.outputs.status == 'success' }}
       run: |
         ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
-        # ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
-        FIRMWARE_PATH=openwrt/output
-        [[ -d "${FIRMWARE_PATH}" ]] || mkdir -p ${FIRMWARE_PATH}
-        FIRMWARE_URL=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${{ env.ROOTFS_RELEASE_TAG }}" | grep -o '"browser_download_url": "[^"]*'"${{ inputs.source_branch }}"'.*rootfs\.tar\.gz"' | cut -d '"' -f 4)
-        wget -q -P ${FIRMWARE_PATH} ${FIRMWARE_URL}
-        cd ${FIRMWARE_PATH}
-        df -hT ${PWD}
-        ls -lh ${PWD}
+        ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
+        OUTPUT_PATH=openwrt/output
+        [[ -d "${OUTPUT_PATH}" ]] || mkdir -p ${OUTPUT_PATH}
+        URL=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${{ env.ROOTFS_RELEASE_TAG }}" | grep -o '"browser_download_url": "[^"]*'"${{ inputs.source_branch }}"'.*rootfs\.tar\.gz"' | cut -d '"' -f 4)
+        cd ${OUTPUT_PATH}
+        curl -fsSLO "${URL}" || wget -q "${URL}"
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      if: ${{ steps.down.outputs.status }} == 'success'
+    - name: Package OpenWrt Firmware [flippy]
+      if: ${{ steps.download.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: openwrt/output/*rootfs.tar.gz
@@ -136,36 +150,36 @@ jobs:
         KERNEL_REPO_URL: ophub/kernel
         KERNEL_VERSION_NAME: ${{ inputs.openwrt_kernel }}
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
-        WHOAMI: v8040
+        WHOAMI: ${{ github.repository_owner }}
 
-    # - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      # if: ${{ steps.down.outputs.status }} == 'success'
-      # uses: ophub/amlogic-s9xxx-openwrt@main
-      # with:
-        # openwrt_path: openwrt/output/*rootfs.tar.gz
-        # openwrt_board: ${{ inputs.openwrt_board }}
-        # openwrt_kernel: ${{ inputs.openwrt_kernel }}
-        # auto_kernel: ${{ inputs.auto_kernel }}
-        # builder_name: v8040
+    - name: Package OpenWrt Firmware [ophub]
+      if: ${{ steps.download.outputs.status == 'success' && inputs.package_method == 'ophub' }}
+      uses: ophub/amlogic-s9xxx-openwrt@main
+      with:
+        openwrt_path: openwrt/output/*rootfs.tar.gz
+        openwrt_board: ${{ inputs.openwrt_board }}
+        openwrt_kernel: ${{ inputs.openwrt_kernel }}
+        auto_kernel: ${{ inputs.auto_kernel }}
+        builder_name: ${{ github.repository_owner }}
 
     - name: Organize Files
       id: organize
-      if: ${{ env.PACKAGED_STATUS }} == 'success'
+      if: ${{ env.PACKAGED_STATUS == 'success' }}
       run: |
         cd ${{ env.PACKAGED_OUTPUTPATH }}
         rm -rf $(ls | grep -v -E "\.(img\.gz|img\.xz)$" | xargs) 2>/dev/null
         for file in *.img.gz; do
-            kernel=$(echo "${file}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
-            new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
-            [ -f "${file}" ] && mv -f "${file}" "${new_name}"
+          kernel=$(echo "${file}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
+          new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
+          if [ -f "${file}" ] && [ "${file}" != "${new_name}" ]; then
+            mv -f -- "${file}" "${new_name}"
+          fi
         done
         # for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.PACKAGED_OUTPUTDATE }}
@@ -192,7 +206,7 @@ jobs:
       uses: ophub/delete-releases-workflows@main
       with:
         delete_releases: true
-        releases_keep_latest: 4
+        releases_keep_latest: 5
         delete_workflows: true
         workflows_keep_day: 2
         gh_token: ${{ secrets.GITHUB_TOKEN }}

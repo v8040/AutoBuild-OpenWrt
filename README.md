@@ -4,8 +4,8 @@
 </div>
 
 ## 项目说明
-- OpenWrt 源码：[ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 、 [hanwckf](https://github.com/hanwckf/immortalwrt-mt798x)
-- 云编译方法：[P3TERX](https://github.com/P3TERX/Actions-OpenWrt) 、 [Haiibo](https://github.com/haiibo/OpenWrt)
+- OpenWrt 源码：[LEDE](https://github.com/coolsnowwolf/lede) 、 [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 、 [hanwckf](https://github.com/hanwckf/immortalwrt-mt798x)
+- 云编译方法：[P3TERX](https://github.com/P3TERX/Actions-OpenWrt) 、 [ophub](https://github.com/ophub/amlogic-s9xxx-openwrt) 、 [Haiibo](https://github.com/haiibo/OpenWrt)
 - 固件打包：[Flippy](https://github.com/unifreq/openwrt_packit) 、 [ophub](https://github.com/ophub/kernel)
 - 固件默认管理地址：`10.10.10.1` 、 `10.10.11.1` 默认用户：`root` 默认密码：`password` 默认主题：`Argon`
 - 固件可以在 [Releases](https://github.com/v8040/AutoBuild-OpenWrt/releases) 内进行下载
@@ -49,8 +49,8 @@
 - **请务必遵从 “不涉及政治，不涉及宗教，不涉及黄赌毒” 三不原则！**
 
 ## 鸣谢
-| [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) | [coolsnowwolf](https://github.com/coolsnowwolf) | [P3TERX](https://github.com/P3TERX) | [Flippy](https://github.com/unifreq) | [kiddin9](https://github.com/kiddin9) |
+| [ImmortalWrt](https://github.com/immortalwrt) | [coolsnowwolf](https://github.com/coolsnowwolf) | [P3TERX](https://github.com/P3TERX) | [Flippy](https://github.com/unifreq) | [kiddin9](https://github.com/kiddin9) |
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
 | <img width="100" src="https://avatars.githubusercontent.com/u/53193414"/> | <img width="100" src="https://avatars.githubusercontent.com/u/31687149"/> | <img width="100" src="https://avatars.githubusercontent.com/u/25927179"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39355261"/> | <img width="100" src="https://avatars.githubusercontent.com/u/48883331"/> |
-| [Ophub](https://github.com/ophub) | [SuLingGG](https://github.com/SuLingGG) | [haibo](https://github.com/haiibo) | [hanwckf](https://github.com/hanwckf) | [kenzok8](https://github.com/kenzok8/small-package) |
+| [Ophub](https://github.com/ophub) | [SuLingGG](https://github.com/SuLingGG) | [haibo](https://github.com/haiibo) | [hanwckf](https://github.com/hanwckf) | [kenzok8](https://github.com/kenzok8) |
 | <img width="100" src="https://avatars.githubusercontent.com/u/68696949"/> | <img width="100" src="https://avatars.githubusercontent.com/u/22287562"/> | <img width="100" src="https://avatars.githubusercontent.com/u/85640068"/> | <img width="100" src="https://avatars.githubusercontent.com/u/27666983"/> | <img width="100" src="https://avatars.githubusercontent.com/u/39034242"/> |

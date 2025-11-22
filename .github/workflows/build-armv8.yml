@@ -6,11 +6,11 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "immortalwrt-21.02"
+        default: "lede"
         type: choice
         options:
-          - immortalwrt-21.02
-          - immortalwrt-24.10
+          - immortalwrt
+          - lede
       openwrt_target:
         description: "Select device target"
         required: false
@@ -18,6 +18,14 @@ on:
         type: choice
         options:
           - armv8
+      package_method:
+        description: "Select package method"
+        required: false
+        default: "flippy"
+        type: choice
+        options:
+          - flippy
+          - ophub
       openwrt_board:
         description: "Select device board"
         required: false
@@ -29,7 +37,7 @@ on:
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "5.10.y"
+        default: "6.1.y"
         type: choice
         options:
           - 5.4.y
@@ -37,8 +45,14 @@ on:
           - 5.15.y
           - 6.1.y
           - 6.6.y
+          - 6.12.y
       auto_kernel:
         description: "Auto use the latest kernel"
+        required: false
+        default: true
+        type: boolean
+      diy_config:
+        description: "Load custom configuration"
         required: false
         default: true
         type: boolean
@@ -60,11 +74,11 @@ env:
 
 jobs:
   Build:
-    runs-on: ubuntu-22.04
-    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
     steps:
-    - name: Check Server Performance
+    - name: Information [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}] [${{ inputs.package_method }}] [${{ inputs.openwrt_kernel }}]
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
@@ -84,24 +98,28 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi $(docker images -q) 2>/dev/null
+        docker stop $(docker ps -q) 2>/dev/null || true
+        docker rmi -f $(docker images -q) 2>/dev/null || true
         [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        sudo -E apt update &>/dev/null
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* &>/dev/null || true
+        sudo -E apt install -y $(curl -fsSL https://ophub.org/ubuntu2404-make-openwrt-depends) &>/dev/null
+        sudo -E apt autoremove --purge -y &>/dev/null
+        sudo -E apt clean &>/dev/null
         sudo swapoff -a
         sudo rm -f /swapfile /mnt/swapfile
-        sudo -E apt-get -y update
-        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -y install $(curl -fsSL https://sink.v8040v.top/depends)
-        # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
-        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
-        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
-        sudo timedatectl set-timezone "${TZ}"
+        sudo -E timedatectl set-timezone "${TZ}"
+        sudo -E timedatectl set-ntp true
+        timedatectl status
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Create simulated physical disk
+      id: disk
+      if: ${{ steps.init.outputs.status == 'success' }}
       run: |
         mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
         root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -113,71 +131,38 @@ jobs:
         sudo pvcreate /dev/loop7
         sudo vgcreate github /dev/loop6 /dev/loop7
         sudo lvcreate -n runner -l 100%FREE github
-        sudo mkfs.xfs /dev/github/runner
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
-        sudo chown -R runner.runner /builder
+        sudo chown -R runner:runner /builder
         df -Th
+        echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code
       id: code
       working-directory: /builder
-      if: ${{ steps.init.outputs.status }} == 'success'
+      if: ${{ steps.disk.outputs.status == 'success' }}
       run: |
-        REPO_URL="https://github.com/immortalwrt/immortalwrt"
         case "${{ inputs.source_branch }}" in
-          "immortalwrt-21.02") REPO_BRANCH="openwrt-21.02" ;;
-          "immortalwrt-24.10") REPO_BRANCH="openwrt-24.10" ;;
+          "immortalwrt")
+            REPO_URL="https://github.com/immortalwrt/immortalwrt"
+            REPO_BRANCH="master" ;;
+          "lede")
+            REPO_URL="https://github.com/coolsnowwolf/lede"
+            REPO_BRANCH="master" ;;
         esac
-        git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
+        git clone -q --branch=${REPO_BRANCH} ${REPO_URL} openwrt
         ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
-        # ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
-        df -hT ${PWD}
+        ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
         echo "REPO_URL=$REPO_URL" >> ${GITHUB_ENV}
         echo "REPO_URL=$REPO_URL" >> ${GITHUB_OUTPUT}
         echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_ENV}
         echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_OUTPUT}
-        echo "status=success" >> ${GITHUB_OUTPUT}
-
-    - name: Load Feeds
-      run: |
-        [[ -f "${FEEDS_CONF}" ]] && cp -f ${FEEDS_CONF} ${OPENWRT_PATH}/feeds.conf.default
-        cd ${OPENWRT_PATH}
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-
-    - name: Load custom configuration
-      run: |
-        [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
-        [[ -d "${OPENWRT_PATH}/files/etc/uci-defaults" ]] || mkdir -p  ${OPENWRT_PATH}/files/etc/uci-defaults
-        cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/files/etc/uci-defaults/99-init-settings
-        cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/emortal/default-settings/files/99-default-settings-chinese
-        find "${GITHUB_WORKSPACE}/scripts" -type f -name '*.sh' | xargs chmod +x
-        cd ${OPENWRT_PATH}
-        ${GITHUB_WORKSPACE}/${COM_SCRIPT}
-        ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
-        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
-        ${GITHUB_WORKSPACE}/scripts/preset-clash-core.sh arm64
-        ${GITHUB_WORKSPACE}/scripts/preset-terminal-tools.sh
-
-    - name: Download DL Package
-      run: |
-        [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
-        cd ${OPENWRT_PATH}
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-
-    - name: Generate Variables
-      if: ${{ steps.code.outputs.status }} == 'success'
-      run: |
-        cd ${OPENWRT_PATH}
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
         echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_ENV}
         echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_OUTPUT}
@@ -192,20 +177,45 @@ jobs:
         echo "COMMIT_HASH=$COMMIT_HASH" >> ${GITHUB_OUTPUT}
         SOURCE_REPO="$(echo $REPO_URL | awk -F '/' '{print $(NF)}')"
         echo "SOURCE_REPO=$SOURCE_REPO" >> ${GITHUB_ENV}
-        DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
-        echo "DEVICE_TARGET=$DEVICE_TARGET" >> ${GITHUB_ENV}
-        echo "DEVICE_TARGET=$DEVICE_TARGET" >> ${GITHUB_OUTPUT}
-        DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
-        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> ${GITHUB_ENV}
-        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> ${GITHUB_OUTPUT}
+        echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Cache Toolchain
-      uses: HiGarfield/cachewrtbuild@main
+      uses: stupidloud/cachewrtbuild@main
       with:
-        mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+        mixkey: ${{ inputs.source_branch }}-${{ inputs.openwrt_target }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+    - name: Load Feeds
+      run: |
+        [[ -f "${FEEDS_CONF}" ]] && cp -f ${FEEDS_CONF} ${OPENWRT_PATH}/feeds.conf.default
+        cd ${OPENWRT_PATH}
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Load custom configuration
+      if: ${{ inputs.diy_config }}
+      run: |
+        [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
+        [[ -d "${OPENWRT_PATH}/package/lean" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/lean/default-settings/files/zzz-default-settings
+        [[ -d "${OPENWRT_PATH}/package/emortal" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/emortal/default-settings/files/99-default-settings-chinese
+        find "${GITHUB_WORKSPACE}/scripts" -type f -name '*.sh' | xargs chmod +x
+        cd ${OPENWRT_PATH}
+        ${GITHUB_WORKSPACE}/${COM_SCRIPT}
+        ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
+        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
+        ${GITHUB_WORKSPACE}/scripts/preset-clash-core.sh arm64
+        ${GITHUB_WORKSPACE}/scripts/preset-terminal-tools.sh
+
+    - name: Download DL Package
+      run: |
+        [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
+        cd ${OPENWRT_PATH}
+        make defconfig
+        make download -j$(nproc) || make download -j1
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the OpenWrt
       id: compile
       run: |
         cd ${OPENWRT_PATH}
@@ -215,22 +225,20 @@ jobs:
 
     - name: Clear Server Space
       id: clean
-      if: ${{ steps.compile.outputs.status }} == 'success'
+      if: ${{ steps.compile.outputs.status == 'success' }}
       run: |
         cd ${OPENWRT_PATH}
-        [[ -d "output/packages" ]] || mkdir -p  output/packages
+        mkdir -p output
         mv -f bin/targets/*/*/*rootfs.tar.gz output
         mv -f .config output/build-${{ inputs.source_branch }}.config
         cd output
         rm -rf $(ls | grep -v -E "\.(gz|xz|config)$" | xargs) 2>/dev/null
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
         echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
-    - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      if: ${{ steps.clean.outputs.status }} == 'success'
+    - name: Package OpenWrt Firmware [flippy]
+      if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'flippy' }}
       uses: ophub/flippy-openwrt-actions@main
       env:
         OPENWRT_ARMVIRT: openwrt/output/*rootfs.tar.gz
@@ -238,44 +246,46 @@ jobs:
         KERNEL_REPO_URL: ophub/kernel
         KERNEL_VERSION_NAME: ${{ inputs.openwrt_kernel }}
         KERNEL_AUTO_LATEST: ${{ inputs.auto_kernel }}
-        WHOAMI: v8040
+        WHOAMI: ${{ github.repository_owner }}
 
-    # - name: Package OpenWrt Firmware [${{ inputs.openwrt_board }}] [${{ inputs.openwrt_kernel }}]
-      # if: ${{ steps.clean.outputs.status }} == 'success'
-      # uses: ophub/amlogic-s9xxx-openwrt@main
-      # with:
-        # openwrt_path: openwrt/output/*rootfs.tar.gz
-        # openwrt_board: ${{ inputs.openwrt_board }}
-        # openwrt_kernel: ${{ inputs.openwrt_kernel }}
-        # auto_kernel: ${{ inputs.auto_kernel }}
-        # builder_name: v8040
+    - name: Package OpenWrt Firmware [ophub]
+      if: ${{ steps.clean.outputs.status == 'success' && inputs.package_method == 'ophub' }}
+      uses: ophub/amlogic-s9xxx-openwrt@main
+      with:
+        openwrt_path: openwrt/output/*rootfs.tar.gz
+        openwrt_board: ${{ inputs.openwrt_board }}
+        openwrt_kernel: ${{ inputs.openwrt_kernel }}
+        auto_kernel: ${{ inputs.auto_kernel }}
+        builder_name: ${{ github.repository_owner }}
 
     - name: Organize Files
       id: organize
-      if: ${{ env.PACKAGED_STATUS }} == 'success'
+      if: ${{ env.PACKAGED_STATUS == 'success' }}
       run: |
         cd ${{ env.PACKAGED_OUTPUTPATH }}
         rm -rf $(ls | grep -v -E "\.(img\.gz|img\.xz)$" | xargs) 2>/dev/null
         mv -f ${OUTPUT_PATH}/* .
         rm -rf $(ls | grep -v -E "\.(gz|xz|config)$" | xargs) 2>/dev/null
         for file in *rootfs.tar.gz; do
-            new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
-            [ -f "${file}" ] && mv -f "${file}" "${new_name}"
+          new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
+          if [ -f "${file}" ] && [ "${file}" != "${new_name}" ]; then
+            mv -f -- "${file}" "${new_name}"
+          fi
         done
         for file in *.img.gz; do
-            kernel=$(echo "${file}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
-            new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
-            [ -f "${file}" ] && mv -f "${file}" "${new_name}"
+          kernel=$(echo "${file}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')
+          new_name=$(echo "${file}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${{ inputs.source_branch }}/g; s/_k.*\.img\.gz/_${kernel}.img.gz/")
+          if [ -f "${file}" ] && [ "${file}" != "${new_name}" ]; then
+            mv -f -- "${file}" "${new_name}"
+          fi
         done
         # for file in *.gz; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
         # cat *.sha256
         cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "rootfs.tar.gz"
-        df -hT ${PWD}
-        ls -lh ${PWD}
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Upload OpenWrt To Release
-      if: ${{ steps.organize.outputs.status }} == 'success'
+      if: ${{ steps.organize.outputs.status == 'success' }}
       uses: ncipollo/release-action@main
       with:
         name: v${{ env.PACKAGED_OUTPUTDATE }}
@@ -284,11 +294,12 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: true
         replacesArtifacts: true
+        makeLatest: true
         body: |
           > OpenWrt for ${{ inputs.openwrt_target }}
           ### 📒 固件信息（默认打包`h28k`或`s905d`，其他的在package标签下）
           - 🚀 自用版：集成插件不多，只有小猫咪，可按需在线安装插件
-          - 💻 平台架构: ${{ env.DEVICE_TARGET }}
+          - 💻 平台架构: ${{ inputs.openwrt_target }}
           - ⚽ 固件源码: [${{ env.SOURCE_REPO }}](${{ env.REPO_URL }})
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
           - 🌐 默认地址: ${{ inputs.openwrt_ip }}
@@ -307,7 +318,7 @@ jobs:
       uses: ophub/delete-releases-workflows@main
       with:
         delete_releases: true
-        releases_keep_latest: 4
+        releases_keep_latest: 5
         delete_workflows: true
         workflows_keep_day: 2
         gh_token: ${{ secrets.GITHUB_TOKEN }}
