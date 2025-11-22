@@ -189,7 +189,7 @@ jobs:
       run: |
         cd ${OPENWRT_PATH}
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1
+        make -j$(nproc) || make -j1 V=s
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Organize Files
