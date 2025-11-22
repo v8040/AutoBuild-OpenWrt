@@ -1,0 +1,257 @@
+name: Build OpenWrt for rockchip
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Select the source branch"
+        required: false
+        default: "lede"
+        type: choice
+        options:
+          - lede
+      openwrt_target:
+        description: "Select device target"
+        required: false
+        default: "armv8"
+        type: choice
+        options:
+          - armv8
+      openwrt_board:
+        description: "Select device board"
+        required: false
+        default: "h28k"
+        type: choice
+        options:
+          - h28k
+      diy_config:
+        description: "Load custom configuration"
+        required: false
+        default: true
+        type: boolean
+      openwrt_ip:
+        description: "Select default ip"
+        required: false
+        default: "10.10.10.1"
+        type: choice
+        options:
+          - 10.10.10.1
+          - 10.10.11.1
+
+env:
+  CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
+  DIY_SCRIPT: scripts/diy/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.sh
+  COM_SCRIPT: scripts/common.sh
+  OPENWRT_IP: ${{ inputs.openwrt_ip }}
+  TZ: Asia/Shanghai
+
+jobs:
+  Build:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
+
+    steps:
+    - name: Information [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}]
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo "CPU核心数量: $(nproc)"
+        echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Initialization environment
+      id: init
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        docker stop $(docker ps -q) 2>/dev/null || true
+        docker rmi -f $(docker images -q) 2>/dev/null || true
+        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        sudo -E apt update &>/dev/null
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* &>/dev/null || true
+        sudo -E apt install -y $(curl -fsSL https://ophub.org/ubuntu2404-make-openwrt-depends) &>/dev/null
+        sudo -E apt autoremove --purge -y &>/dev/null
+        sudo -E apt clean &>/dev/null
+        sudo swapoff -a
+        sudo rm -f /swapfile /mnt/swapfile
+        sudo -E systemctl daemon-reload
+        sudo -E timedatectl set-timezone "${TZ}"
+        sudo -E timedatectl set-ntp true
+        timedatectl status
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Create simulated physical disk
+      id: disk
+      if: ${{ steps.init.outputs.status == 'success' }}
+      run: |
+        mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+        root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+        sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+        sudo truncate -s "${root_size}"G /root.img
+        sudo losetup /dev/loop6 /mnt/mnt.img
+        sudo losetup /dev/loop7 /root.img
+        sudo pvcreate /dev/loop6
+        sudo pvcreate /dev/loop7
+        sudo vgcreate github /dev/loop6 /dev/loop7
+        sudo lvcreate -n runner -l 100%FREE github
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
+        sudo mkdir -p /builder
+        sudo mount /dev/github/runner /builder
+        sudo chown -R runner:runner /builder
+        df -Th
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone source code
+      id: code
+      working-directory: /builder
+      if: ${{ steps.disk.outputs.status == 'success' }}
+      run: |
+        case "${{ inputs.source_branch }}" in
+          "lede")
+            REPO_URL="https://github.com/coolsnowwolf/lede"
+            REPO_BRANCH="master" ;;
+        esac
+        git clone -q --branch=${REPO_BRANCH} ${REPO_URL} openwrt
+        ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
+        cd openwrt
+        echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
+        echo "REPO_URL=$REPO_URL" >> ${GITHUB_ENV}
+        echo "REPO_URL=$REPO_URL" >> ${GITHUB_OUTPUT}
+        echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_ENV}
+        echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_OUTPUT}
+        COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+        echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_ENV}
+        echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_OUTPUT}
+        COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+        echo "COMMIT_DATE=$COMMIT_DATE" >> ${GITHUB_ENV}
+        echo "COMMIT_DATE=$COMMIT_DATE" >> ${GITHUB_OUTPUT}
+        COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> ${GITHUB_ENV}
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> ${GITHUB_OUTPUT}
+        COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+        echo "COMMIT_HASH=$COMMIT_HASH" >> ${GITHUB_ENV}
+        echo "COMMIT_HASH=$COMMIT_HASH" >> ${GITHUB_OUTPUT}
+        SOURCE_REPO="$(echo $REPO_URL | awk -F '/' '{print $(NF)}')"
+        echo "SOURCE_REPO=$SOURCE_REPO" >> ${GITHUB_ENV}
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Cache Toolchain
+      uses: stupidloud/cachewrtbuild@main
+      with:
+        mixkey: ${{ inputs.source_branch }}-${{ inputs.openwrt_target }}
+        prefix: ${{ env.OPENWRT_PATH }}
+
+    - name: Load Feeds
+      run: |
+        [[ -f "${FEEDS_CONF}" ]] && cp -f ${FEEDS_CONF} ${OPENWRT_PATH}/feeds.conf.default
+        cd ${OPENWRT_PATH}
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Load custom configuration
+      if: ${{ inputs.diy_config }}
+      run: |
+        [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
+        [[ -d "${OPENWRT_PATH}/package/lean" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/lean/default-settings/files/zzz-default-settings
+        [[ -d "${OPENWRT_PATH}/package/emortal" ]] && cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/emortal/default-settings/files/99-default-settings-chinese
+        find "${GITHUB_WORKSPACE}/scripts" -type f -name '*.sh' | xargs chmod +x
+        cd ${OPENWRT_PATH}
+        ${GITHUB_WORKSPACE}/${COM_SCRIPT}
+        ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
+        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
+        ${GITHUB_WORKSPACE}/scripts/preset-clash-core.sh arm64
+        ${GITHUB_WORKSPACE}/scripts/preset-terminal-tools.sh
+
+    - name: Download DL Package
+      run: |
+        [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
+        cd ${OPENWRT_PATH}
+        make defconfig
+        make download -j$(nproc) || make download -j1
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the OpenWrt
+      id: compile
+      run: |
+        cd ${OPENWRT_PATH}
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Organize Files
+      id: organize
+      if: ${{ steps.compile.outputs.status == 'success' }}
+      run: |
+        cd ${OPENWRT_PATH}
+        mkdir -p output
+        mv -f bin/targets/*/*/*squashfs.img.gz output
+        mv -f .config output/build-${{ inputs.source_branch }}-${{ inputs.openwrt_board }}.config
+        cd output
+        rm -rf $(ls | grep -v -E '(squashfs\.img\.gz|\.xz|\.config)$' | xargs) 2>/dev/null
+        for file in *.bin; do
+          new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
+          if [ -f "${file}" ] && [ "${file}" != "${new_name}" ]; then
+            mv -f -- "${file}" "${new_name}"
+          fi
+        done
+        # for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
+        # cat *.sha256
+        cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "squashfs.img.gz"
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_ENV}
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Upload OpenWrt To Release
+      if: ${{ steps.organize.outputs.status == 'success' }}
+      uses: ncipollo/release-action@main
+      with:
+        name: v${{ env.OUTPUT_DATE }}
+        artifacts: ${{ env.OUTPUT_PATH }}/*
+        tag: ${{ inputs.openwrt_target }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
+        replacesArtifacts: true
+        makeLatest: true
+        body: |
+          > OpenWrt for ${{ inputs.openwrt_target }}
+          ### 📒 固件信息（默认打包`h28k`或`s905d`，其他的在package标签下）
+          - 🚀 自用版：集成插件不多，只有小猫咪，可按需在线安装插件
+          - 💻 平台架构: ${{ inputs.openwrt_target }}
+          - ⚽ 固件源码: [${{ env.SOURCE_REPO }}](${{ env.REPO_URL }})
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🌐 默认地址: ${{ inputs.openwrt_ip }}
+          - 🔑 默认密码: password
+          ### 🍻 安装与更新
+          - 插件: 系统 → 晶晨宝盒 → 安装 OpenWrt → 选择型号 → 安装
+          - 命令: `openwrt-install-amlogic`，`openwrt-update-amlogic`
+          ### 🧊 固件版本
+          - 固件编译前最后一次➦[源码](${{ env.REPO_URL }})更新记录
+          - ${{ env.COMMIT_AUTHOR }}
+          - ${{ env.COMMIT_DATE }}
+          - ${{ env.COMMIT_MESSAGE }}
+          - ${{ env.COMMIT_HASH }}
+
+    - name: Delete releases and workflows runs
+      uses: ophub/delete-releases-workflows@main
+      with:
+        delete_releases: true
+        releases_keep_latest: 5
+        delete_workflows: true
+        workflows_keep_day: 2
+        gh_token: ${{ secrets.GITHUB_TOKEN }}
