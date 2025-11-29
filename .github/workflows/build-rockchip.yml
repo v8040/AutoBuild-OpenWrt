@@ -39,11 +39,11 @@ on:
           - 10.10.11.1
 
 env:
-  CONFIG_FILE: 'configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config'
-  DIY_SCRIPT: 'scripts/${{ inputs.source_branch }}.sh'
-  COM_SCRIPT: 'scripts/common.sh'
+  CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
+  DIY_SCRIPT: scripts/${{ inputs.source_branch }}.sh
+  COM_SCRIPT: scripts/common.sh
   OPENWRT_IP: ${{ inputs.openwrt_ip }}
-  TZ: 'Asia/Shanghai'
+  TZ: Asia/Shanghai
 
 jobs:
   Build:
@@ -53,9 +53,6 @@ jobs:
     steps:
       - name: 'Information [${{ inputs.source_branch }}] [${{ inputs.openwrt_board }}]'
         run: |
-          echo "警告⚠"
-          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
           echo "--------------------------CPU信息--------------------------"
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"

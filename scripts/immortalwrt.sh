@@ -3,6 +3,9 @@
 source "${BASH_SOURCE[0]%/*}/functions.sh" &>/dev/null
 success "[${0##*/}] init"
 
+[[ -f "${OPENWRT_PATH}/target/linux/armsr/armv8/config-6.12" ]] && \
+echo "CONFIG_ARM64_CONTPTE=y" >> "${OPENWRT_PATH}/target/linux/armsr/armv8/config-6.12"
+
 # Add turboacc for firewall4
 curl -fsSL https://raw.githubusercontent.com/chenmozhijin/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh &>/dev/null
 

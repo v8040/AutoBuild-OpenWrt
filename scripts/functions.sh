@@ -63,7 +63,7 @@ sparse_clone() {
   TARGET_DIR="package/$(basename "${REPODIR}")"
   PKG_NAME="$(basename "${TARGET_DIR}")"
   if [[ -d "${TARGET_DIR}" ]]; then
-    find "${TARGET_DIR}" -maxdepth 2 -name Makefile -exec sed -i \
+    find "${TARGET_DIR}" -maxdepth 3 -name Makefile -exec sed -i \
       -e 's|\.\./\.\./luci\.mk|$(TOPDIR)/feeds/luci/luci.mk|g' \
       -e 's|\.\./\.\./lang/golang/golang-package\.mk|$(TOPDIR)/feeds/packages/lang/golang/golang-package.mk|g' \
       -e 's|\.\./\.\./package\.mk|$(INCLUDE_DIR)/package.mk|g' \
@@ -79,8 +79,9 @@ rm_pkg() {
   local TARGET="$1"
   [ -z "${TARGET}" ] && return 1
   local -a DIRS=()
-  mapfile -d '' DIRS < <(find feeds -maxdepth 5 -type d \
-    -iname "${TARGET}" \
+  mapfile -d '' DIRS < <(find package feeds -maxdepth 5 -regextype posix-extended \
+    -regex "package/(boot|devel|firmware|kernel|libs)" -prune -o \
+    -type d -iname "${TARGET}" \
     -exec test -e "{}/Makefile" \; \
     -print0 -prune 2>/dev/null)
   if ! (( ${#DIRS[@]} )); then
