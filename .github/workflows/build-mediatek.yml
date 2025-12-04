@@ -1,0 +1,253 @@
+name: Build OpenWrt for mediatek
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Select the source branch"
+        required: false
+        default: "immortalwrt-21.02"
+        type: choice
+        options:
+          - immortalwrt-21.02
+      openwrt_target:
+        description: "Select device target"
+        required: false
+        default: "mediatek"
+        type: choice
+        options:
+          - mediatek
+      openwrt_board:
+        description: "Select device board"
+        required: false
+        default: "ax3000t"
+        type: choice
+        options:
+          - ax3000t
+      openwrt_ip:
+        description: "Select default ip"
+        required: false
+        default: "10.10.11.1"
+        type: choice
+        options:
+          - 10.10.10.1
+          - 10.10.11.1
+
+env:
+  CONFIG_FILE: configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
+  DIY_SCRIPT: scripts/diy/${{ inputs.source_branch }}/${{ inputs.openwrt_target }}.sh
+  COM_SCRIPT: scripts/common.sh
+  OPENWRT_IP: ${{ inputs.openwrt_ip }}
+  TZ: Asia/Shanghai
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
+
+    steps:
+    - name: Check Server Performance
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo "CPU核心数量: $(nproc)"
+        echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Initialization environment
+      id: init
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        docker rmi $(docker images -q) 2>/dev/null
+        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
+        sudo swapoff -a
+        sudo rm -f /swapfile /mnt/swapfile
+        sudo -E apt-get -y update
+        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        sudo -E apt-get -y install $(curl -fsSL https://sink.v8040v.top/depends)
+        # sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+        sudo -E systemctl daemon-reload
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo timedatectl set-timezone "${TZ}"
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Create simulated physical disk
+      run: |
+        mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+        root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+        sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+        sudo truncate -s "${root_size}"G /root.img
+        sudo losetup /dev/loop6 /mnt/mnt.img
+        sudo losetup /dev/loop7 /root.img
+        sudo pvcreate /dev/loop6
+        sudo pvcreate /dev/loop7
+        sudo vgcreate github /dev/loop6 /dev/loop7
+        sudo lvcreate -n runner -l 100%FREE github
+        sudo mkfs.xfs /dev/github/runner
+        sudo mkdir -p /builder
+        sudo mount /dev/github/runner /builder
+        sudo chown -R runner.runner /builder
+        df -Th
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone source code [ ${{ inputs.source_branch }} ]
+      id: code
+      working-directory: /builder
+      if: ${{ steps.init.outputs.status }} == 'success'
+      run: |
+        REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
+        REPO_BRANCH="openwrt-21.02"
+        git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
+        ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
+        df -hT ${PWD}
+        cd openwrt
+        echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
+        echo "REPO_URL=$REPO_URL" >> ${GITHUB_ENV}
+        echo "REPO_URL=$REPO_URL" >> ${GITHUB_OUTPUT}
+        echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_ENV}
+        echo "REPO_BRANCH=$REPO_BRANCH" >> ${GITHUB_OUTPUT}
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Load Feeds
+      run: |
+        [[ -f "${FEEDS_CONF}" ]] && cp -f ${FEEDS_CONF} ${OPENWRT_PATH}/feeds.conf.default
+        cd ${OPENWRT_PATH}
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Load custom configuration
+      run: |
+        [[ -d "files" ]] && cp -f files ${OPENWRT_PATH}/files
+        [[ -d "${OPENWRT_PATH}/files/etc/uci-defaults" ]] || mkdir -p  ${OPENWRT_PATH}/files/etc/uci-defaults
+        cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/files/etc/uci-defaults/99-init-settings
+        cp -f ${GITHUB_WORKSPACE}/scripts/init-settings.sh ${OPENWRT_PATH}/package/emortal/default-settings/files/99-default-settings-chinese
+        find "${GITHUB_WORKSPACE}/scripts" -type f -name '*.sh' | xargs chmod +x
+        cd ${OPENWRT_PATH}
+        ${GITHUB_WORKSPACE}/${COM_SCRIPT}
+        ${GITHUB_WORKSPACE}/${DIY_SCRIPT}
+        # ${GITHUB_WORKSPACE}/scripts/preset-dnsproxy.sh arm64
+
+    - name: Download DL Package
+      run: |
+        [[ -e "${CONFIG_FILE}" ]] && cp -f ${CONFIG_FILE} ${OPENWRT_PATH}/.config
+        cd ${OPENWRT_PATH}
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Generate Variables
+      if: ${{ steps.code.outputs.status }} == 'success'
+      run: |
+        cd ${OPENWRT_PATH}
+        COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+        echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_ENV}
+        echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> ${GITHUB_OUTPUT}
+        COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+        echo "COMMIT_DATE=$COMMIT_DATE" >> ${GITHUB_ENV}
+        echo "COMMIT_DATE=$COMMIT_DATE" >> ${GITHUB_OUTPUT}
+        COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> ${GITHUB_ENV}
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> ${GITHUB_OUTPUT}
+        COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+        echo "COMMIT_HASH=$COMMIT_HASH" >> ${GITHUB_ENV}
+        echo "COMMIT_HASH=$COMMIT_HASH" >> ${GITHUB_OUTPUT}
+        SOURCE_REPO="$(echo $REPO_URL | awk -F '/' '{print $(NF)}')"
+        echo "SOURCE_REPO=$SOURCE_REPO" >> ${GITHUB_ENV}
+        DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
+        echo "DEVICE_TARGET=$DEVICE_TARGET" >> ${GITHUB_ENV}
+        echo "DEVICE_TARGET=$DEVICE_TARGET" >> ${GITHUB_OUTPUT}
+        DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
+        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> ${GITHUB_ENV}
+        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> ${GITHUB_OUTPUT}
+
+    - name: Cache Toolchain
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+        prefix: ${{ env.OPENWRT_PATH }}
+
+    - name: Compile the OpenWrt [${{ inputs.openwrt_board }}]
+      id: compile
+      run: |
+        cd ${OPENWRT_PATH}
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Organize Files
+      id: organize
+      if: ${{ steps.compile.outputs.status }} == 'success'
+      run: |
+        cd ${OPENWRT_PATH}
+        [[ -d "output/packages" ]] || mkdir -p  output/packages
+        mv -f bin/targets/*/*/*squashfs-sysupgrade.bin output
+        mv -f .config output/build-${{ inputs.source_branch }}-${{ inputs.openwrt_board }}.config
+        cd output
+        rm -rf $(ls | grep -v -E '(squashfs-sysupgrade\.bin|\.xz|\.config)$' | xargs) 2>/dev/null
+        for file in *.bin; do
+            new_name=$(echo "${file}" | sed "s/\(immortalwrt\|openwrt\)/${{ inputs.source_branch }}/g")
+            [ -f "${file}" ] && mv -f "${file}" "${new_name}"
+        done
+        # for file in *.bin; do [[ ! -d "${file}" ]] && sha256sum "${file}" >"${file}.sha256"; done
+        # cat *.sha256
+        cat ${OPENWRT_PATH}/bin/targets/*/*/sha256sums | grep "squashfs-sysupgrade.bin"
+        df -hT ${PWD}
+        ls -lh ${PWD}
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_ENV}
+        echo "OUTPUT_DATE=$(date +"%m.%d.%H%M")" >> ${GITHUB_OUTPUT}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
+        echo "OUTPUT_PATH=$PWD" >> ${GITHUB_OUTPUT}
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    - name: Upload OpenWrt To Release
+      if: ${{ steps.organize.outputs.status }} == 'success'
+      uses: ncipollo/release-action@main
+      with:
+        name: v${{ env.OUTPUT_DATE }}
+        artifacts: ${{ env.OUTPUT_PATH }}/*
+        tag: ${{ inputs.openwrt_target }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
+        replacesArtifacts: true
+        prerelease: true
+        body: |
+          > OpenWrt for ${{ inputs.openwrt_target }}
+          ### 📒 固件信息
+          - 🚀 自用版：专注上网，没有集成任何存储、下载、USB等相关插件
+          - 💻 平台架构: ${{ env.DEVICE_TARGET }}
+          - ⚽ 固件源码: [${{ env.SOURCE_REPO }}](${{ env.REPO_URL }})
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🌐 默认地址: ${{ inputs.openwrt_ip }}
+          - 🔑 默认密码: password
+          ### 🍻 安装与更新
+          - 系统-备份/升级-刷写新的固件([底包下载](https://firmware-selector.immortalwrt.org))
+          ### 🧊 固件版本
+          - 固件编译前最后一次➦[源码](${{ env.REPO_URL }})更新记录
+          - ${{ env.COMMIT_AUTHOR }}
+          - ${{ env.COMMIT_DATE }}
+          - ${{ env.COMMIT_MESSAGE }}
+          - ${{ env.COMMIT_HASH }}
+
+    - name: Delete releases and workflows runs
+      uses: ophub/delete-releases-workflows@main
+      with:
+        delete_releases: true
+        releases_keep_latest: 4
+        delete_workflows: true
+        workflows_keep_day: 2
+        gh_token: ${{ secrets.GITHUB_TOKEN }}
