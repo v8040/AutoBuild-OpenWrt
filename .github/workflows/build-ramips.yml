@@ -1,0 +1,38 @@
+name: 'Build OpenWrt for ramips'
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Select the source branch'
+        required: false
+        type: choice
+        options:
+         - immortalwrt
+         - lede
+        default: immortalwrt
+      openwrt_board:
+        description: 'Select device board'
+        required: false
+        type: choice
+        options:
+          - d2
+          - r1cl
+          - r1cm
+          - rm2100
+        default: d2
+      diy_config:
+        description: 'Load custom configuration'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  Caller:
+    if: github.event.repository.owner.id == github.event.sender.id
+    uses: ./.github/workflows/build.yml
+    with:
+      source_branch: ${{ inputs.source_branch }}
+      openwrt_target: ramips
+      openwrt_board: ${{ inputs.openwrt_board }}
+      diy_config: ${{ inputs.diy_config }}
