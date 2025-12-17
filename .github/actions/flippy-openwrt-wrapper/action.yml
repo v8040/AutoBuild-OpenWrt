@@ -1,0 +1,44 @@
+name: 'Flippy OpenWrt Wrapper'
+description: 'A wrapper to fix path issues in Reusable Workflows for ophub/flippy-openwrt-actions'
+
+runs:
+  using: composite
+  steps:
+    - name: 'Checkout Action Source'
+      uses: actions/checkout@main
+      with:
+        repository: ophub/flippy-openwrt-actions
+        ref: main
+        path: .actions/flippy_packit
+
+    - name: 'Initialize Environment'
+      shell: bash
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get -o Dpkg::Use-Pty=0 install -qqy --no-install-recommends curl git coreutils p7zip p7zip-full zip unzip gzip xz-utils pigz zstd jq tar qemu-utils
+        sudo rm -rf /opt
+        sudo mkdir -p /builder/opt
+        sudo ln -sfn /builder/opt /opt
+        sudo chown -R "$(id -u):$(id -g)" /builder/opt
+        sudo chmod -R u+rwx /builder/opt
+
+    - name: 'Run Flippy Script'
+      shell: bash
+      env:
+        FLIPPY_SCRIPT: .actions/flippy_packit/openwrt_flippy.sh
+      run: |
+        if [[ -f "${FLIPPY_SCRIPT}" ]]; then
+          chmod +x "${FLIPPY_SCRIPT}"
+          "${FLIPPY_SCRIPT}"
+        fi
+
+    - name: 'Post-Run Cleanup'
+      if: always()
+      shell: bash
+      run: |
+        if [[ -d '/builder/opt' ]]; then
+          sudo chown -R "$(id -u):$(id -g)" /builder/opt
+          sudo chmod -R u+rwx /builder/opt
+        fi
+        rm -rf .actions

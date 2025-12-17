@@ -1,0 +1,260 @@
+name: 'Build Core Template'
+
+on:
+  workflow_call:
+    inputs:
+      source_branch:
+        required: false
+        type: string
+      openwrt_target:
+        required: false
+        type: string
+      openwrt_board:
+        required: false
+        type: string
+      diy_config:
+        required: false
+        type: boolean
+        default: true
+      package_mode:
+        required: false
+        type: boolean
+      package_method:
+        required: false
+        type: string
+      package_board:
+        required: false
+        type: string
+      package_kernel:
+        required: false
+        type: string
+      package_auto_kernel:
+        required: false
+        type: boolean
+        default: true
+
+env:
+  FEEDS_CONF: ${{ github.workspace }}/feeds.conf.default
+  FILES_CONF: ${{ github.workspace }}/files
+  SCRIPT_PATH: ${{ github.workspace }}/scripts
+  DIY_SCRIPT: ${{ github.workspace }}/scripts/${{ inputs.source_branch }}.sh
+  COM_SCRIPT: ${{ github.workspace }}/scripts/common.sh
+  CONFIG_FILE: ${{ github.workspace }}/configs/${{ inputs.source_branch }}/${{ inputs.openwrt_board }}.config
+  SOURCE_BRANCH: ${{ inputs.source_branch }}
+  OPENWRT_BOARD: ${{ inputs.package_mode && 'package' || inputs.openwrt_board }}
+  OPENWRT_TARGET: ${{ inputs.openwrt_target }}
+  OPENWRT_IP: ${{ inputs.openwrt_target == 'armv8' && '10.10.10.1' || '10.10.11.1' }}
+  RELEASE_TAG: ${{ inputs.package_mode && 'package' || inputs.openwrt_target }}
+  RELEASE_LATEST: ${{ !inputs.package_mode && inputs.openwrt_target == 'armv8' && 'true' || 'false' }}
+  RELEASE_PRERE: ${{ (inputs.package_mode || inputs.openwrt_target != 'armv8') && 'true' || 'false' }}
+
+jobs:
+  Build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@main
+
+      - name: 'Initialization [${{ inputs.source_branch }}] [${{ env.OPENWRT_BOARD }}]'
+        id: init
+        uses: ./.github/actions/init-system
+        with:
+          package_mode: ${{ inputs.package_mode }}
+
+      - name: 'Clone Source Code'
+        id: clone
+        if: steps.init.outputs.status == 'success' && !inputs.package_mode
+        working-directory: /builder
+        run: |
+          case "${SOURCE_BRANCH}" in
+            'immortalwrt-mt798x')
+              REPO_URL='https://github.com/hanwckf/immortalwrt-mt798x'
+              REPO_BRANCH='openwrt-21.02' ;;
+            'immortalwrt')
+              REPO_URL='https://github.com/immortalwrt/immortalwrt'
+              REPO_BRANCH='master' ;;
+            'lede')
+              REPO_URL='https://github.com/coolsnowwolf/lede'
+              REPO_BRANCH='master' ;;
+          esac
+          git clone -q --branch="${REPO_BRANCH}" --single-branch --filter=blob:none "${REPO_URL}" openwrt
+          ln -sfn /builder/openwrt "${GITHUB_WORKSPACE}/openwrt"
+          ln -sfn /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> ${GITHUB_ENV}
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Cache Toolchain'
+        id: cache
+        if: steps.clone.outputs.status == 'success' && !inputs.package_mode
+        uses: stupidloud/cachewrtbuild@main
+        with:
+          mixkey: ${{ inputs.source_branch }}-${{ inputs.openwrt_target }}
+          prefix: ${{ env.OPENWRT_PATH }}
+
+      - name: 'Load Feeds'
+        id: feeds
+        if: steps.clone.outputs.status == 'success' && !inputs.package_mode
+        working-directory: ${{ env.OPENWRT_PATH }}
+        run: |
+          [[ -f "${FEEDS_CONF}" ]] && cp -f "${FEEDS_CONF}" feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Load Custom Configuration'
+        id: diy
+        if: inputs.diy_config && steps.feeds.outputs.status == 'success' && !inputs.package_mode
+        working-directory: ${{ env.OPENWRT_PATH }}
+        run: |
+          [[ -d "${FILES_CONF}" ]] && cp -rf "${FILES_CONF}" files
+          [[ -d package/lean ]] && cp -f "${SCRIPT_PATH}/init-settings.sh" 'package/lean/default-settings/files/zzz-default-settings'
+          [[ -d package/emortal ]] && cp -f "${SCRIPT_PATH}/init-settings.sh" 'package/emortal/default-settings/files/99-default-settings-chinese'
+          find "${SCRIPT_PATH}" -type f -name '*.sh' -exec chmod +x -- {} +
+          "${COM_SCRIPT}"
+          "${DIY_SCRIPT}"
+          case "${OPENWRT_TARGET}" in
+            'armv8')
+              "${SCRIPT_PATH}/preset-dnsproxy.sh" arm64
+              "${SCRIPT_PATH}/preset-clash-core.sh" arm64 smart ;;
+            # 'mediatek')
+            #   "${SCRIPT_PATH}/preset-dnsproxy.sh" arm64 ;;
+            # 'ramips')
+            #   "${SCRIPT_PATH}/preset-dnsproxy.sh" mipsle ;;
+          esac
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Download DL Package'
+        id: ddlp
+        if: steps.clone.outputs.status == 'success' && ( ! inputs.diy_config || steps.diy.outputs.status == 'success' ) && !inputs.package_mode
+        working-directory: ${{ env.OPENWRT_PATH }}
+        run: |
+          [[ -f "${CONFIG_FILE}" ]] && cp -f "${CONFIG_FILE}" .config
+          make defconfig
+          cp -f .config build.config
+          make download -j8 || make download -j1
+          find dl -size -1024c -type f -exec rm -fv -- {} +
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Compile Openwrt'
+        id: compile
+        if: steps.ddlp.outputs.status == 'success' && !inputs.package_mode
+        working-directory: ${{ env.OPENWRT_PATH }}
+        run: |
+          make -j$(($(nproc) + 1)) || make -j1 V=sc
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Organize Compiled Files'
+        id: orgcmp
+        if: steps.compile.outputs.status == 'success' && !inputs.package_mode
+        working-directory: ${{ env.OPENWRT_PATH }}
+        run: |
+          mkdir -p output
+          find bin/targets -type f -regextype posix-extended \
+            -regex '.*(rootfs\.tar\.gz|squashfs-sysupgrade\.(bin|img\.gz))' \
+            -exec cp -ft output -- {} +
+          cd output
+          for FILE in *rootfs.tar.gz *squashfs-sysupgrade.{bin,img.gz}; do
+            [[ -e "${FILE}" ]] || continue
+            NEW_NAME="$(echo "${FILE}" | sed "s/\(immortalwrt\|openwrt\)/${SOURCE_BRANCH}/g")"
+            [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
+          done
+          echo "OUTPUT_DATE=$(date +'%m.%d.%H%M')" >> ${GITHUB_ENV}
+          echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Download Firmware'
+        id: dofw
+        if: inputs.package_mode && steps.init.outputs.status == 'success'
+        working-directory: /builder
+        run: |
+          URL="$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${OPENWRT_TARGET}" | grep -o '"browser_download_url": "[^"]*'"${SOURCE_BRANCH}"'.*rootfs\.tar\.gz"' | cut -d '"' -f 4)"
+          OUTPUT_PATH='openwrt/output'
+          mkdir -p ${OUTPUT_PATH}
+          ln -sfn /builder/openwrt "${GITHUB_WORKSPACE}/openwrt"
+          ln -sfn /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
+          cd ${OUTPUT_PATH}
+          curl -fsSLO "${URL}" || wget -q "${URL}"
+          echo "OUTPUT_PATH=$PWD" >> ${GITHUB_ENV}
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Package Openwrt Firmware [flippy]'
+        if: inputs.package_method == 'flippy' && ( ( !inputs.package_mode && inputs.openwrt_board == 'rootfs' && steps.orgcmp.outputs.status == 'success' ) || ( inputs.package_mode && steps.dofw.outputs.status == 'success' ) )
+        # uses: ophub/flippy-openwrt-actions@main
+        uses: ./.github/actions/flippy-openwrt-wrapper
+        env:
+          OPENWRT_ARMSR: openwrt/output/*rootfs.tar.gz
+          PACKAGE_SOC: ${{ inputs.package_board }}
+          KERNEL_REPO_URL: ophub/kernel
+          KERNEL_VERSION_NAME: ${{ inputs.package_kernel }}
+          KERNEL_AUTO_LATEST: ${{ inputs.package_auto_kernel }}
+          WHOAMI: ${{ github.repository_owner }}
+
+      - name: 'Package Openwrt Firmware [ophub]'
+        if: inputs.package_method == 'ophub' && ( ( !inputs.package_mode && inputs.openwrt_board == 'rootfs' && steps.orgcmp.outputs.status == 'success' ) || ( inputs.package_mode && steps.dofw.outputs.status == 'success' ) )
+        uses: ophub/amlogic-s9xxx-openwrt@main
+        with:
+          openwrt_path: openwrt/output/*rootfs.tar.gz
+          openwrt_board: ${{ inputs.package_board }}
+          openwrt_kernel: ${{ inputs.package_kernel }}
+          auto_kernel: ${{ inputs.package_auto_kernel }}
+          builder_name: ${{ github.repository_owner }}
+          openwrt_ip: ${{ env.OPENWRT_IP }}
+
+      - name: 'Organize Packaged Files'
+        id: orgpkg
+        if: env.PACKAGED_OUTPUTPATH != '' && env.PACKAGED_STATUS == 'success'
+        working-directory: ${{ env.PACKAGED_OUTPUTPATH }}
+        run: |
+          find . -maxdepth 1 -mindepth 1 -regextype posix-extended ! -regex '.*\.(gz|xz|qcow2)' -exec rm -fv -- {} +
+          for FILE in *rootfs.tar.gz *squashfs-sysupgrade.{bin,img.gz}; do
+            [[ -e "${FILE}" ]] || continue
+            NEW_NAME="$(echo "${FILE}" | sed "s/\(immortalwrt\|openwrt\)/${SOURCE_BRANCH}/g")"
+            [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
+          done
+          for FILE in *.{gz,xz,qcow2}; do
+            [[ -e "${FILE}" ]] || continue
+            KERNEL="$(echo "${FILE}" | sed -n 's/.*_\(\(k6\|k5\)\.[0-9]\+\)\.[0-9]\+.*/\1+/p')"
+            NEW_NAME="$(echo "${FILE}" | sed -E "s/R[0-9]+\.[0-9]+\.[0-9]+//g; s/__/_/g; s/openwrt/${SOURCE_BRANCH}/g; s/_k.*(\.img\.gz|\.qcow2|\.img\.xz|\.xz)/_${KERNEL}\1/")"
+            [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
+          done
+          echo "OUTPUT_DATE=${PACKAGED_OUTPUTDATE}" >> ${GITHUB_ENV}
+          echo "OUTPUT_PATH=${PACKAGED_OUTPUTPATH}" >> ${GITHUB_ENV}
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: 'Upload Build Configuration'
+        if: (steps.orgcmp.outputs.status == 'success' || steps.orgpkg.outputs.status == 'success') && !inputs.package_mode
+        uses: actions/upload-artifact@main
+        with:
+          name: build-config-${{ inputs.source_branch }}-${{ inputs.openwrt_board }}
+          path: ${{ env.OPENWRT_PATH }}/build.config
+
+      - name: 'Upload Openwrt To Release'
+        if: steps.orgcmp.outputs.status == 'success' || steps.orgpkg.outputs.status == 'success'
+        uses: ncipollo/release-action@main
+        with:
+          name: v${{ env.OUTPUT_DATE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.RELEASE_TAG }}
+          allowUpdates: true
+          replacesArtifacts: ${{ !inputs.package_mode }}
+          removeArtifacts: ${{ inputs.package_mode }}
+          makeLatest: ${{ env.RELEASE_LATEST }}
+          prerelease: ${{ env.RELEASE_PRERE }}
+          artifacts: ${{ env.OUTPUT_PATH }}/*
+          body: |
+            ## OpenWrt for ${{ env.OPENWRT_TARGET }}
+            - Default IP: `${{ env.OPENWRT_IP }}`
+            - Default username: `root`
+            - Default password: `password`
+
+      - name: 'Delete Releases And Workflows Runs'
+        if: always()
+        uses: ophub/delete-releases-workflows@main
+        with:
+          delete_releases: true
+          releases_keep_latest: 5
+          delete_workflows: true
+          workflows_keep_day: 2
+          gh_token: ${{ secrets.GITHUB_TOKEN }}

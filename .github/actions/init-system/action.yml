@@ -1,0 +1,138 @@
+name: 'System Initialization'
+description: 'Initialize system environment with retry logic and optimized disk setup'
+
+inputs:
+  timezone:
+    description: 'System Timezone'
+    required: false
+    type: string
+    default: Asia/Shanghai
+  max_attempts:
+    description: 'Maximum retry attempts'
+    required: false
+    type: number
+    default: 3
+  timeout_minutes:
+    description: 'Timeout per attempt (minutes)'
+    required: false
+    type: number
+    default: 10
+  retry_wait_seconds:
+    description: 'Wait time between retries (seconds)'
+    required: false
+    type: number
+    default: 10
+  package_mode:
+    description: 'Skip dependency installation'
+    required: false
+    type: boolean
+    default: false
+
+outputs:
+  status:
+    description: 'Initialization status'
+    value: ${{ steps.init.outputs.status }}
+
+runs:
+  using: composite
+  steps:
+    - name: 'Run Initialization Logic'
+      id: init
+      shell: bash
+      env:
+        TZ: ${{ inputs.timezone }}
+        MAX_ATTEMPTS: ${{ inputs.max_attempts }}
+        TIMEOUT_MINS: ${{ inputs.timeout_minutes }}
+        WAIT_SEC: ${{ inputs.retry_wait_seconds }}
+        PACKAGE_MODE: ${{ inputs.package_mode }}
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        TIMEOUT_SEC=$((${TIMEOUT_MINS} * 60))
+        function step_pre_cleanup() {
+          echo "::group::Pre-installation Cleanup"
+          docker stop $(docker ps -q) 2>/dev/null || true
+          docker rmi -f $(docker images -q) 2>/dev/null || true
+          [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+          sudo rm -rf "$HOME/{.cargo,.dotnet,.rustup}"
+          sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+          sudo -E apt-get -o Dpkg::Use-Pty=0 purge -qqy azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          echo "::endgroup::"
+        }
+        function step_apt_install_core() {
+          sudo -E apt-get update -qq
+          sudo -E apt-get -o Dpkg::Use-Pty=0 install -qqy --no-install-recommends $(curl -fsSL https://ophub.org/ubuntu2404-make-openwrt-depends || cat "${GITHUB_WORKSPACE}/configs/depends")
+        }
+        function step_post_setup() {
+          echo "::group::Post-installation Setup"
+          sudo -E apt-get -o Dpkg::Use-Pty=0 autoremove --purge -qqy
+          sudo -E apt-get clean
+          sudo swapoff -a
+          sudo rm -f /swapfile /mnt/swapfile
+          sudo -E systemctl daemon-reload
+          sudo -E timedatectl set-timezone "${TZ}"
+          sudo -E timedatectl set-ntp true
+          timedatectl status
+          echo "::endgroup::"
+        }
+        function step_disk_setup() {
+          echo "::group::Disk Setup"
+          MNT_AVAIL="$(df -m /mnt | tail -n1 | awk '{print $4}')"
+          ROOT_AVAIL="$(df -m / | tail -n1 | awk '{print $4}')"
+          MNT_SIZE=$((MNT_AVAIL - 1024))
+          ROOT_SIZE=$((ROOT_AVAIL - 4096))
+          LOOP_DEVS=()
+          if [ "${MNT_SIZE}" -gt 512 ]; then
+            sudo truncate -s "${MNT_SIZE}M" /mnt/mnt.img
+            LOOP_DEV="$(sudo losetup --show -f /mnt/mnt.img)"
+            LOOP_DEVS+=("${LOOP_DEV}")
+          fi
+          if [ "${ROOT_SIZE}" -gt 512 ]; then
+            sudo truncate -s "${ROOT_SIZE}M" /root.img
+            LOOP_DEV="$(sudo losetup --show -f /root.img)"
+            LOOP_DEVS+=("${LOOP_DEV}")
+          fi
+          if [ "${#LOOP_DEVS[@]}" -gt 0 ]; then
+            sudo pvcreate -f "${LOOP_DEVS[@]}"
+            sudo vgcreate github "${LOOP_DEVS[@]}"
+            sudo lvcreate -n runner -l 100%FREE github
+            sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
+            sudo mkdir -p /builder
+            sudo mount /dev/github/runner /builder
+            sudo chown -R runner:runner /builder
+            df -Th /builder
+          else
+            echo "::warning::No sufficient disk space to expand."
+          fi
+          echo "::endgroup::"
+        }
+        export -f step_apt_install_core
+        export DEBIAN_FRONTEND
+        step_pre_cleanup
+        if [ "${PACKAGE_MODE}" == 'true' ]; then
+          echo "Package Mode enabled. Skipping dependency installation."
+        else
+          ATTEMPT_NUM=1
+          SUCCESS=false
+          while [ "${ATTEMPT_NUM}" -le "${MAX_ATTEMPTS}" ]; do
+            echo "::group::Dependency Installation - Attempt ${ATTEMPT_NUM}/${MAX_ATTEMPTS}"
+            if timeout "${TIMEOUT_SEC}s" bash -c step_apt_install_core; then
+              SUCCESS=true
+              echo "::endgroup::"
+              break
+            else
+              echo "::endgroup::"
+              if [ "${ATTEMPT_NUM}" -lt "${MAX_ATTEMPTS}" ]; then
+                sleep "${WAIT_SEC}"
+              fi
+              ATTEMPT_NUM=$((ATTEMPT_NUM + 1))
+            fi
+          done
+          if [ "${SUCCESS}" != 'true' ]; then
+            echo "::error::Installation failed after ${MAX_ATTEMPTS} attempts."
+            exit 1
+          fi
+        fi
+        step_post_setup
+        step_disk_setup
+        echo "status=success" >> ${GITHUB_OUTPUT}

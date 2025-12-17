@@ -1,0 +1,58 @@
+name: 'Package OpenWrt for armv8'
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Select the source branch'
+        required: false
+        type: choice
+        options:
+         - immortalwrt
+         - lede
+        default: lede
+      package_method:
+        description: 'Select package method'
+        required: false
+        type: choice
+        options:
+          - flippy
+          - ophub
+        default: flippy
+      package_board:
+        description: 'Select device board'
+        required: false
+        type: choice
+        options:
+          - all
+        default: all
+      package_kernel:
+        description: 'Select kernel version'
+        required: false
+        type: choice
+        options:
+          - 5.4.y
+          - 5.10.y
+          - 5.15.y
+          - 6.1.y
+          - 6.6.y
+          - 6.12.y
+        default: 6.12.y
+      package_auto_kernel:
+        description: 'Auto use the latest kernel'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  Caller:
+    if: github.event.repository.owner.id == github.event.sender.id
+    uses: ./.github/workflows/build.yml
+    with:
+      source_branch: ${{ inputs.source_branch }}
+      openwrt_target: armv8
+      package_mode: true
+      package_method: ${{ inputs.package_method }}
+      package_board: ${{ inputs.package_board }}
+      package_kernel: ${{ inputs.package_kernel }}
+      package_auto_kernel: ${{ inputs.package_auto_kernel }}
