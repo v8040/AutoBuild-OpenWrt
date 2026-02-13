@@ -91,6 +91,19 @@ rm_pkg() {
     warning "Failed to remove [${TARGET}]"
   fi
 }
+rm_dep() {
+  local TARGET_PATTERN="$1"
+  [ -z "${TARGET_PATTERN}" ] && return 1
+  local PERL_REGEX
+  PERL_REGEX=$(echo "${TARGET_PATTERN}" | sed 's/[^a-zA-Z0-9_*]/\\&/g; s/\*/\\S*/g')
+  REMOVE_REGEX="${PERL_REGEX}" find package feeds -type f -name 'Makefile' -exec perl -i -0777 -pe '
+    $p = $ENV{REMOVE_REGEX};
+    s/(\s)\+?$p/$1/g;
+    s/^\s*\\\s*\n//mg;
+    s/\\\s*\n(?=\s*(\n|$))/\n/g;
+    s/\n{3,}/\n\n/g;
+  ' {} +
+}
 sub_name() {
   local SEARCH_TEXT="$1" NEW_TEXT="$2"
   [[ -z "${SEARCH_TEXT}" ]] && return 1

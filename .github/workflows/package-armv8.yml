@@ -10,7 +10,7 @@ on:
         options:
          - immortalwrt
          - lede
-        default: lede
+        default: immortalwrt
       package_method:
         description: 'Select package method'
         required: false
@@ -18,7 +18,7 @@ on:
         options:
           - flippy
           - ophub
-        default: flippy
+        default: ophub
       package_board:
         description: 'Select device board'
         required: false
@@ -37,7 +37,8 @@ on:
           - 6.1.y
           - 6.6.y
           - 6.12.y
-        default: 6.12.y
+          - 6.18.y
+        default: 6.18.y
       package_auto_kernel:
         description: 'Auto use the latest kernel'
         required: false
