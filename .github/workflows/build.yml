@@ -153,10 +153,10 @@ jobs:
         run: |
           mkdir -p output
           find bin/targets -type f -regextype posix-extended \
-            -regex '.*(rootfs\.tar\.gz|(squashfs-sysupgrade|initramfs-kernel)\.(bin|img\.gz))' \
+            -regex '.*(rootfs\.tar\.gz|\.(bin|img\.gz))' \
             -exec cp -ft output -- {} +
           cd output
-          for FILE in *rootfs.tar.gz *{squashfs-sysupgrade,initramfs-kernel}.{bin,img.gz}; do
+          for FILE in *rootfs.tar.gz *.{bin,img.gz}; do
             [[ -e "${FILE}" ]] || continue
             NEW_NAME="$(echo "${FILE}" | sed "s/\(immortalwrt\|openwrt\)/${SOURCE_BRANCH}/g")"
             [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
@@ -209,7 +209,7 @@ jobs:
         working-directory: ${{ env.PACKAGED_OUTPUTPATH }}
         run: |
           find . -maxdepth 1 -mindepth 1 -regextype posix-extended ! -regex '.*\.(gz|xz|qcow2)' -exec rm -fv -- {} +
-          for FILE in *rootfs.tar.gz *{squashfs-sysupgrade,initramfs-kernel}.{bin,img.gz}; do
+          for FILE in *rootfs.tar.gz *.{bin,img.gz}; do
             [[ -e "${FILE}" ]] || continue
             NEW_NAME="$(echo "${FILE}" | sed "s/\(immortalwrt\|openwrt\)/${SOURCE_BRANCH}/g")"
             [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
