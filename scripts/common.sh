@@ -7,10 +7,10 @@ success "[${0##*/}] init"
 rm_pkg '*adguardhome'
 rm_pkg '*amlogic'
 rm_pkg '*argon-config'
+rm_pkg '*attendedsysupgrade*'
 rm_pkg '*bypass'
 rm_pkg '*ddns-go'
 rm_pkg '*ddnsto'
-rm_pkg '*dockerman'
 rm_pkg '*mosdns'
 rm_pkg '*nlbwmon*'
 rm_pkg '*onliner'
@@ -27,6 +27,8 @@ rm_pkg '*v2ray*'
 rm_pkg '*xray*'
 rm_pkg 'dnsproxy'
 
+rm_dep '*attendedsysupgrade*'
+
 # Add packages
 git clone -q --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
 git clone -q --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
@@ -39,7 +41,6 @@ sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
 sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
-sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-dockerman
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
 sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
 sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
@@ -58,13 +59,10 @@ sed -i '/hotplug.d/d; /uci-defaults/d' feeds/packages/net/samba4/Makefile
 
 # Modify bash configuration
 echo "HISTFILE='/dev/null'" >> feeds/packages/utils/bash/files/etc/bash.bashrc
+rm -f package/base-files/files/etc/profile.d/apk-cheatsheet.sh
 
 # Modify ttyd auto login
 sed -i 's|/bin/login|/usr/libexec/login.sh|g' feeds/packages/utils/ttyd/files/ttyd.config
-
-# Modify amlogic
-sed -i "s|amlogic_firmware_repo.*|amlogic_firmware_repo 'https://github.com/v8040/AutoBuild-OpenWrt'|g" package/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|amlogic_kernel_path.*|amlogic_kernel_path 'https://github.com/ophub/kernel'|g" package/luci-app-amlogic/root/etc/config/amlogic
 
 # Adjust menu
 sed -i 's|admin/network|admin/control|g' feeds/luci/applications/luci-app-sqm/root/usr/share/luci/menu.d/*.json

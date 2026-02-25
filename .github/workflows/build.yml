@@ -128,6 +128,7 @@ jobs:
       - name: 'Download DL Package'
         id: ddlp
         if: steps.clone.outputs.status == 'success' && ( ! inputs.diy_config || steps.diy.outputs.status == 'success' ) && !inputs.package_mode
+        timeout-minutes: 10
         working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           [[ -f "${CONFIG_FILE}" ]] && cp -f "${CONFIG_FILE}" .config

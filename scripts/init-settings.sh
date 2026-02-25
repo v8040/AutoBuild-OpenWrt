@@ -27,4 +27,8 @@ echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
 rm -rf /tmp/luci-modulecache
 rm -rf /tmp/luci-indexcache
 
+chown -R root:root /etc/dropbear
+chmod 700 /etc/dropbear
+chmod 600 /etc/dropbear/*
+
 exit 0
