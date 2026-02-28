@@ -123,6 +123,16 @@ jobs:
             # 'ramips')
             #   "${SCRIPT_PATH}/preset-dnsproxy.sh" mipsle ;;
           esac
+          case "${SOURCE_BRANCH}" in
+            'immortalwrt-mt798x'|'lede')
+              case "${OPENWRT_TARGET}" in
+                'armv8'|'mediatek')
+                  "${SCRIPT_PATH}/preset-smartdns.sh" aarch64 ;;
+                'ramips')
+                  "${SCRIPT_PATH}/preset-smartdns.sh" mipsel ;;
+              esac
+              ;;
+          esac
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       - name: 'Download DL Package'

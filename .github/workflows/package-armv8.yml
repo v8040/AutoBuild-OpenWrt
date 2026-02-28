@@ -47,6 +47,7 @@ on:
 
 jobs:
   Caller:
+    name: 'Package for ${{ inputs.source_branch }}-${{ inputs.package_board }}'
     if: github.event.repository.owner.id == github.event.sender.id
     uses: ./.github/workflows/build.yml
     with:
