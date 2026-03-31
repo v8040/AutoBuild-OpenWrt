@@ -59,6 +59,7 @@ on:
 
 jobs:
   Caller:
+    name: 'Build for ${{ inputs.source_branch }}-${{ inputs.openwrt_board }}'
     if: github.event.repository.owner.id == github.event.sender.id
     uses: ./.github/workflows/build.yml
     with:

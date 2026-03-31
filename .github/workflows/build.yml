@@ -115,13 +115,10 @@ jobs:
           "${COM_SCRIPT}"
           "${DIY_SCRIPT}"
           case "${OPENWRT_TARGET}" in
-            'armv8')
-              "${SCRIPT_PATH}/preset-dnsproxy.sh" arm64
-              "${SCRIPT_PATH}/preset-clash-core.sh" arm64 smart ;;
-            # 'mediatek')
-            #   "${SCRIPT_PATH}/preset-dnsproxy.sh" arm64 ;;
-            # 'ramips')
-            #   "${SCRIPT_PATH}/preset-dnsproxy.sh" mipsle ;;
+            'armv8'|'mediatek')
+              "${SCRIPT_PATH}/preset-smartdns.sh" aarch64 ;;
+            'ramips')
+              "${SCRIPT_PATH}/preset-smartdns.sh" mipsel ;;
           esac
           echo "status=success" >> ${GITHUB_OUTPUT}
 

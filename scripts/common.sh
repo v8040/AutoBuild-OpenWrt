@@ -36,10 +36,10 @@ git clone -q --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/mosd
 git clone -q --depth=1 https://github.com/sbwml/v2ray-geodata.git package/v2ray-geodata
 git clone -q --depth=1 https://github.com/zzsj0928/luci-app-pushbot.git package/luci-app-pushbot
 
-sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-control-timewol
-sparse_clone main https://github.com/kiddin9/kwrt-packages.git luci-app-onliner
 sparse_clone main https://github.com/linkease/nas-packages-luci.git luci/luci-app-ddnsto
 sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
+sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-control-timewol
+sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-onliner
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
 sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
