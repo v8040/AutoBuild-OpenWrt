@@ -20,6 +20,7 @@ rm_pkg '*pushbot'
 rm_pkg '*qbittorrent*'
 rm_pkg '*shadowsocks*'
 rm_pkg '*ssr*'
+rm_pkg '*tailscale*'
 rm_pkg '*theme-argon'
 rm_pkg '*transmission*'
 rm_pkg '*trojan*'
@@ -41,13 +42,19 @@ sparse_clone main https://github.com/ophub/luci-app-amlogic.git luci-app-amlogic
 sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-control-timewol
 sparse_clone main https://github.com/v8040/openwrt-packages.git luci-app-onliner
 sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-ddns-go
+sparse_clone master https://github.com/immortalwrt/luci.git applications/luci-app-tailscale-community
 sparse_clone master https://github.com/immortalwrt/packages.git net/ddns-go
+sparse_clone master https://github.com/immortalwrt/packages.git net/tailscale
 sparse_clone master https://github.com/linkease/nas-packages.git network/services/ddnsto
 sparse_clone master https://github.com/vernesong/OpenClash.git luci-app-openclash
 
 # Requires golang latest version
 rm -rf feeds/packages/lang/golang
 git clone -q --depth=1 https://github.com/sbwml/packages_lang_golang.git feeds/packages/lang/golang
+
+TS_TAGS="ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_completion,ts_omit_kube,ts_omit_systray,ts_omit_taildrop,ts_omit_tap,ts_omit_tpm,ts_omit_relayserver,ts_omit_capture,ts_omit_syspolicy,ts_omit_debugeventbus,ts_omit_webclient"
+sed -i "s/^\(GO_PKG_TAGS:=\).*/\1${TS_TAGS}/" package/tailscale/Makefile
+sed -i 's/^\(LUCI_DEPENDS:=+mosdns\)[[:space:]]*.*/\1/' package/mosdns/luci-app-mosdns/Makefile
 
 # Change default theme background
 [[ -f "${GITHUB_WORKSPACE}/images/bg1.jpg" ]] && cp -f "${GITHUB_WORKSPACE}/images/bg1.jpg" package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
@@ -71,6 +78,7 @@ sed -i 's|admin/services|admin/nas|g' feeds/luci/applications/luci-app-ksmbd/roo
 sed -i 's|admin/services|admin/nas|g' feeds/luci/applications/luci-app-minidlna/root/usr/share/luci/menu.d/*.json
 sed -i 's|admin/services|admin/nas|g' feeds/luci/applications/luci-app-samba4/root/usr/share/luci/menu.d/*.json
 sed -i 's|admin/services|admin/system|g' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/*.json
+sed -i 's|admin/services|admin/vpn|g' package/luci-app-tailscale-community/root/usr/share/luci/menu.d/*.json
 sed -i 's|"admin", "services"|"admin", "vpn"|g' package/luci-app-openclash/luasrc/controller/*.lua
 sed -i 's|"admin", "services"|"admin", "vpn"|g' package/luci-app-openclash/luasrc/model/cbi/openclash/*.lua
 sed -i 's|"admin", "services"|"admin", "vpn"|g' package/luci-app-openclash/luasrc/view/openclash/*.htm

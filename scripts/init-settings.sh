@@ -31,4 +31,12 @@ chown -R root:root /etc/dropbear
 chmod 700 /etc/dropbear
 chmod 600 /etc/dropbear/*
 
+sed -i '/^exit 0/i\
+chown -R root:root /etc/dropbear\
+chmod 700 /etc/dropbear\
+chmod 600 /etc/dropbear/*\' /etc/rc.local
+
+/etc/init.d/tailscale disable
+/etc/init.d/tailscale-settings disable
+
 exit 0
