@@ -1,0 +1,141 @@
+fragments_dir: fragments
+
+fragments:
+  common:
+    file: common.conf
+    desc: "Shared tail block for all builds"
+  router-base:
+    file: router-base.conf
+    desc: "Router rootfs, wpad, USB"
+  apps-full:
+    file: apps-full.conf
+    desc: "Full-featured LUCI apps"
+  apps-light:
+    file: apps-light.conf
+    desc: "Medium LUCI apps"
+  apps-nano:
+    file: apps-nano.conf
+    desc: "Minimal LUCI apps for low-memory devices"
+  rootfs-base:
+    file: rootfs-base.conf
+    desc: "RootFS partition scheme and wireless drivers"
+  mt798x:
+    file: mt798x.conf
+    desc: "MT798x driver and property configs"
+
+branches:
+  immortalwrt:
+    repo: immortalwrt/immortalwrt
+    repo_branch: master
+    config:
+      - CONFIG_PACKAGE_luci-app-sqm=n
+      - CONFIG_PACKAGE_luci-app-turboacc=y
+    target_map:
+      armsr: armv8
+      ramips: ramips
+      mediatek: mediatek
+  lede:
+    repo: coolsnowwolf/lede
+    repo_branch: master
+    config:
+      - CONFIG_PACKAGE_luci-app-sqm=y
+      - CONFIG_PACKAGE_luci-app-turboacc=y
+    target_map:
+      armsr: armv8
+      ramips: ramips
+      mediatek: mediatek
+  immortalwrt-mt798x:
+    repo: hanwckf/immortalwrt-mt798x
+    repo_branch: openwrt-21.02
+    config: null
+    target_map:
+      mediatek: mediatek
+
+devices:
+  rootfs:
+    inherits:
+      - common
+      - rootfs-base
+      - apps-full
+    config: devices/rootfs.conf
+    branch_overrides:
+      immortalwrt:
+        - CONFIG_PACKAGE_autocore=y
+        - CONFIG_PACKAGE_luci-app-podman=y
+        - CONFIG_PACKAGE_luci-app-lxc=y
+      lede:
+        - CONFIG_PACKAGE_autocore-arm=y
+        - CONFIG_PACKAGE_luci-app-dockerman=y
+        - CONFIG_PACKAGE_luci-app-lxc=y
+
+  ax3000t:
+    inherits:
+      - common
+      - router-base
+      - apps-light
+    config: devices/ax3000t.conf
+    branch_overrides:
+      immortalwrt:
+        - CONFIG_PACKAGE_autocore=y
+      lede:
+        - CONFIG_PACKAGE_autocore-arm=y
+
+  ax3000t-mt798x:
+    inherits:
+      - common
+      - router-base
+      - apps-light
+      - mt798x
+    config: devices/ax3000t-mt798x.conf
+    board: ax3000t
+    branch_overrides:
+      immortalwrt-mt798x:
+        - CONFIG_PACKAGE_autocore-arm=y
+        - CONFIG_PACKAGE_luci-app-sqm=n
+        - CONFIG_PACKAGE_luci-app-turboacc=n
+
+  rm2100:
+    inherits:
+      - common
+      - router-base
+      - apps-light
+    config: devices/rm2100.conf
+
+  d2:
+    inherits:
+      - common
+      - router-base
+      - apps-light
+    config: devices/d2.conf
+
+  r1cm:
+    inherits:
+      - common
+      - router-base
+      - apps-nano
+    config: devices/r1cm.conf
+
+  r1cl:
+    inherits:
+      - common
+      - router-base
+      - apps-nano
+    config: devices/r1cl.conf
+
+matrix:
+  immortalwrt:
+    - rootfs
+    - ax3000t
+    - rm2100
+    - d2
+    - r1cm
+    - r1cl
+  lede:
+    - rootfs
+    - ax3000t
+    - rm2100
+    - d2
+    - r1cm
+    - r1cl
+  immortalwrt-mt798x:
+    - ax3000t-mt798x

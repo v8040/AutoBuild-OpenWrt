@@ -1,0 +1,135 @@
+name: "Package Armbian"
+
+on:
+  workflow_dispatch:
+    inputs:
+      armbian_board:
+        description: "Select device board"
+        required: false
+        type: choice
+        options:
+          - all
+          - h28k_s905d
+        default: all
+      armbian_kernel:
+        description: "Select kernel version"
+        required: false
+        type: choice
+        options:
+          - 6.1.y
+          - 6.6.y
+          - 6.12.y
+          - 6.18.y
+        default: 6.18.y
+      auto_kernel:
+        description: "Auto use the latest kernel"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  Package:
+    name: "Package [armbian]"
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@main
+
+      - name: "Init"
+        id: init
+        uses: ./.github/actions/init-system
+        with:
+          depends_file: configs/armbian-depends
+
+      - name: "Prepare"
+        id: pre
+        working-directory: /builder
+        run: |
+          ARMBIAN_SITE='https://armbian.tnahosting.net/dl/odroidn2/archive'
+          LISTING=$(curl -sSL "${ARMBIAN_SITE}")
+          MINIMAL=$(echo "${LISTING}" | grep -oE 'Armbian_[^"]+_minimal\.img\.xz')
+          DESKTOP_PREFIXES=$(echo "${LISTING}" \
+            | grep -oE 'Armbian_[^"]+_[^_]+_desktop\.img\.xz' \
+            | sed -E 's/_[^_]+_desktop\.img\.xz$//' \
+            | sort -u)
+          ARMBIAN_FILE=$(echo "${MINIMAL}" \
+            | while IFS= read -r FILE; do
+                PREFIX="${FILE%_minimal.img.xz}"
+                if ! printf '%s\n' "${DESKTOP_PREFIXES}" | grep -qx -- "${PREFIX}"; then
+                  printf '%s\n' "${FILE}"
+                fi
+              done \
+            | sort -rV | head -n 1)
+          if [[ -n "${ARMBIAN_FILE}" ]]; then
+              ARMBIAN_URL="${ARMBIAN_SITE}/${ARMBIAN_FILE}"
+              echo "Found the latest Debian Minimal image: ${ARMBIAN_FILE}"
+          else
+              echo "Error: No valid Armbian Debian Minimal image found at: [ ${ARMBIAN_SITE} ]"
+              exit 1
+          fi
+          mkdir -p /builder/build
+          ln -sf /builder/build "${GITHUB_WORKSPACE}/build"
+          ln -sf /builder/build "/home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/build"
+          echo "ARMBIAN_URL=${ARMBIAN_URL}" >> "${GITHUB_ENV}"
+          echo 'status=success' >> "${GITHUB_OUTPUT}"
+
+      - name: "Rebuild"
+        uses: ophub/amlogic-s9xxx-armbian@main
+        if: env.ARMBIAN_URL != '' && steps.pre.outputs.status == 'success'
+        with:
+          build_target: armbian
+          armbian_path: ${{ env.ARMBIAN_URL }}
+          armbian_board: ${{ inputs.armbian_board }}
+          armbian_kernel: ${{ inputs.armbian_kernel }}
+          auto_kernel: ${{ inputs.auto_kernel }}
+          builder_name: ${{ github.repository_owner }}
+
+      - name: "Organize Package"
+        id: orgpkg
+        if: env.PACKAGED_OUTPUTPATH != '' && env.PACKAGED_STATUS == 'success'
+        working-directory: ${{ env.PACKAGED_OUTPUTPATH }}
+        run: |
+          find . -maxdepth 1 -mindepth 1 -regextype posix-extended ! -regex '.*\.img\.gz' -exec rm -fv -- {} +
+          for FILE in *.img.gz; do
+            [[ -e "${FILE}" ]] || continue
+            KERNEL=""
+            if [[ "${FILE}" =~ _([0-9]+)\.([0-9]+)\.[0-9]+_server ]]; then
+                KERNEL="k${BASH_REMATCH[1]}.${BASH_REMATCH[2]}+"
+            fi
+            NEW_NAME="$(echo "${FILE}" | sed -E "s/^Armbian_[0-9.]+_([^_]+)_([^_]+)_[^_]+_[0-9]+\.[0-9]+\.[0-9]+_server_.*(\.img\.gz)/Armbian_\1_\2_${KERNEL}\3/")"
+            [[ "${FILE}" != "${NEW_NAME}" ]] && mv -f -- "${FILE}" "${NEW_NAME}"
+          done
+          echo "OUTPUT_DATE=${PACKAGED_OUTPUTDATE}" >> "${GITHUB_ENV}"
+          echo "OUTPUT_PATH=${PACKAGED_OUTPUTPATH}" >> "${GITHUB_ENV}"
+          echo 'status=success' >> "${GITHUB_OUTPUT}"
+
+      - name: "Upload Release"
+        if: steps.orgpkg.outputs.status == 'success'
+        # uses: ncipollo/release-action@main
+        uses: ./.github/actions/release
+        with:
+          name: v${{ env.OUTPUT_DATE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: armbian
+          allowUpdates: true
+          removeArtifacts: true
+          prerelease: true
+          artifacts: ${{ env.OUTPUT_PATH }}/*
+          body: |
+            ### Armbian Information
+            - Default username: `root`
+            - Default password: `1234`
+            - Install command: `armbian-install`
+            - Update command: `armbian-update`
+
+      - name: "Cleanup"
+        if: always()
+        uses: ophub/delete-releases-workflows@main
+        with:
+          delete_releases: true
+          releases_keep_latest: 5
+          delete_workflows: true
+          workflows_keep_day: 2
+          gh_token: ${{ secrets.GITHUB_TOKEN }}

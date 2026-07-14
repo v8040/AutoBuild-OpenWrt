@@ -1,0 +1,157 @@
+name: "Release Management"
+description: "Create or update GitHub releases with artifact upload and retry logic"
+
+inputs:
+  name:
+    required: true
+  token:
+    required: true
+  tag:
+    required: true
+  artifacts:
+    required: true
+  body:
+    required: false
+    default: ""
+  allowUpdates:
+    required: false
+    default: "true"
+  replacesArtifacts:
+    required: false
+    default: "true"
+  removeArtifacts:
+    required: false
+    default: "false"
+  makeLatest:
+    required: false
+    default: "true"
+  prerelease:
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Release"
+      id: release
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        RELEASE_NAME: ${{ inputs.name }}
+        RELEASE_TAG: ${{ inputs.tag }}
+        ALLOW_UPDATES: ${{ inputs.allowUpdates }}
+        REPLACES_ARTIFACTS: ${{ inputs.replacesArtifacts }}
+        REMOVE_ARTIFACTS: ${{ inputs.removeArtifacts }}
+        MAKE_LATEST: ${{ inputs.makeLatest }}
+        PRERELEASE: ${{ inputs.prerelease }}
+        ARTIFACTS: ${{ inputs.artifacts }}
+        RELEASE_BODY: ${{ inputs.body }}
+      run: |
+        NOTES_FILE=$(mktemp)
+        trap 'rm -f "${NOTES_FILE}"' EXIT
+
+        printf '%s\n' "${RELEASE_BODY}" > "${NOTES_FILE}"
+
+        ACTUAL_MAKE_LATEST="${MAKE_LATEST}"
+        if [[ "${PRERELEASE}" == 'true' ]]; then
+          ACTUAL_MAKE_LATEST='false'
+        fi
+
+        EXTRA_ARGS=()
+        case "${ACTUAL_MAKE_LATEST}" in
+          true)   EXTRA_ARGS+=('--latest') ;;
+          false)  EXTRA_ARGS+=('--latest=false') ;;
+          legacy) ;;
+        esac
+
+        if [[ "${PRERELEASE}" == 'true' ]]; then
+          EXTRA_ARGS+=('--prerelease')
+        fi
+
+        echo '::group::Create or Update Release'
+        if gh release view "${RELEASE_TAG}" &>/dev/null; then
+          if [[ "${ALLOW_UPDATES}" != 'true' ]]; then
+            echo "::error::Release '${RELEASE_TAG}' already exists and allowUpdates is false"
+            exit 1
+          fi
+          EDIT_ARGS=("${EXTRA_ARGS[@]}")
+          if [[ "${PRERELEASE}" != 'true' ]]; then
+            EDIT_ARGS+=('--prerelease=false')
+          fi
+          gh release edit "${RELEASE_TAG}" \
+            --title "${RELEASE_NAME}" \
+            --notes-file "${NOTES_FILE}" \
+            "${EDIT_ARGS[@]}"
+        else
+          gh release create "${RELEASE_TAG}" \
+            --title "${RELEASE_NAME}" \
+            --notes-file "${NOTES_FILE}" \
+            "${EXTRA_ARGS[@]}"
+        fi
+        echo '::endgroup::'
+
+        if [[ "${REMOVE_ARTIFACTS}" == 'true' ]]; then
+          ASSETS_TO_DELETE=()
+          while IFS= read -r ASSET; do
+            if [[ -n "${ASSET}" ]]; then
+              ASSETS_TO_DELETE+=("${ASSET}")
+            fi
+          done < <(gh release view "${RELEASE_TAG}" --json assets --jq '.assets[].name' 2>/dev/null || true)
+
+          if [[ ${#ASSETS_TO_DELETE[@]} -gt 0 ]]; then
+            echo '::group::Remove Existing Artifacts'
+            echo "Found ${#ASSETS_TO_DELETE[@]} asset(s) to remove."
+            for ASSET in "${ASSETS_TO_DELETE[@]}"; do
+              echo "  - Deleting asset: ${ASSET}"
+              gh release delete-asset "${RELEASE_TAG}" "${ASSET}" -y &>/dev/null || true
+            done
+            echo '::endgroup::'
+          fi
+        fi
+
+        echo '::group::Upload Artifacts'
+
+        OLD_IFS="${IFS}"
+        IFS=$'\n'
+        shopt -s nullglob
+        FILES_TO_UPLOAD=()
+        for PATTERN in ${ARTIFACTS}; do
+          MATCHES=( ${PATTERN} )
+          for FILE in "${MATCHES[@]}"; do
+            if [[ -f "${FILE}" ]]; then
+              FILES_TO_UPLOAD+=("${FILE}")
+            fi
+          done
+        done
+        IFS="${OLD_IFS}"
+
+        if [[ ${#FILES_TO_UPLOAD[@]} -eq 0 ]]; then
+          echo '::warning::No matching artifacts found to upload.'
+        else
+          echo "Found ${#FILES_TO_UPLOAD[@]} asset(s) matching the criteria:"
+          for FILE in "${FILES_TO_UPLOAD[@]}"; do
+            echo "  - ${FILE}"
+          done
+
+          UPLOAD_ARGS=()
+          if [[ "${REPLACES_ARTIFACTS}" == 'true' ]]; then
+            UPLOAD_ARGS+=('--clobber')
+          fi
+
+          RETRY=3
+          while [[ "${RETRY}" -gt 0 ]]; do
+            if gh release upload "${RELEASE_TAG}" "${FILES_TO_UPLOAD[@]}" "${UPLOAD_ARGS[@]}"; then
+              break
+            fi
+            RETRY=$((RETRY - 1))
+            if [[ "${RETRY}" -gt 0 ]]; then
+              echo "Upload failed, retrying in 5 seconds... (${RETRY} retries left)"
+              sleep 5
+            fi
+          done
+          if [[ "${RETRY}" -eq 0 ]]; then
+            echo '::error::Upload failed after 3 attempts'
+            exit 1
+          fi
+        fi
+        echo '::endgroup::'

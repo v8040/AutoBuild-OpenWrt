@@ -1,0 +1,84 @@
+name: "Build OpenWrt"
+
+on:
+  workflow_dispatch:
+    inputs:
+      diy_config:
+        description: "Load custom configuration"
+        required: false
+        type: boolean
+        default: true
+      package_method:
+        description: "Select package method"
+        required: false
+        type: choice
+        options:
+          - flippy
+          - ophub
+        default: ophub
+      package_board:
+        description: "Select device board"
+        required: false
+        type: choice
+        options:
+          - h28k_s905d
+        default: h28k_s905d
+      package_kernel:
+        description: "Select kernel version"
+        required: false
+        type: choice
+        options:
+          - 5.4.y
+          - 5.10.y
+          - 5.15.y
+          - 6.1.y
+          - 6.6.y
+          - 6.12.y
+          - 6.18.y
+        default: 6.18.y
+      package_auto_kernel:
+        description: "Auto use the latest kernel"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  Discover:
+    runs-on: ubuntu-24.04
+    if: github.event.repository.owner.id == github.event.sender.id
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@main
+
+      - name: "Init"
+        id: init
+        run: |
+          sudo -E timedatectl set-timezone 'Asia/Shanghai'
+          sudo -E timedatectl set-ntp true
+          timedatectl status
+
+      - name: "Matrix"
+        id: discover
+        run: |
+          MATRIX=$(python3 scripts/discover-builds.py configs/manifest.yaml)
+          echo "matrix=${MATRIX}" >> "${GITHUB_OUTPUT}"
+
+  Caller:
+    needs: Discover
+    if: github.event.repository.owner.id == github.event.sender.id
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.Discover.outputs.matrix) }}
+
+    uses: ./.github/workflows/build.yml
+    with:
+      source_branch: ${{ matrix.source_branch }}
+      openwrt_target: ${{ matrix.target }}
+      openwrt_board: ${{ matrix.board }}
+      diy_config: ${{ inputs.diy_config }}
+      package_method: ${{ inputs.package_method }}
+      package_board: ${{ inputs.package_board }}
+      package_kernel: ${{ inputs.package_kernel }}
+      package_auto_kernel: ${{ inputs.package_auto_kernel }}
