@@ -19,6 +19,14 @@ inputs:
     default: "false"
   depends_file:
     required: true
+  min_builder_mb:
+    description: "Target /builder size in MiB before borrowing space from /"
+    required: false
+    default: "40960"
+  root_reserve_mb:
+    description: "Root filesystem space to keep free in MiB when borrowing"
+    required: false
+    default: "16384"
 
 outputs:
   status:
@@ -37,6 +45,8 @@ runs:
         WAIT_SEC: ${{ inputs.retry_wait_seconds }}
         PACKAGE_MODE: ${{ inputs.package_mode }}
         DEPENDS_FILE: ${{ inputs.depends_file }}
+        MIN_BUILDER_MB: ${{ inputs.min_builder_mb }}
+        ROOT_RESERVE_MB: ${{ inputs.root_reserve_mb }}
         DEBIAN_FRONTEND: noninteractive
       run: |
         TIMEOUT_SEC=$((${TIMEOUT_MINS} * 60))
@@ -72,17 +82,19 @@ runs:
           MNT_AVAIL="$(df -m /mnt | tail -n1 | awk '{print $4}')"
           ROOT_AVAIL="$(df -m / | tail -n1 | awk '{print $4}')"
           MNT_SIZE=$((MNT_AVAIL - 1024))
-          ROOT_SIZE=$((ROOT_AVAIL - 4096))
           LOOP_DEVS=()
-          if [[ "${MNT_SIZE}" -gt 512 ]]; then
+          MNT_IMG_SIZE=0
+          if [[ "$(stat -c '%d' /)" != "$(stat -c '%d' /mnt)" && "${MNT_SIZE}" -gt 512 ]]; then
             sudo truncate -s "${MNT_SIZE}M" /mnt/mnt.img
-            LOOP_DEV="$(sudo losetup --show -f /mnt/mnt.img)"
-            LOOP_DEVS+=("${LOOP_DEV}")
+            LOOP_DEVS+=("$(sudo losetup --show -f /mnt/mnt.img)")
+            MNT_IMG_SIZE="${MNT_SIZE}"
           fi
-          if [[ "${ROOT_SIZE}" -gt 512 ]]; then
-            sudo truncate -s "${ROOT_SIZE}M" /root.img
-            LOOP_DEV="$(sudo losetup --show -f /root.img)"
-            LOOP_DEVS+=("${LOOP_DEV}")
+          if [[ "${MNT_IMG_SIZE}" -lt "${MIN_BUILDER_MB}" ]]; then
+            ROOT_SIZE=$((ROOT_AVAIL - ROOT_RESERVE_MB))
+            if [[ "${ROOT_SIZE}" -gt 512 ]]; then
+              sudo truncate -s "${ROOT_SIZE}M" /root.img
+              LOOP_DEVS+=("$(sudo losetup --show -f /root.img)")
+            fi
           fi
           if [[ "${#LOOP_DEVS[@]}" -gt 0 ]]; then
             sudo pvcreate -f "${LOOP_DEVS[@]}"

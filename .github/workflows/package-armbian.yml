@@ -42,6 +42,7 @@ jobs:
         uses: ./.github/actions/init-system
         with:
           depends_file: configs/armbian-depends
+          min_builder_mb: "102400"
 
       - name: "Prepare"
         id: pre
@@ -70,8 +71,11 @@ jobs:
               exit 1
           fi
           mkdir -p /builder/build
-          ln -sf /builder/build "${GITHUB_WORKSPACE}/build"
-          ln -sf /builder/build "/home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/build"
+          ln -sfn /builder/build "${GITHUB_WORKSPACE}/build"
+          ACTION_DIR='/home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main'
+          ln -sfn /builder/build "${ACTION_DIR}/build"
+          mv "${ACTION_DIR}/build-armbian" /builder/build-armbian
+          ln -sfn /builder/build-armbian "${ACTION_DIR}/build-armbian"
           echo "ARMBIAN_URL=${ARMBIAN_URL}" >> "${GITHUB_ENV}"
           echo 'status=success' >> "${GITHUB_OUTPUT}"
 
